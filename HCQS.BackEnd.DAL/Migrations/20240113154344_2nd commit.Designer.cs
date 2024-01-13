@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240113153249_firstcommit")]
-    partial class firstcommit
+    [Migration("20240113154344_2nd commit")]
+    partial class _2ndcommit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -562,11 +562,16 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("SampleProjectId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SampleProjectId");
 
                     b.ToTable("StaticFiles");
                 });
@@ -944,6 +949,17 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Navigation("ConstructionMaterial");
 
                     b.Navigation("Quotation");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.StaticFile", b =>
+                {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.SampleProject", "SampleProject")
+                        .WithMany()
+                        .HasForeignKey("SampleProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SampleProject");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>

@@ -35,7 +35,7 @@ namespace HCQS.BackEnd.API.Installers
                  option.SwaggerDoc("v1", new OpenApiInfo
                  {
                      Version = "v1",
-                     Title = "Yoga Center API",
+                     Title = "House construction quotation API",
                      Description = "©Copyright: Hồng Quân & Minh Khang",
                      TermsOfService = new Uri("https://example.com/terms"),
                      Contact = new OpenApiContact

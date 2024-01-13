@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HCQS.BackEnd.DAL.Models
 {
@@ -15,5 +16,8 @@ namespace HCQS.BackEnd.DAL.Models
             Video,
             Pdf
         }
+        public Guid SampleProjectId { get; set; }
+        [ForeignKey(nameof(SampleProjectId))]
+        public SampleProject SampleProject { get; set; }
     }
 }

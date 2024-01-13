@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class firstcommit : Migration
+    public partial class _2ndcommit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -99,18 +99,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SampleProjects", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StaticFiles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StaticFiles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -336,6 +324,25 @@ namespace HCQS.BackEnd.DAL.Migrations
                         name: "FK_PaymentResponses_Payments_PaymentId",
                         column: x => x.PaymentId,
                         principalTable: "Payments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StaticFiles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SampleProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaticFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StaticFiles_SampleProjects_SampleProjectId",
+                        column: x => x.SampleProjectId,
+                        principalTable: "SampleProjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -715,6 +722,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StaticFiles_SampleProjectId",
+                table: "StaticFiles",
+                column: "SampleProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_WorkerForProjects_ProjectId",
                 table: "WorkerForProjects",
                 column: "ProjectId");
@@ -766,9 +778,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                 name: "QuotationDetails");
 
             migrationBuilder.DropTable(
-                name: "SampleProjects");
-
-            migrationBuilder.DropTable(
                 name: "StaticFiles");
 
             migrationBuilder.DropTable(
@@ -788,6 +797,9 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Quotations");
+
+            migrationBuilder.DropTable(
+                name: "SampleProjects");
 
             migrationBuilder.DropTable(
                 name: "Workers");
