@@ -13,12 +13,15 @@ namespace HCQS.BackEnd.DAL.Models
         public int CementMixingRatio { get; set; }
         public int StoneMixingRatio { get; set; }
         public double TiledArea { get; set; }
-        public enum Status { 
-        Pending,
-        Processing,
-        UnderConstruction,
-        Closed
+
+        public enum Status
+        {
+            Pending,
+            Processing,
+            UnderConstruction,
+            Closed
         }
+
         public int EstimatedTimeOfCompletion { get; set; }
         public int NumberOfLabor { get; set; }
         public DateTime CreateDate { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace HCQS.BackEnd.Common.Model
+﻿namespace HCQS.BackEnd.Common.Dto
 {
     public class AppActionResult
     {

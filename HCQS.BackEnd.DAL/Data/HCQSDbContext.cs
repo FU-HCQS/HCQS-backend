@@ -1,4 +1,6 @@
 ﻿using HCQS.BackEnd.DAL.Models;
+using HCQS.BackEnd.DAL.Util;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +37,14 @@ namespace HCQS.BackEnd.DAL.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<IdentityRole>().HasData(
+              new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.ADMIN, NormalizedName = Permission.ADMIN.ToLower() });
+
+            builder.Entity<IdentityRole>().HasData(
+               new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.STAFF, NormalizedName = Permission.STAFF.ToLower() });
+
+            builder.Entity<IdentityRole>().HasData(
+                       new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.CUSTOMER, NormalizedName = Permission.CUSTOMER.ToLower() });
         }
     }
 }

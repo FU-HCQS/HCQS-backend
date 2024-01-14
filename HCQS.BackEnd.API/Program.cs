@@ -1,4 +1,3 @@
-using Hangfire;
 using HCQS.BackEnd.API.Installers;
 using HCQS.BackEnd.DAL.Data;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +11,18 @@ builder.Services.InstallerServicesInAssembly(builder.Configuration);
 var app = builder.Build();
 app.UseCors(MyAllowSpecificOrigins);
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    options.SerializeAsV2 = true;
+});
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty;
+});
+//}
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

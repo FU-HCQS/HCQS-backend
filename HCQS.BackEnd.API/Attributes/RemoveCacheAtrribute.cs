@@ -1,5 +1,5 @@
 ﻿using HCQS.BackEnd.Common.ConfigurationModel;
-using HCQS.BackEnd.Common.Model;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Mvc.Filters;
 
