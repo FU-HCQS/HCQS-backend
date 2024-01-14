@@ -28,16 +28,31 @@ namespace HCQS.BackEnd.Service.Implementations
             };
         }
 
-        public AppActionResult BuildAppActionResultError(AppActionResult result, string messageError)
+        public AppActionResult BuildAppActionResultError(AppActionResult result, string messageError, bool exception = false)
         {
-            List<string?> errors = new List<string?>(result.Messages) { messageError };
-
-            return new AppActionResult
+            List<string?> errors;
+            if (exception)
             {
-                IsSuccess = false,
-                Messages = errors.Any() ? errors : null,
-                Result = result.Result
-            };
+                errors = new List<string?>() { messageError };
+
+                return new AppActionResult
+                {
+                    IsSuccess = false,
+                    Messages = errors,
+                    Result = null
+                };
+            }
+            else
+            {
+                errors = new List<string?>(result.Messages) { messageError };
+                return new AppActionResult
+                {
+                    IsSuccess = false,
+                    Messages = errors.Any() ? errors : null,
+                    Result = result.Result
+                };
+            }
+
         }
 
         public bool BuildAppActionResultIsError(AppActionResult result)

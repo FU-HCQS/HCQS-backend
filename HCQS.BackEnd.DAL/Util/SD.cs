@@ -150,7 +150,7 @@ namespace HCQS.BackEnd.DAL.Util
         public class SubjectMail
         {
             public static string VERIFY_ACCOUNT = "[THANK YOU] WELCOME TO YOGA CENTER. PLEASE VERIFY ACCOUNT";
-            public static string WELCOME_TO_YOGA_CENTER = "[THANK YOU] WELCOME TO YOGA CENTER";
+            public static string WELCOME = "[THANK YOU] WELCOME TO YOGA CENTER";
             public static string REMIND_PAYMENT = "REMIND PAYMENT";
             public static string PASSCODE_FORGOT_PASSWORD = "[YOGA CENTER] PASSCODE FORGOT PASSWORD";
         }

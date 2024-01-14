@@ -65,12 +65,12 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 if (!BuildAppActionResultIsError(result))
                 {
-                    await LoginDefault(loginRequest.Email, user);
+                    result = await LoginDefault(loginRequest.Email, user);
                 }
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR,true);
                 _logger.LogError(ex.Message, this);
             }
 
@@ -98,20 +98,20 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 if (!BuildAppActionResultIsError(result))
                 {
-                    await LoginDefault(email, user);
+                    result = await LoginDefault(email, user);
                     user.VerifyCode = null;
                     await _unitOfWork.SaveChangeAsync();
                 }
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                 _logger.LogError(ex.Message, this);
             }
             return result;
         }
 
-        private async Task LoginDefault(string email, Account? user)
+        private async Task<AppActionResult> LoginDefault(string email, Account? user)
         {
             AppActionResult result = new AppActionResult();
 
@@ -141,6 +141,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 _logger.LogError(ex.Message, this);
             }
+            return result;
         }
 
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle)
@@ -156,13 +157,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, "The email or username is existed");
                     }
-                    foreach (var role in signUpRequest.RoleName)
+
+                    if (await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower()) == null)
                     {
-                        if (await identityRoleRepository.GetById(role) == null)
-                        {
-                            result = BuildAppActionResultError(result, $"The role with id {role} is not existed");
-                        }
+                        result = BuildAppActionResultError(result, $"The role with name {signUpRequest.RoleName} is not existed");
                     }
+
                     if (!BuildAppActionResultIsError(result))
                     {
                         var emailService = Resolve<IEmailService>();
@@ -198,10 +198,28 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} USER");
                         }
 
-                        foreach (var role in signUpRequest.RoleName)
+
+                        var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower());
+                        List<string> roleAssign = new List<string>();
+
+                        if (signUpRequest.RoleName.ToLower() == "admin")
                         {
-                            var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == role.ToLower());
-                            var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.Name);
+                            roleAssign.Add(Permission.ADMIN);
+                            roleAssign.Add(Permission.STAFF);
+                            roleAssign.Add(Permission.CUSTOMER);
+                        }
+                        else if (signUpRequest.RoleName.ToLower() == "staff")
+                        {
+                            roleAssign.Add(Permission.STAFF);
+                            roleAssign.Add(Permission.CUSTOMER);
+                        }
+                        else
+                        {
+                            roleAssign.Add(Permission.CUSTOMER);
+                        }
+                        foreach (var role in roleAssign)
+                        {
+                            var resultCreateRole = await _userManager.AddToRoleAsync(user, role);
                             if (resultCreateRole.Succeeded)
                             {
                                 BuildAppActionResultSuccess(result, $"ASSIGN ROLE SUCCESSFUL");
@@ -211,6 +229,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                 result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                             }
                         }
+
+
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -219,7 +239,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -250,7 +270,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultSuccess(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -274,7 +294,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
             }
 
             return result;
@@ -318,7 +338,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -357,7 +377,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -384,13 +404,13 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = (IOrderedQueryable<Account>)await _accountRepository.GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword), null);
+                            source = (IOrderedQueryable<Account>)await _accountRepository.GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword));
                         }
                         if (filterRequest.filterInfoList != null)
                         {
                             source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
-                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source== null ? 0: source.Count(), filterRequest.pageSize);
                         if (filterRequest.sortInfoList != null)
                         {
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
@@ -407,7 +427,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -459,7 +479,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -514,7 +534,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -552,7 +572,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -599,7 +619,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -637,7 +657,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -665,7 +685,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                 _logger.LogError(ex.Message, this);
             }
             return result;

@@ -68,7 +68,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("get-accounts-with-searching")]
-        [Authorize(Roles = Permission.MANAGEMENT)]
+       // [Authorize(Roles = Permission.MANAGEMENT)]
         public async Task<AppActionResult> GetAccountWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);

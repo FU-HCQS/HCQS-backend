@@ -1,6 +1,5 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Service.Contracts;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
