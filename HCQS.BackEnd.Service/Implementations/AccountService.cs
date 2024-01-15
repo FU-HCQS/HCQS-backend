@@ -750,34 +750,60 @@ namespace HCQS.BackEnd.Service.Implementations
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
         {
             AppActionResult result = new AppActionResult();
-            var config = Resolve<FirebaseAdminSDK>();
-            var credential = GoogleCredential.FromJson(JsonConvert.SerializeObject(new
+            try
             {
-                type = config.Type,
-                project_id = config.Project_id,
-                private_key_id = config.Private_key_id,
-                private_key = config.Private_key,
-                client_email = config.Client_email,
-                client_id = config.Client_id,
-                auth_uri = config.Auth_uri,
-                token_uri = config.Token_uri,
-                auth_provider_x509_cert_url = config.Auth_provider_x509_cert_url,
-                client_x509_cert_url = config.Client_x509_cert_url
-            }));
 
-            var firebaseApp = FirebaseApp.Create(new AppOptions
-            {
-                Credential = credential
-            });
-            var verifiedToken = await FirebaseAuth.DefaultInstance
-                 .VerifyIdTokenAsync(accessTokenFromGoogle);
-            var emailClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "email");
-            var userEmail = emailClaim.Value.ToString();
+                var existingFirebaseApp = FirebaseApp.DefaultInstance;
+                if (existingFirebaseApp == null)
+                {
+                    var config = Resolve<FirebaseAdminSDK>();
+                    var credential = GoogleCredential.FromJson(JsonConvert.SerializeObject(new
+                    {
+                        type = config.Type,
+                        project_id = config.Project_id,
+                        private_key_id = config.Private_key_id,
+                        private_key = config.Private_key,
+                        client_email = config.Client_email,
+                        client_id = config.Client_id,
+                        auth_uri = config.Auth_uri,
+                        token_uri = config.Token_uri,
+                        auth_provider_x509_cert_url = config.Auth_provider_x509_cert_url,
+                        client_x509_cert_url = config.Client_x509_cert_url
+                    }));
+                    var firebaseApp = FirebaseApp.Create(new AppOptions
+                    {
+                        Credential = credential
+                    });
 
-            if (userEmail != null)
-            {
-                var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
-                result = await LoginDefault(userEmail, user);
+                }
+
+                var verifiedToken = await FirebaseAuth.DefaultInstance
+               .VerifyIdTokenAsync(accessTokenFromGoogle);
+                var emailClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "email");
+                var nameClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "name");
+                var name = nameClaim.Value.ToString();
+                var userEmail = emailClaim.Value.ToString();
+
+                if (userEmail != null)
+                {
+                    var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
+                    if (user == null)
+                    {
+                        var resultCreate = await CreateAccount(new SignUpRequestDto { Email = userEmail, FirstName = name, Gender = true, RoleName = "customer", LastName = string.Empty, Password = "Google123@", PhoneNumber = string.Empty }, true);
+                        if (resultCreate != null && resultCreate.IsSuccess)
+                        {
+                            Account account = (Account)resultCreate.Result.Data;
+                            result = await LoginDefault(userEmail, account);
+                        }
+                        result = await LoginDefault(userEmail, user);
+
+                    }
+                }
+            }
+            catch(Exception ex) {
+
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                _logger.LogError(ex.Message, this);
             }
 
             return result;
