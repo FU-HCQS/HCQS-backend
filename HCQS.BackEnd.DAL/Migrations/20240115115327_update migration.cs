@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class _2ndcommit : Migration
+    public partial class updatemigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -225,6 +226,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -590,6 +592,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "669a806c-b60b-4254-b9d4-f64ae873ddc4", "9314d516-2fd4-4e20-9f9c-d8f089e1b4d2", "ADMIN", "admin" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "701c774a-cf9d-49a0-a898-15524d9c481f", "43d02958-cb3a-4a4c-955f-8dcbfb966826", "STAFF", "staff" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "9c00cff6-88e7-4164-9650-927e2cd063a2", "07ce6ecd-420a-428d-8d49-0ad2c7cccd14", "CUSTOMER", "customer" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -663,7 +680,8 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ProjectId",
                 table: "Contracts",
-                column: "ProjectId");
+                column: "ProjectId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExportPriceMaterials_MaterialId",

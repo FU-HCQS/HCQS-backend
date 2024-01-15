@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240113154344_2nd commit")]
-    partial class _2ndcommit
+    [Migration("20240115115327_update migration")]
+    partial class updatemigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -136,6 +136,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -212,7 +216,8 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
 
                     b.ToTable("Contracts");
                 });
@@ -666,6 +671,29 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "669a806c-b60b-4254-b9d4-f64ae873ddc4",
+                            ConcurrencyStamp = "9314d516-2fd4-4e20-9f9c-d8f089e1b4d2",
+                            Name = "ADMIN",
+                            NormalizedName = "admin"
+                        },
+                        new
+                        {
+                            Id = "701c774a-cf9d-49a0-a898-15524d9c481f",
+                            ConcurrencyStamp = "43d02958-cb3a-4a4c-955f-8dcbfb966826",
+                            Name = "STAFF",
+                            NormalizedName = "staff"
+                        },
+                        new
+                        {
+                            Id = "9c00cff6-88e7-4164-9650-927e2cd063a2",
+                            ConcurrencyStamp = "07ce6ecd-420a-428d-8d49-0ad2c7cccd14",
+                            Name = "CUSTOMER",
+                            NormalizedName = "customer"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -813,8 +841,8 @@ namespace HCQS.BackEnd.DAL.Migrations
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Contract", b =>
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
+                        .WithOne("Contract")
+                        .HasForeignKey("HCQS.BackEnd.DAL.Models.Contract", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1047,6 +1075,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     b.Navigation("ContractProgressPayment")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>
+                {
+                    b.Navigation("Contract");
                 });
 #pragma warning restore 612, 618
         }

@@ -111,5 +111,11 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _accountService.SendEmailForgotPassword(email);
         }
+
+        [HttpPost("google-callback")]
+        public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
+        {
+            return await _accountService.GoogleCallBack(accessTokenFromGoogle); 
+        }
     }
 }

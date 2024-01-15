@@ -30,5 +30,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         [ForeignKey("AccountId")]
         public Account Account { get; set; }
+
+        public Contract? Contract { get; set; }
     }
 }

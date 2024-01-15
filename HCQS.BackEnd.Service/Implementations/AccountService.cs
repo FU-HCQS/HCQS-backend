@@ -1,4 +1,8 @@
-﻿using HCQS.BackEnd.Common.Dto;
+﻿using FirebaseAdmin;
+using FirebaseAdmin.Auth;
+using Google.Apis.Auth.OAuth2;
+using HCQS.BackEnd.Common.ConfigurationModel;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Contracts;
@@ -6,7 +10,10 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Dto;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Transactions;
 using Utility = HCQS.BackEnd.DAL.Util.Utility;
 
@@ -738,6 +745,42 @@ namespace HCQS.BackEnd.Service.Implementations
             }
 
             return string.Empty;
+        }
+
+        public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
+        {
+            AppActionResult result = new AppActionResult();
+            var config = Resolve<FirebaseAdminSDK>();
+            var credential = GoogleCredential.FromJson(JsonConvert.SerializeObject(new
+            {
+                type = config.Type,
+                project_id = config.Project_id,
+                private_key_id = config.Private_key_id,
+                private_key = config.Private_key,
+                client_email = config.Client_email,
+                client_id = config.Client_id,
+                auth_uri = config.Auth_uri,
+                token_uri = config.Token_uri,
+                auth_provider_x509_cert_url = config.Auth_provider_x509_cert_url,
+                client_x509_cert_url = config.Client_x509_cert_url
+            }));
+
+            var firebaseApp = FirebaseApp.Create(new AppOptions
+            {
+                Credential = credential
+            });
+            var verifiedToken = await FirebaseAuth.DefaultInstance
+                 .VerifyIdTokenAsync(accessTokenFromGoogle);
+            var emailClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "email");
+            var userEmail = emailClaim.Value.ToString();
+
+            if (userEmail != null)
+            {
+                var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
+                result = await LoginDefault(userEmail, user);
+            }
+
+            return result;
         }
     }
 }
