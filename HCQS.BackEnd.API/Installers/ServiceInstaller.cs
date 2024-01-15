@@ -21,6 +21,11 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileService, FileService>();
 
+
+            services.AddScoped<IBlogRepository, BlogRepository>();
+            services.AddScoped<IBlogService, BlogService>();
+
+
         }
     }
 }

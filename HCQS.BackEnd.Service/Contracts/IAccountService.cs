@@ -38,5 +38,7 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<string> GenerateVerifyCode(string email);
 
         Task<string> GenerateVerifyCodeGoogle(string email);
+
+        Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle);
     }
 }

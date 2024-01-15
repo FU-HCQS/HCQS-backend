@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240115014754_addfield")]
-    partial class addfield
+    [Migration("20240115124717_customize field")]
+    partial class customizefield
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -137,7 +137,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -216,7 +215,8 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
 
                     b.ToTable("Contracts");
                 });
@@ -674,22 +674,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "96b02a76-9192-4574-b8aa-269289941fcc",
-                            ConcurrencyStamp = "b0837f29-deba-409e-880c-c3ec4e6bdd37",
+                            Id = "11d3bb47-03c2-4031-b1ec-cac596c607ed",
+                            ConcurrencyStamp = "c12e6606-bff6-4967-a3e8-e5f9aca15327",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
-                            Id = "3933425a-0047-4893-8769-eadb19a81fb2",
-                            ConcurrencyStamp = "5faf1349-056c-46ed-8873-41cc8357f87c",
+                            Id = "716daafa-ad8c-4a96-95da-f7f277129619",
+                            ConcurrencyStamp = "ba340c44-d2e7-435a-8ac3-ee797a437522",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
-                            Id = "ae60bd68-ffa8-4b1a-9743-eb8b11ffdcd0",
-                            ConcurrencyStamp = "1b64ed38-3902-4975-80b3-97b800251c30",
+                            Id = "3faaa2cd-6a5d-4d51-96f3-b554bfd0f999",
+                            ConcurrencyStamp = "e8e21d2b-1066-4c8c-ac2a-aabaa526a35e",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -840,8 +840,8 @@ namespace HCQS.BackEnd.DAL.Migrations
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Contract", b =>
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
+                        .WithOne("Contract")
+                        .HasForeignKey("HCQS.BackEnd.DAL.Models.Contract", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1074,6 +1074,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     b.Navigation("ContractProgressPayment")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>
+                {
+                    b.Navigation("Contract");
                 });
 #pragma warning restore 612, 618
         }

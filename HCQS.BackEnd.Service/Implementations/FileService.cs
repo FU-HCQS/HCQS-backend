@@ -193,7 +193,7 @@ namespace HCQS.BackEnd.Service.Implementations
         {
             string[] a = pathFileName.Split("/");
             pathFileName = $"{a[0]}%2F{a[1]}";
-            string api = $"https://firebasestorage.googleapis.com/v0/b/yogacenter-44949.appspot.com/o?name={pathFileName}";
+            string api = $"https://firebasestorage.googleapis.com/v0/b/{_firebaseConfiguration.Bucket}/o?name={pathFileName}";
             if (string.IsNullOrEmpty(pathFileName))
             {
                 return string.Empty;

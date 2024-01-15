@@ -10,7 +10,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string Header { get; set; }
         public string Content { get; set; }
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime Date { get; set; }
 
         public string AccountId { get; set; }

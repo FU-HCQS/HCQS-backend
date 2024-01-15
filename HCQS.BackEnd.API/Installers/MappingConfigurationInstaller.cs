@@ -18,6 +18,10 @@ namespace HCQS.BackEnd.API.Installers
             configuration.GetSection("Firebase").Bind(firebaseConfiguration);
             services.AddSingleton(firebaseConfiguration);
 
+            var firebaseAdminSDKConfiguration = new FirebaseAdminSDK();
+            configuration.GetSection("FirebaseAdminSDK").Bind(firebaseAdminSDKConfiguration);
+            services.AddSingleton(firebaseAdminSDKConfiguration);
+
             var momoConfiguration = new MomoConfiguration();
             configuration.GetSection("Momo").Bind(momoConfiguration);
             services.AddSingleton(momoConfiguration);
