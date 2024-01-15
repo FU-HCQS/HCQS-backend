@@ -70,7 +70,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR,true);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                 _logger.LogError(ex.Message, this);
             }
 
@@ -198,7 +198,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} USER");
                         }
 
-
                         var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower());
                         List<string> roleAssign = new List<string>();
 
@@ -229,8 +228,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                 result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                             }
                         }
-
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -410,7 +407,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
-                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source== null ? 0: source.Count(), filterRequest.pageSize);
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source == null ? 0 : source.Count(), filterRequest.pageSize);
                         if (filterRequest.sortInfoList != null)
                         {
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);

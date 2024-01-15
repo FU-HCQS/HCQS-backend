@@ -52,7 +52,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     Result = result.Result
                 };
             }
-
         }
 
         public bool BuildAppActionResultIsError(AppActionResult result)

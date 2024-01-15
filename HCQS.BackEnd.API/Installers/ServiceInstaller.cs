@@ -19,6 +19,8 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IRoleService, RoleService>();
 
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IFileService, FileService>();
+
         }
     }
 }

@@ -16,9 +16,9 @@ namespace HCQS.BackEnd.DAL.Models
         public enum Status
         {
             Pending,
-            Processing,
-            UnderConstruction,
-            Closed
+            WaitingForCustomerResponse,
+            Rejected,
+            Approved
         }
 
         public Guid ProjectId { get; set; }
