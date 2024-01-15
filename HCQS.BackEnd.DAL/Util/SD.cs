@@ -169,7 +169,7 @@ namespace HCQS.BackEnd.DAL.Util
 
         public class FirebasePathName
         {
-            public static string NEWS_PREFIX = "course/";
+            public static string NEWS_PREFIX = "news/";
             public static string BLOG_PREFIX = "blog/";
         }
     }

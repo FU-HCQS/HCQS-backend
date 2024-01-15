@@ -12,6 +12,8 @@ namespace HCQS.BackEnd.API.Installers
         {
             services.AddSingleton<HandleErrorValidator>();
             services.AddValidatorsFromAssemblyContaining<BlogRequest>();
+            services.AddValidatorsFromAssemblyContaining<NewsRequest>();
+            
         }
     }
 }
