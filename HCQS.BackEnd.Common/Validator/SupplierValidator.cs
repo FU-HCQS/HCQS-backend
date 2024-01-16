@@ -13,6 +13,8 @@ namespace HCQS.BackEnd.Common.Validator
         public SupplierValidator()
         {
             RuleFor(x => x.SupplierName).NotNull().NotEmpty().WithMessage("the supplierName is required!");
+            RuleFor(x => x.Type).IsInEnum().NotEmpty().WithMessage("the supplierName is required!");
+
         }
 
     }

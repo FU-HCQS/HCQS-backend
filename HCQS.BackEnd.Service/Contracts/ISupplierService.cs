@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -18,6 +19,6 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> UpdateSupplier(SupplierRequest supplierRequest);
         public Task<AppActionResult> DeleteSupplierById(Guid id);
 
-        public Task<AppActionResult> ImportSupplierWithExcelFile(IFormFile file);
+        public Task<IActionResult> ImportSupplierWithExcelFile(IFormFile file);
     }
 }

@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Http;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.DataValidation;
+using Microsoft.AspNetCore.Mvc;
+using NPOI.SS.Formula.Functions;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -169,10 +171,13 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> ImportSupplierWithExcelFile(IFormFile file)
+        public async Task<IActionResult> ImportSupplierWithExcelFile(IFormFile file)
         {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
                 AppActionResult result = new AppActionResult();
+                byte[] excelBytes = null; // Initialize a variable to store the file content
+
                 try
                 {
                     using (var stream = new MemoryStream())
@@ -184,27 +189,37 @@ namespace HCQS.BackEnd.Service.Implementations
 
                             int rowCount = worksheet.Dimension.Rows;
 
-                            List<string> data = new List<string>();
+                            List<SupplierRequest> data = new List<SupplierRequest>();
                             bool containDuplicated = false;
+
                             for (int row = 2; row <= rowCount; row++)
                             {
-                                    string cellValue = worksheet.Cells[row, 1].Text;
-                                    if(!string.IsNullOrEmpty(cellValue))
+                                string name = worksheet.Cells[row, 1].Text;
+                                string type = worksheet.Cells[row, 2].Text;
+
+                                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(type))
+                                {
+                                    var type2 = int.Parse(type);
+                                    if ((SupplierRequest.SupplierType)type2 > SupplierRequest.SupplierType.Both || (SupplierRequest.SupplierType)type2 > SupplierRequest.SupplierType.ConstructionMaterialsSupplier)
                                     {
-                                        var duplicatedSupplier = _supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(cellValue.ToLower()));
-                                        if(duplicatedSupplier != null)
-                                        {
-
-                                            if(!containDuplicated) containDuplicated = true;
-
-                                            worksheet.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                            worksheet.Cells[row, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
-                                        }
-                                        if (!containDuplicated)
-                                        {
-                                            data.Add(cellValue);
-                                        }
+                                        throw new Exception("ngu ngok");
                                     }
+                                    var duplicatedSupplier = await _supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(name.ToLower()));
+                                    if (duplicatedSupplier != null)
+                                    {
+                                        if (!containDuplicated) containDuplicated = true;
+
+                                        worksheet.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                        worksheet.Cells[row, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                        worksheet.Cells[row, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                        worksheet.Cells[row, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                    }
+
+                                    if (!containDuplicated)
+                                    {
+                                        data.Add(new SupplierRequest { Id = Guid.NewGuid(), SupplierName = name, Type = (SupplierRequest.SupplierType)int.Parse(type) });
+                                    }
+                                }
                             }
 
                             if (containDuplicated)
@@ -213,40 +228,54 @@ namespace HCQS.BackEnd.Service.Implementations
                                 {
                                     package.SaveAs(modifiedStream);
                                     package.Save();
+
                                     // Create a new IFormFile instance with the modified content
                                     var modifiedFile = new FormFile(modifiedStream, 0, modifiedStream.Length, null, file.FileName)
                                     {
                                         Headers = file.Headers
                                     };
 
-                                    result.Result.Data = modifiedFile;
-                                    result.Messages.Add("The inputted file contains already exist suppplier name(s)");
+                                    excelBytes = modifiedStream.ToArray();
+
                                 }
                             }
                             else
                             {
-                                List<SupplierRequest> supplierRequests = new List<SupplierRequest>();
-                                foreach(var name in data) supplierRequests.Add(new SupplierRequest() { SupplierName = name });
-                                await _supplierRepository.InsertRange(_mapper.Map<List<Supplier>>(supplierRequests));
-                                result.IsSuccess = true;
+
+
+                                await _supplierRepository.InsertRange(_mapper.Map<List<Supplier>>(data));
+                                await _unitOfWork.SaveChangeAsync();
                             }
 
-                            if (!BuildAppActionResultIsError(result))
-                            {
-                                scope.Complete();
-                            }
+
+                            scope.Complete();
+
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
+
+                    using (var originalStream = new MemoryStream())
+                    {
+                        file.CopyTo(originalStream);
+                        excelBytes = originalStream.ToArray();
+                    }
                 }
-                return result;
+                if (excelBytes != null)
+                {
+                    return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    {
+                        FileDownloadName = "template.xlsx"
+                    };
+
+                }
+                return new OkObjectResult(new AppActionResult { IsSuccess = true, Result = null, Messages = null });
             }
         }
-        
+
+
 
         public async Task<AppActionResult> UpdateSupplier(SupplierRequest supplierRequest)
         {

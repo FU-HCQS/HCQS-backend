@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240116081138_AddFieldNews")]
-    partial class AddFieldNews
+    [Migration("20240116095830_5th migration")]
+    partial class _5thmigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -297,11 +297,17 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("MaterialType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UnitMaterial")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -394,6 +400,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
@@ -420,6 +429,9 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PaymentTypeResponse")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -453,6 +465,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<int>("NumberOfLabor")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProjectStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("SandMixingRatio")
                         .HasColumnType("int");
 
@@ -483,6 +498,9 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("QuotationStatus")
+                        .HasColumnType("int");
 
                     b.Property<double>("RawMaterialPrice")
                         .HasColumnType("float");
@@ -572,6 +590,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<Guid>("SampleProjectId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("StaticFileType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -592,6 +613,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<string>("SupplierName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -677,22 +701,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7bf812ec-db04-49c9-8e1d-cb73d8ba7a20",
-                            ConcurrencyStamp = "2945d832-4c90-4cd3-b3d4-623e85ad9c4c",
+                            Id = "5c6b4b35-895f-4676-bd8a-fb65b6ef6798",
+                            ConcurrencyStamp = "b9ccc77c-3052-46f2-a042-5404fbc01ecf",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
-                            Id = "a049f8cc-f6f7-4996-bb99-35cc122b2f58",
-                            ConcurrencyStamp = "9eb8d34c-2d0f-4b54-9ef9-5f1ead0b74da",
+                            Id = "79c3b575-31c8-4cf6-8180-ec6644416fc3",
+                            ConcurrencyStamp = "f4fd93bf-2380-49e6-aa22-f976e47463c1",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
-                            Id = "39fd00dc-6e10-43fb-8d34-4f7293e10f21",
-                            ConcurrencyStamp = "4ec960c2-ef0e-4770-b8a0-4fb3461a5f7d",
+                            Id = "a99539e4-cc84-4b29-b918-73cf1692fa48",
+                            ConcurrencyStamp = "207d6617-c04f-4e59-a766-5180d81fe3a8",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });

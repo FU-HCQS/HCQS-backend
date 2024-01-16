@@ -46,8 +46,8 @@ namespace HCQS.BackEnd.API.Controllers
 
         }
 
-        [HttpPut("import-supplier-from-excelsheet")]
-        public async Task<AppActionResult> ImportSupplierFromExcelsheet(IFormFile request)
+        [HttpPost("import-supplier-from-excelsheet")]
+        public async Task<IActionResult> ImportSupplierFromExcelsheet(IFormFile request)
         {
            
             return await _supplierService.ImportSupplierWithExcelFile(request);
