@@ -10,8 +10,9 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string Header { get; set; }
         public string Content { get; set; }
-        public string Image { get; set; }
+        public string ImageUrl { get; set; }
         public string AccountId { get; set; }
+        public DateTime Date {  get; set; }
 
         [ForeignKey(nameof(AccountId))]
         public Account Account { get; set; }
