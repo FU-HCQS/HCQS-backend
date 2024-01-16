@@ -148,6 +148,11 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result.Messages.Add("EMpty news list");
                     }
+
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -205,7 +210,13 @@ namespace HCQS.BackEnd.Service.Implementations
                                         }
                                     }
                                 }
-                            }
+
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
+                    }
+
+                }
                             catch (Exception ex)
                             {
                                 result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
