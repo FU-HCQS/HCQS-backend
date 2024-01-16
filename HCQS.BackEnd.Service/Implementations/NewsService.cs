@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using NPOI.POIFS.Storage;
 using System.Reflection.Metadata;
+using HCQS.BackEnd.DAL.Implementations;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -34,40 +35,46 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> CreateNews(NewsRequest NewsRequest)
         {
-            using(var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var news = _mapper.Map<News>(NewsRequest);
-                    news.Id = Guid.NewGuid();
-                    news.ImageUrl = string.Empty;
-                    var newsDb = await _newsRepository.GetByExpression(n => n.Header.ToLower().Equals(news.Header.ToLower()));
-                    var accountRepository = Resolve<IAccountRepository>();
-                    var accountId = await accountRepository.GetByExpression(n => n.Id == news.AccountId);
-                    if(newsDb != null)
+                    var blogDb = await _newsRepository.GetByExpression(b => b.Id.Equals(NewsRequest.Id));
+                    if (blogDb == null)
                     {
-                        result = BuildAppActionResultError(result, $"The news whose header: {newsDb.Header} has existed!");
+                        result = BuildAppActionResultError(result, $"The blog with {NewsRequest.Id} not found !");
                     }
-                    await _newsRepository.Insert(news);
-                    await _unitOfWork.SaveChangeAsync();
+                    else
+                    {
 
+                        var fileService = Resolve<IFileService>();
+                        string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blogDb.Id}";
+                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+
+                        if (resultFirebase != null && resultFirebase.IsSuccess)
+                        {
+
+                            var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
+                            if (uploadFileResult.IsSuccess)
+                            {
+                                var blog = _mapper.Map<Blog>(NewsRequest);
+                                blogDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
+                                blogDb.Content = blog.Content;
+                                blogDb.Header = blog.Header;
+
+                                await _unitOfWork.SaveChangeAsync();
+                            }
+
+                        }
+                    }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        var fileService = Resolve<IFileService>();
-                        string url = $"{SD.FirebasePathName.NEWS_PREFIX}{news.Id}";
-                        var resultFirebase = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
-                        if(resultFirebase != null &&  resultFirebase.IsSuccess) {
-                            news.ImageUrl = Convert.ToString(resultFirebase.Result.Data);
-                            await _unitOfWork.SaveChangeAsync();
-                        }
-
-                        if (!BuildAppActionResultIsError(result))
-                        {
-                            scope.Complete();
-                        }
+                        scope.Complete();
                     }
-                } catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
