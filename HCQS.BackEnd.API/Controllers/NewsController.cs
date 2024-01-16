@@ -36,7 +36,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-news")]
-        public async Task<AppActionResult> UpdateBlog([FromForm] NewsRequest request)
+        public async Task<AppActionResult> UpdateNews([FromForm] NewsRequest request)
         {
             var result = await _validator.ValidateAsync(request);
             if (!result.IsValid)
