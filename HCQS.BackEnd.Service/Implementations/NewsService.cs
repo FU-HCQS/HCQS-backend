@@ -41,16 +41,16 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var blogDb = await _newsRepository.GetByExpression(b => b.Id.Equals(NewsRequest.Id));
-                    if (blogDb == null)
+                    var newsDb = await _newsRepository.GetByExpression(b => b.Id.Equals(NewsRequest.Id));
+                    if (newsDb == null)
                     {
-                        result = BuildAppActionResultError(result, $"The blog with {NewsRequest.Id} not found !");
+                        result = BuildAppActionResultError(result, $"The news with {NewsRequest.Id} not found !");
                     }
                     else
                     {
 
                         var fileService = Resolve<IFileService>();
-                        string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blogDb.Id}";
+                        string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
                         var resultFirebase = await fileService.DeleteImageFromFirebase(url);
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
@@ -59,10 +59,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
                             if (uploadFileResult.IsSuccess)
                             {
-                                var blog = _mapper.Map<Blog>(NewsRequest);
-                                blogDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
-                                blogDb.Content = blog.Content;
-                                blogDb.Header = blog.Header;
+                                var news = _mapper.Map<News>(NewsRequest);
+                                newsDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
+                                newsDb.Content = news.Content;
+                                newsDb.Header = news.Header;
 
                                 await _unitOfWork.SaveChangeAsync();
                             }
