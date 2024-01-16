@@ -171,6 +171,8 @@ namespace HCQS.BackEnd.DAL.Util
         {
             public static string NEWS_PREFIX = "news/";
             public static string BLOG_PREFIX = "blog/";
+            public static string SAMPLE_HOUSE_PREFIX = "sample-house/";
+
         }
     }
 }

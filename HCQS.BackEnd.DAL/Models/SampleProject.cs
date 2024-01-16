@@ -13,6 +13,8 @@ namespace HCQS.BackEnd.DAL.Models
 
         public enum Type
         {
+            Level_4_House,
+            House_With_Multiple_Floors
         }
 
         public string Function { get; set; }

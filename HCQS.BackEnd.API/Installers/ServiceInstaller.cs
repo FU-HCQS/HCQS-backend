@@ -24,7 +24,9 @@ namespace HCQS.BackEnd.API.Installers
 
             services.AddScoped<IBlogRepository, BlogRepository>();
             services.AddScoped<IBlogService, BlogService>();
-
+            services.AddScoped<ISampleProjectRepository, SampleProjectRepository>();
+            services.AddScoped<ISampleProjectService, SampleProjectService>();
+            services.AddScoped<IStaticFileRepository, StaticFileRepository>();
 
         }
     }

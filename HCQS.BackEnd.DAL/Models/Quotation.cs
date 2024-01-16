@@ -12,7 +12,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double FurniturePrice { get; set; }
         public double LabelPrice { get; set; }
         public double Total { get; set; }
-
+        public Status QuotationStatus { get; set; }
         public enum Status
         {
             Pending,
