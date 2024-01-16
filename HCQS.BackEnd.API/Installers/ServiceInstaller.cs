@@ -24,12 +24,13 @@ namespace HCQS.BackEnd.API.Installers
 
             services.AddScoped<IBlogRepository, BlogRepository>();
             services.AddScoped<IBlogService, BlogService>();
-
-            services.AddScoped<INewsRepository, NewsRepository>();
-            services.AddScoped<INewsService, NewsService>();
-
-            services.AddScoped<ISupplierRepository, SupplierRepository>();
+             services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<ISupplierService, SupplierService>();
+                services.AddScoped<INewsRepository, NewsRepository>();
+            services.AddScoped<INewsService, NewsService>();
+             services.AddScoped<ISampleProjectRepository, SampleProjectRepository>();
+            services.AddScoped<ISampleProjectService, SampleProjectService>();
+            services.AddScoped<IStaticFileRepository, StaticFileRepository>();
 
         }
     }

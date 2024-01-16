@@ -9,7 +9,7 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid Id { get; set; }
 
         public double Amount { get; set; }
-
+        public PaymentType PaymentTypeResponse { get; set; }
         public enum PaymentType
         {
             VNPAY,

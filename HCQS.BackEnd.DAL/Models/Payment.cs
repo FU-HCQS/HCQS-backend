@@ -9,7 +9,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         public double Price { get; set; }
         public string Content { get; set; }
-
+        public Status PaymentStatus { get; set; }
         public enum Status
         {
             Pending,
