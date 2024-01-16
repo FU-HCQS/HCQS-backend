@@ -795,9 +795,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             Account account = (Account)resultCreate.Result.Data;
                             result = await LoginDefault(userEmail, account);
                         }
-                        result = await LoginDefault(userEmail, user);
 
                     }
+                    result = await LoginDefault(userEmail, user);
+
                 }
             }
             catch(Exception ex) {

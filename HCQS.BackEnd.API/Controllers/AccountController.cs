@@ -49,7 +49,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpGet("get-account-by-id/{id}")]
         [Authorize(Roles = Permission.ALL)]
-        public async Task<AppActionResult> UpdateAccount(string id)
+        public async Task<AppActionResult> GetAccountByUserId(string id)
         {
             return await _accountService.GetAccountByUserId(id);
         }

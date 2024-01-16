@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HCQS.BackEnd.API.Controllers
 {
     [Route("sample-project")]
+   
     [ApiController]
     public class SampleProjectController : ControllerBase
     {
@@ -23,6 +24,7 @@ namespace HCQS.BackEnd.API.Controllers
             _sampleProjectService = sampleProjectService;
         }
         [HttpPost("create-sample-project")]
+        [Consumes("multipart/form-data")]
         public async Task<AppActionResult> CreateSampleProject([FromForm] SampleProjectRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -35,6 +37,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-sample-project")]
+
         public async Task<AppActionResult> UpdateSampleProject([FromForm] SampleProjectRequest request)
         {
             var result = await _validator.ValidateAsync(request);

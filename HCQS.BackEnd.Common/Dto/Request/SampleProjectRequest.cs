@@ -28,8 +28,10 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public string? Content { get; set; }
         public double? EstimatePrice { get; set; }
         public string? Location { get; set; }
-
-        public IList<IFormFile> ImageFiles { get; set; }
+        /// <summary>
+        /// Image files to upload (multiple files allowed).
+        /// </summary>
+        public List<IFormFile> ImageFiles { get; set; }
         
 
     }
