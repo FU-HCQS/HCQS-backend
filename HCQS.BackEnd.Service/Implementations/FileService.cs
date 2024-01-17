@@ -2,6 +2,8 @@
 using DinkToPdf.Contracts;
 using Firebase.Auth;
 using Firebase.Storage;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using HCQS.BackEnd.Common.ConfigurationModel;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Service.Contracts;
@@ -21,14 +23,14 @@ namespace HCQS.BackEnd.Service.Implementations
         private AppActionResult _result;
         private FirebaseConfiguration _firebaseConfiguration;
 
-        public FileService(IConverter pdfConverter,  IServiceProvider serviceProvider) : base(serviceProvider)
+        public FileService(IConverter pdfConverter, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _pdfConverter = pdfConverter;
             _result = new();
             _firebaseConfiguration = Resolve<FirebaseConfiguration>();
         }
 
-      
+
 
         public IActionResult ConvertDataToExcel()
         {
@@ -144,7 +146,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 };
             }
         }
-
+  
         public async Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName)
         {
             bool isValid = true;
@@ -162,7 +164,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     var auth = new FirebaseAuthProvider(new FirebaseConfig(_firebaseConfiguration.ApiKey));
 
                     var account = await auth.SignInWithEmailAndPasswordAsync(_firebaseConfiguration.AuthEmail, _firebaseConfiguration.AuthPassword);
-                    var cancellation = new CancellationTokenSource();
 
                     string destinationPath = $"{pathFileName}";
 
@@ -170,14 +171,16 @@ namespace HCQS.BackEnd.Service.Implementations
                     _firebaseConfiguration.Bucket,
                     new FirebaseStorageOptions
                     {
-                        AuthTokenAsyncFactory = () => Task.FromResult(account.FirebaseToken),
+                        AuthTokenAsyncFactory =  () =>  Task.FromResult(account.FirebaseToken),
                         ThrowOnCancel = true
                     })
                     .Child(destinationPath)
-                    .PutAsync(stream, cancellation.Token);
+                    .PutAsync(stream);
+                    var downloadUrl = await task;
+
                     if (task != null)
                     {
-                        _result.Result.Data = await GetUrlImageFromFirebase(pathFileName);
+                        _result.Result.Data = downloadUrl;
                     }
                     else
                     {
@@ -189,31 +192,6 @@ namespace HCQS.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<string> GetUrlImageFromFirebase(string pathFileName)
-        {
-            string[] a = pathFileName.Split("/");
-            pathFileName = $"{a[0]}%2F{a[1]}";
-            string api = $"https://firebasestorage.googleapis.com/v0/b/{_firebaseConfiguration.Bucket}/o?name={pathFileName}";
-            if (string.IsNullOrEmpty(pathFileName))
-            {
-                return string.Empty;
-            }
-            else
-            {
-                var client = new RestClient();
-                var request = new RestRequest(api, Method.Get);
-                RestResponse response = client.Execute(request);
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    JObject jmessage = JObject.Parse(response.Content);
-                    string downloadToken = jmessage.GetValue("downloadTokens").ToString();
-                    return $"https://firebasestorage.googleapis.com/v0/b/{_firebaseConfiguration.Bucket}/o/{pathFileName}?alt=media&token={downloadToken}";
-                }
-            }
-
-            return string.Empty;
-        }
-
         public async Task<AppActionResult> DeleteImageFromFirebase(string pathFileName)
         {
             try
@@ -221,8 +199,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(_firebaseConfiguration.ApiKey));
 
                 var account = await auth.SignInWithEmailAndPasswordAsync(_firebaseConfiguration.AuthEmail, _firebaseConfiguration.AuthPassword);
-                var cancellation = new CancellationTokenSource();
-
                 var storage = new FirebaseStorage(
              _firebaseConfiguration.Bucket,
              new FirebaseStorageOptions

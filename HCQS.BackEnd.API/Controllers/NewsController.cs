@@ -24,6 +24,8 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("create-news")]
+        [Consumes("multipart/form-data")]
+
         public async Task<AppActionResult> CreateNews([FromForm] NewsRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -36,6 +38,8 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-news")]
+        [Consumes("multipart/form-data")]
+
         public async Task<AppActionResult> UpdateNews([FromForm] NewsRequest request)
         {
             var result = await _validator.ValidateAsync(request);

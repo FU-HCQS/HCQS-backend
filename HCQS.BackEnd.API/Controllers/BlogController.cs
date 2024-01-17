@@ -24,6 +24,8 @@ namespace HCQS.BackEnd.API.Controllers
             _blogService = blogService;
         }
         [HttpPost("create-blog")]
+        [Consumes("multipart/form-data")]
+
         public async Task<AppActionResult> CreateBlog([FromForm] BlogRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -36,6 +38,8 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-blog")]
+        [Consumes("multipart/form-data")]
+
         public async Task<AppActionResult> UpdateBlog([FromForm] BlogRequest request)
         {
             var result = await _validator.ValidateAsync(request);

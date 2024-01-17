@@ -30,7 +30,18 @@ namespace HCQS.BackEnd.DAL.Mapping
                   .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                   .ForMember(desc => desc.SupplierName, act => act.MapFrom(src => src.SupplierName))
                   ;
-
+                config.CreateMap<SampleProjectRequest, SampleProject>()
+                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+                .ForMember(desc => desc.Header, act => act.MapFrom(src => src.Header))
+                .ForMember(desc => desc.EstimatePrice, act => act.MapFrom(src => src.EstimatePrice))
+                .ForMember(desc => desc.ConstructionArea, act => act.MapFrom(src => src.ConstructionArea))
+                .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
+                .ForMember(desc => desc.Function, act => act.MapFrom(src => src.Function))
+                .ForMember(desc => desc.Location, act => act.MapFrom(src => src.Location))
+                .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))
+                .ForMember(desc => desc.TotalArea, act => act.MapFrom(src => src.TotalArea))
+                .ForMember(desc => desc.ProjectType, act => act.MapFrom(src => src.ProjectType))
+                ;
 
             });
             return mappingConfig;

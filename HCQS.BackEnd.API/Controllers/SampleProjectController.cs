@@ -37,6 +37,8 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-sample-project")]
+        [Consumes("multipart/form-data")]
+
 
         public async Task<AppActionResult> UpdateSampleProject([FromForm] SampleProjectRequest request)
         {
@@ -65,6 +67,11 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _sampleProjectService.GetAll(pageIndex, pageSize, sortInfos);
         }
+
+     
+
+
+      
 
     }
 }

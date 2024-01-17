@@ -62,17 +62,19 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             var id = Guid.NewGuid();
                             var resultFirebase = await fileService.UploadImageToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
-                            if (resultFirebase != null && resultFirebase.IsSuccess)
+                            if (resultFirebase != null && resultFirebase.IsSuccess )
                             {
-                                StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = Convert.ToString(resultFirebase.Result.Data) };
+                                string url = resultFirebase.Result.Data.ToString();
+                                StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = url };
                                 await staticFileRepository.Insert(staticFile);
                                 await _unitOfWork.SaveChangeAsync();
                             }
                         }
-                        if (!BuildAppActionResultIsError(result))
-                        {
-                            scope.Complete();
-                        }
+
+                    }
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
                     }
                 }
                 catch (Exception ex)

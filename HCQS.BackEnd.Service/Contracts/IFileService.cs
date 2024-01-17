@@ -18,7 +18,6 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName);
 
-        public Task<string> GetUrlImageFromFirebase(string pathFileName);
 
         public Task<AppActionResult> DeleteImageFromFirebase(string pathFileName);
     }

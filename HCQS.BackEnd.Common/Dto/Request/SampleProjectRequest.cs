@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,6 +32,7 @@ namespace HCQS.BackEnd.Common.Dto.Request
         /// <summary>
         /// Image files to upload (multiple files allowed).
         /// </summary>
+
         public List<IFormFile> ImageFiles { get; set; }
         
 

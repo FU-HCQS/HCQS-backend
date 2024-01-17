@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class _5thmigration : Migration
+    public partial class addfieldsampleproject : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -93,6 +93,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     NumOfFloor = table.Column<int>(type: "int", nullable: false),
                     ConstructionArea = table.Column<double>(type: "float", nullable: false),
                     TotalArea = table.Column<double>(type: "float", nullable: false),
+                    ProjectType = table.Column<int>(type: "int", nullable: false),
                     Function = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -604,17 +605,17 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "5c6b4b35-895f-4676-bd8a-fb65b6ef6798", "b9ccc77c-3052-46f2-a042-5404fbc01ecf", "ADMIN", "admin" });
+                values: new object[] { "c9faf411-0d6f-40b5-818b-a75ea1ac9406", "9f70af7e-e982-4aa9-86b3-7e6cba34c559", "ADMIN", "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "79c3b575-31c8-4cf6-8180-ec6644416fc3", "f4fd93bf-2380-49e6-aa22-f976e47463c1", "STAFF", "staff" });
+                values: new object[] { "cbc3e3d2-7866-4370-8853-066d732ee80a", "660459fc-837f-4372-8a58-48d3ed48a7c9", "STAFF", "staff" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "a99539e4-cc84-4b29-b918-73cf1692fa48", "207d6617-c04f-4e59-a766-5180d81fe3a8", "CUSTOMER", "customer" });
+                values: new object[] { "e4be700b-16d1-499e-8ddc-f7b5da3261b0", "2af8e291-246e-42a3-8eb4-b269a17aa63c", "CUSTOMER", "customer" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
