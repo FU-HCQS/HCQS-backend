@@ -17,7 +17,7 @@ using System.Reflection.Metadata;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
-    public class NewsService : GenericBackendService,INewsService 
+    public class NewsService : GenericBackendService, INewsService
     {
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
@@ -34,7 +34,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> CreateNews(NewsRequest NewsRequest)
         {
-            using(var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 AppActionResult result = new AppActionResult();
                 try
@@ -45,7 +45,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var newsDb = await _newsRepository.GetByExpression(n => n.Header.ToLower().Equals(news.Header.ToLower()));
                     var accountRepository = Resolve<IAccountRepository>();
                     var accountId = await accountRepository.GetByExpression(n => n.Id == news.AccountId);
-                    if(newsDb != null)
+                    if (newsDb != null)
                     {
                         result = BuildAppActionResultError(result, $"The news whose header: {newsDb.Header} has existed!");
                     }
@@ -57,7 +57,8 @@ namespace HCQS.BackEnd.Service.Implementations
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{news.Id}";
                         var resultFirebase = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
-                        if(resultFirebase != null &&  resultFirebase.IsSuccess) {
+                        if (resultFirebase != null && resultFirebase.IsSuccess)
+                        {
                             news.ImageUrl = Convert.ToString(resultFirebase.Result.Data);
                             await _unitOfWork.SaveChangeAsync();
                         }
@@ -67,7 +68,8 @@ namespace HCQS.BackEnd.Service.Implementations
                             scope.Complete();
                         }
                     }
-                } catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
@@ -84,9 +86,11 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var newsDb = _newsRepository.GetById(id);
-                    if (newsDb == null){
+                    if (newsDb == null)
+                    {
                         result = BuildAppActionResultError(result, $"The news with {id} not found!");
-                    } else
+                    }
+                    else
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
@@ -144,7 +148,8 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         result.Result.Data = newsList;
                         result.Result.TotalPage = totalPage;
-                    } else
+                    }
+                    else
                     {
                         result.Messages.Add("EMpty news list");
                     }
@@ -164,52 +169,55 @@ namespace HCQS.BackEnd.Service.Implementations
         }
         public async Task<AppActionResult> GetNewsById(Guid id)
         {
-           
+
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var newsDb = await _newsRepository.GetById(id);
+                if (newsDb != null)
+                {
+                    result.Result.Data = newsDb;
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> UpdateNews(NewsRequest NewsRequest)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var newsDb = await _newsRepository.GetById(id);
-                    if (newsDb != null) {
-                    result.Result.Data = newsDb;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
-                    _logger.LogError(ex.Message, this);
-                }
-                return result;
-        }
-
-                    public async Task<AppActionResult> UpdateNews(NewsRequest NewsRequest)
+                    var newsDb = await _newsRepository.GetByExpression(n => n.Id.Equals(NewsRequest.Id));
+                    if (newsDb == null)
                     {
-                        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                        {
-                            AppActionResult result = new AppActionResult();
-                            try
-                            {
-                                var newsDb = await _newsRepository.GetByExpression(n => n.Id.Equals(NewsRequest.Id));
-                                if(newsDb == null)
-                                {
                         result = BuildAppActionResultError(result, $"The news with {NewsRequest.Id} not found !");
-                                } else
-                                {
-                                    var fileService = Resolve<IFileService>();
-                                    string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
-                                    var resultFirebase = await fileService.DeleteImageFromFirebase(url);
-                                    if(resultFirebase != null && resultFirebase.IsSuccess)
-                                    {
-                                        var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
-                                        if(uploadFileResult.IsSuccess) {
-                                            var news = _mapper.Map<News>(NewsRequest);
-                                            newsDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
-                                            newsDb.Content = news.Content;
-                                            newsDb.Header = news.Header;
+                    }
+                    else
+                    {
+                        var fileService = Resolve<IFileService>();
+                        string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
+                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+                        if (resultFirebase != null && resultFirebase.IsSuccess)
+                        {
+                            var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
+                            if (uploadFileResult.IsSuccess)
+                            {
+                                var news = _mapper.Map<News>(NewsRequest);
+                                newsDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
+                                newsDb.Content = news.Content;
+                                newsDb.Header = news.Header;
 
-                                            await _unitOfWork.SaveChangeAsync();
-                                        }
-                                    }
-                                }
+                                await _unitOfWork.SaveChangeAsync();
+                            }
+                        }
+                    }
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -217,13 +225,13 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
 
                 }
-                            catch (Exception ex)
-                            {
-                                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
-                                _logger.LogError(ex.Message, this);
-                            }
-                            return result;
-                        }
-                    }
+                catch (Exception ex)
+                {
+                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    _logger.LogError(ex.Message, this);
                 }
+                return result;
             }
+        }
+    }
+}

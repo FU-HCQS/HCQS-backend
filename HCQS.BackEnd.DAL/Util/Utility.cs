@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HCQS.BackEnd.DAL.Util
@@ -117,6 +118,85 @@ namespace HCQS.BackEnd.DAL.Util
             }
 
             return cronExpression;
+        }
+
+
+        public class FileChecker
+        {
+            public enum FileType
+            {
+                UNKNOWN,
+                IsImage,
+                IsVideo,
+                IsPdf,
+                IsWord,
+                IsExcel
+            }
+
+            public static FileType CheckFileType(IFormFile file)
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return FileType.UNKNOWN;
+                }
+                string fileExtension = Path.GetExtension(file.FileName).ToLower();
+
+                if (IsImage(fileExtension))
+                {
+                    return FileType.IsImage;
+                }
+                else if (IsVideo(fileExtension))
+                {
+                    return FileType.IsVideo;
+
+                }
+                else if (IsPdf(fileExtension))
+                {
+                    return FileType.IsPdf;
+                }
+                else if (IsWord(fileExtension))
+                {
+                    return FileType.IsWord;
+                }
+                else
+                {
+                    return FileType.UNKNOWN;
+                }
+
+            }
+
+            private static bool IsImage(string fileExtension)
+            {
+                // Các định dạng ảnh được hỗ trợ
+                string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                return Array.Exists(imageExtensions, ext => ext.Equals(fileExtension));
+            }
+
+            private static bool IsVideo(string fileExtension)
+            {
+                // Các định dạng video được hỗ trợ
+                string[] videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".wmv" };
+                return Array.Exists(videoExtensions, ext => ext.Equals(fileExtension));
+            }
+
+            private static bool IsPdf(string fileExtension)
+            {
+                // Định dạng PDF
+                return fileExtension.Equals(".pdf");
+            }
+
+            private static bool IsWord(string fileExtension)
+            {
+                // Các định dạng Word
+                string[] wordExtensions = { ".doc", ".docx" };
+                return Array.Exists(wordExtensions, ext => ext.Equals(fileExtension));
+            }
+            private static bool IsExcel(string fileExtension)
+            {
+                // Các định dạng Excel
+                string[] excelExtensions = { ".xls", ".xlsx" };
+                return Array.Exists(excelExtensions, ext => ext.Equals(fileExtension));
+            }
         }
     }
 }

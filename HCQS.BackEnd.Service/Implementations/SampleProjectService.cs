@@ -11,9 +11,11 @@ using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static HCQS.BackEnd.DAL.Util.Utility;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -62,12 +64,30 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             var id = Guid.NewGuid();
                             var resultFirebase = await fileService.UploadImageToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
-                            if (resultFirebase != null && resultFirebase.IsSuccess )
+                            if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 string url = resultFirebase.Result.Data.ToString();
-                                StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = url };
-                                await staticFileRepository.Insert(staticFile);
-                                await _unitOfWork.SaveChangeAsync();
+                                var typeFile = FileChecker.CheckFileType(item);
+                                var type = StaticFile.Type.Image;
+                                if (typeFile == FileChecker.FileType.IsImage)
+                                {
+                                    type = StaticFile.Type.Image;
+                                }else if(typeFile == FileChecker.FileType.IsVideo)
+                                {
+                                    type = StaticFile.Type.Video;
+                                }
+                                else
+                                {
+                                    result = BuildAppActionResultError(result, "The system is only support video and image file");
+                                }
+                                if (!BuildAppActionResultIsError(result))
+                                {
+                                    StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = url, StaticFileType = type };
+                                    await staticFileRepository.Insert(staticFile);
+                                    await _unitOfWork.SaveChangeAsync();
+                                }
+
+                                   
                             }
                         }
 
@@ -107,7 +127,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         var staticFileRepository = Resolve<IStaticFileRepository>();
-                        var listStaticFile = await staticFileRepository.GetListByExpression(f => f.SampleProjectId == id);
+                        var listStaticFile = await staticFileRepository.GetListByExpression(f => f.SampleProjectId == id && f.StaticFileType != StaticFile.Type.Pdf);
 
                         foreach (var item in listStaticFile)
                         {
@@ -204,7 +224,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var project = _mapper.Map<SampleProject>(sampleProjectRequest);
-                    var projectDb = await _sampleProjectRepository.GetByExpression(b => b.Id  == sampleProjectRequest.Id);
+                    var projectDb = await _sampleProjectRepository.GetByExpression(b => b.Id == sampleProjectRequest.Id);
                     if (projectDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The project with id {sampleProjectRequest.Id} is existed!");
@@ -235,9 +255,26 @@ namespace HCQS.BackEnd.Service.Implementations
                             var resultFirebase = await fileService.UploadImageToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
-                                StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = Convert.ToString(resultFirebase.Result.Data) };
-                                await staticFileRepository.Insert(staticFile);
-                                await _unitOfWork.SaveChangeAsync();
+                                var typeFile = FileChecker.CheckFileType(item);
+                                var type = StaticFile.Type.Image;
+                                if (typeFile == FileChecker.FileType.IsImage)
+                                {
+                                    type = StaticFile.Type.Image;
+                                }
+                                else if (typeFile == FileChecker.FileType.IsVideo)
+                                {
+                                    type = StaticFile.Type.Video;
+                                }
+                                else
+                                {
+                                    result = BuildAppActionResultError(result, "The system is only support video and image file");
+                                }
+                                if (!BuildAppActionResultIsError(result))
+                                {
+                                    StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = resultFirebase.Result.Data.ToString(), StaticFileType = type };
+                                    await staticFileRepository.Insert(staticFile);
+                                    await _unitOfWork.SaveChangeAsync();
+                                }
                             }
                         }
                         if (!BuildAppActionResultIsError(result))
