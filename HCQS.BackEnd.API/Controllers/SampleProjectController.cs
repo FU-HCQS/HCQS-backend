@@ -6,6 +6,9 @@ using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using HCQS.BackEnd.DAL.Util;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -25,6 +28,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
         [HttpPost("create-sample-project")]
         [Consumes("multipart/form-data")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateSampleProject([FromForm] SampleProjectRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -38,7 +42,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPut("update-sample-project")]
         [Consumes("multipart/form-data")]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
 
         public async Task<AppActionResult> UpdateSampleProject([FromForm] SampleProjectRequest request)
         {
@@ -51,6 +55,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         }
         [HttpDelete("delete-sample-project-by-id/{Id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> DeleteSampleProjectById(Guid Id)
         {
             return await _sampleProjectService.DeleteSampleProjectById(Id);

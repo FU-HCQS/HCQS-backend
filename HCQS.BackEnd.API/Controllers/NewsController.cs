@@ -6,6 +6,9 @@ using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Implementations;
 using Microsoft.AspNetCore.Mvc;
+using HCQS.BackEnd.DAL.Util;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -25,7 +28,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPost("create-news")]
         [Consumes("multipart/form-data")]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateNews([FromForm] NewsRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -39,7 +42,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPut("update-news")]
         [Consumes("multipart/form-data")]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> UpdateNews([FromForm] NewsRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -51,6 +54,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         }
         [HttpDelete("delete-news-by-id/{Id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> DeleteNewsById(Guid Id)
         {
             return await _newsService.DeleteNewsById(Id);

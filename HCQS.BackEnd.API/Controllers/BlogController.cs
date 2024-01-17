@@ -4,7 +4,10 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
+using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +26,7 @@ namespace HCQS.BackEnd.API.Controllers
             _handleErrorValidator = handleErrorValidator;
             _blogService = blogService;
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("create-blog")]
         [Consumes("multipart/form-data")]
 
@@ -39,7 +43,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPut("update-blog")]
         [Consumes("multipart/form-data")]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> UpdateBlog([FromForm] BlogRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -51,12 +55,14 @@ namespace HCQS.BackEnd.API.Controllers
 
         }
         [HttpDelete("delete-blog-by-id/{Id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> DeleteBlogById(Guid Id)
         {
             return await _blogService.DeleteBlogById(Id);
 
         }
         [HttpGet("get-blog-by-id/{Id}")]
+
         public async Task<AppActionResult> GetBlogById(Guid Id)
         {
             return await _blogService.GetBlogById(Id);

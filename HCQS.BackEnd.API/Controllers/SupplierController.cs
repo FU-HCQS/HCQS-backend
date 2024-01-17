@@ -5,6 +5,9 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using HCQS.BackEnd.DAL.Util;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -23,6 +26,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("create-supplier")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateSupplier(SupplierRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -35,6 +39,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-supplier")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> UpdateSupplier(SupplierRequest request)
         {
             var result = await _validator.ValidateAsync(request);
@@ -47,6 +52,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("import-supplier-from-excelsheet")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<IActionResult> ImportSupplierFromExcelsheet(IFormFile request)
         {
            
@@ -55,6 +61,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpDelete("delete-supplier-by-id/{Id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> DeleteSupplierById(Guid Id)
         {
             return await _supplierService.DeleteSupplierById(Id);
