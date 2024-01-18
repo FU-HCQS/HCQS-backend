@@ -694,6 +694,32 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+        public async Task<AppActionResult> SendEmailForActiveCode(string email)
+        {
+            AppActionResult result = new AppActionResult();
+
+            try
+            {
+                var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
+                if (user == null)
+                {
+                    result = BuildAppActionResultError(result, "The user is not existed or is not verified");
+                }
+
+                if (!BuildAppActionResultIsError(result))
+                {
+                    var emailService = Resolve<IEmailService>();
+                    string code = await GenerateVerifyCode(user.Email);
+                    emailService.SendEmail(email, SD.SubjectMail.VERIFY_ACCOUNT, code);
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
 
         public async Task<string> GenerateVerifyCode(string email)
         {
