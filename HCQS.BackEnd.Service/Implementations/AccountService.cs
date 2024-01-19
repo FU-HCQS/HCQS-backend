@@ -13,6 +13,7 @@ using HCQS.BackEnd.Service.Dto;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Transactions;
 using Utility = HCQS.BackEnd.DAL.Util.Utility;
@@ -683,7 +684,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var emailService = Resolve<IEmailService>();
-                    string code = await GenerateVerifyCode(user.Email);
+                    string code = await GenerateVerifyCode(user.Email, true);
                     emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, code);
                 }
             }
@@ -709,7 +710,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var emailService = Resolve<IEmailService>();
-                    string code = await GenerateVerifyCode(user.Email);
+                    string code = await GenerateVerifyCode(user.Email, false);
                     emailService.SendEmail(email, SD.SubjectMail.VERIFY_ACCOUNT, code);
                 }
             }
@@ -721,45 +722,41 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<string> GenerateVerifyCode(string email)
+        public async Task<string> GenerateVerifyCode(string email, bool isForForgettingPassword)
         {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
+          
+                string code = string.Empty;
                 try
                 {
-                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
+                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == isForForgettingPassword);
 
                     if (user != null)
                     {
-                        string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                        code = Guid.NewGuid().ToString("N").Substring(0, 6);
                         user.VerifyCode = code;
-                        return code;
                     }
                     await _unitOfWork.SaveChangeAsync();
-                    scope.Complete();
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message, this);
                 }
-            }
-
-            return string.Empty;
+                return code;
         }
 
         public async Task<string> GenerateVerifyCodeGoogle(string email)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                string code = string.Empty;
                 try
                 {
                     var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false);
 
                     if (user != null)
                     {
-                        string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                        code = Guid.NewGuid().ToString("N").Substring(0, 6);
                         user.VerifyCode = code;
-                        return code;
                     }
                     await _unitOfWork.SaveChangeAsync();
                     scope.Complete();
@@ -768,9 +765,8 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     _logger.LogError(ex.Message, this);
                 }
+                return code;
             }
-
-            return string.Empty;
         }
 
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
