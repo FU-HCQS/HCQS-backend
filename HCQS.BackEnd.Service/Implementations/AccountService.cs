@@ -703,7 +703,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
                 if (user == null)
                 {
-                    result = BuildAppActionResultError(result, "The user is not existed or is not verified");
+                    result = BuildAppActionResultError(result, "The user does not existed or is verified");
                 }
 
                 if (!BuildAppActionResultIsError(result))
@@ -727,7 +727,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 try
                 {
-                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
+                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
 
                     if (user != null)
                     {
