@@ -35,7 +35,7 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> SendEmailForgotPassword(string email);
 
-        Task<string> GenerateVerifyCode(string email);
+        Task<string> GenerateVerifyCode(string email, bool isForForgettingPassword);
 
         Task<string> GenerateVerifyCodeGoogle(string email);
 
