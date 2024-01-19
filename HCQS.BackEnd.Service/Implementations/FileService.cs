@@ -1,18 +1,12 @@
-﻿using DinkToPdf;
-using DinkToPdf.Contracts;
+﻿using DinkToPdf.Contracts;
 using Firebase.Auth;
 using Firebase.Storage;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 using HCQS.BackEnd.Common.ConfigurationModel;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using OfficeOpenXml;
-using RestSharp;
-using System.Net;
 using System.Reflection;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -29,8 +23,6 @@ namespace HCQS.BackEnd.Service.Implementations
             _result = new();
             _firebaseConfiguration = Resolve<FirebaseConfiguration>();
         }
-
-
 
         public IActionResult ConvertDataToExcel()
         {
@@ -146,7 +138,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 };
             }
         }
-  
+
         public async Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName)
         {
             bool isValid = true;
@@ -171,7 +163,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     _firebaseConfiguration.Bucket,
                     new FirebaseStorageOptions
                     {
-                        AuthTokenAsyncFactory =  () =>  Task.FromResult(account.FirebaseToken),
+                        AuthTokenAsyncFactory = () => Task.FromResult(account.FirebaseToken),
                         ThrowOnCancel = true
                     })
                     .Child(destinationPath)

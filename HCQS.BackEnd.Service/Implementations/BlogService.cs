@@ -3,15 +3,9 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -35,7 +29,6 @@ namespace HCQS.BackEnd.Service.Implementations
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-
                 AppActionResult result = new AppActionResult();
                 try
                 {
@@ -49,7 +42,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The blog with header is existed! {blogDb.Header}");
                     }
-
 
                     await _blogRepository.Insert(blog);
                     await _unitOfWork.SaveChangeAsync();
@@ -84,7 +76,6 @@ namespace HCQS.BackEnd.Service.Implementations
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-
                 AppActionResult result = new AppActionResult();
                 try
                 {
@@ -95,7 +86,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blogDb.Id}";
                         var resultFirebase = await fileService.DeleteImageFromFirebase(url);
@@ -147,7 +137,6 @@ namespace HCQS.BackEnd.Service.Implementations
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-
                 AppActionResult result = new AppActionResult();
                 try
                 {
@@ -158,14 +147,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blogDb.Id}";
                         var resultFirebase = await fileService.DeleteImageFromFirebase(url);
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
-
                             var uploadFileResult = await fileService.UploadImageToFirebase(blogRequest.ImageUrl, url);
                             if (uploadFileResult.IsSuccess)
                             {
@@ -176,7 +163,6 @@ namespace HCQS.BackEnd.Service.Implementations
 
                                 await _unitOfWork.SaveChangeAsync();
                             }
-
                         }
                     }
                     if (!BuildAppActionResultIsError(result))
@@ -192,6 +178,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             AppActionResult result = new AppActionResult();
@@ -234,6 +221,5 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
-
     }
 }

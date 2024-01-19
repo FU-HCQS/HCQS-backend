@@ -4,8 +4,6 @@
     {
         public void InstallService(IServiceCollection services, IConfiguration configuration)
         {
-           
-
         }
     }
 }

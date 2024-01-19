@@ -10,7 +10,8 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string Url { get; set; }
 
-        public Type StaticFileType {  get; set; }
+        public Type StaticFileType { get; set; }
+
         public enum Type
         {
             Image,

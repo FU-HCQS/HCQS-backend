@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using HCQS.BackEnd.Common.Dto.Request;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Common.Validator
 {
@@ -18,8 +13,6 @@ namespace HCQS.BackEnd.Common.Validator
             RuleFor(x => x.NumOfFloor).NotEmpty().NotEmpty().WithMessage("The NumOfFloor is required!");
             RuleFor(x => x.Location).NotEmpty().NotEmpty().WithMessage("The Location is required!");
             RuleFor(x => x.ProjectType).IsInEnum().NotEmpty().WithMessage("The ProjectType is required!");
-
-
         }
     }
 }

@@ -3,17 +3,10 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.DAL.Models;
+using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using NPOI.POIFS.Storage;
-using System.Reflection.Metadata;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -169,7 +162,6 @@ namespace HCQS.BackEnd.Service.Implementations
         }
         public async Task<AppActionResult> GetNewsById(Guid id)
         {
-
             AppActionResult result = new AppActionResult();
             try
             {
@@ -223,7 +215,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         scope.Complete();
                     }
-
                 }
                 catch (Exception ex)
                 {

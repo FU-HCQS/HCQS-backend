@@ -11,6 +11,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double ConstructionArea { get; set; }
         public double TotalArea { get; set; }
         public Type ProjectType { get; set; }
+
         public enum Type
         {
             Level_4_House,

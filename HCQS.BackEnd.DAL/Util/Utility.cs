@@ -120,7 +120,6 @@ namespace HCQS.BackEnd.DAL.Util
             return cronExpression;
         }
 
-
         public class FileChecker
         {
             public enum FileType
@@ -148,7 +147,6 @@ namespace HCQS.BackEnd.DAL.Util
                 else if (IsVideo(fileExtension))
                 {
                     return FileType.IsVideo;
-
                 }
                 else if (IsPdf(fileExtension))
                 {
@@ -162,7 +160,6 @@ namespace HCQS.BackEnd.DAL.Util
                 {
                     return FileType.UNKNOWN;
                 }
-
             }
 
             private static bool IsImage(string fileExtension)
@@ -191,6 +188,7 @@ namespace HCQS.BackEnd.DAL.Util
                 string[] wordExtensions = { ".doc", ".docx" };
                 return Array.Exists(wordExtensions, ext => ext.Equals(fileExtension));
             }
+
             private static bool IsExcel(string fileExtension)
             {
                 // Các định dạng Excel

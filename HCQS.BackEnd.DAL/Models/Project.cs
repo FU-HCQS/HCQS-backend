@@ -14,6 +14,7 @@ namespace HCQS.BackEnd.DAL.Models
         public int StoneMixingRatio { get; set; }
         public double TiledArea { get; set; }
         public Status ProjectStatus { get; set; }
+
         public enum Status
         {
             Pending,

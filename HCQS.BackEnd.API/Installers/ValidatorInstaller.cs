@@ -1,8 +1,6 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
-using Microsoft.AspNetCore.Identity;
 
 namespace HCQS.BackEnd.API.Installers
 {
@@ -13,7 +11,6 @@ namespace HCQS.BackEnd.API.Installers
             services.AddSingleton<HandleErrorValidator>();
             services.AddValidatorsFromAssemblyContaining<BlogRequest>();
             services.AddValidatorsFromAssemblyContaining<NewsRequest>();
-            
         }
     }
 }

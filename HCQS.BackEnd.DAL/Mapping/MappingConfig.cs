@@ -2,7 +2,6 @@
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Models;
 
-
 namespace HCQS.BackEnd.DAL.Mapping
 {
     public class MappingConfig
@@ -42,7 +41,6 @@ namespace HCQS.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.TotalArea, act => act.MapFrom(src => src.TotalArea))
                 .ForMember(desc => desc.ProjectType, act => act.MapFrom(src => src.ProjectType))
                 ;
-
             });
             return mappingConfig;
         }

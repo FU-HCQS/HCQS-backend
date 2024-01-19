@@ -1,10 +1,5 @@
 ﻿using FluentValidation.Results;
 using HCQS.BackEnd.Common.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Common.Validator
 {
@@ -12,9 +7,10 @@ namespace HCQS.BackEnd.Common.Validator
     {
         public AppActionResult HandleError(ValidationResult result)
         {
-            if (!result.IsValid) {
+            if (!result.IsValid)
+            {
                 List<string> errorMessage = new List<string>();
-                foreach(var error in result.Errors)
+                foreach (var error in result.Errors)
                 {
                     errorMessage.Add(error.ErrorMessage);
                 }

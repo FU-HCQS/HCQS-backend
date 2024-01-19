@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace HCQS.BackEnd.API.Installers
 {
-  
-
     public class SwaggerInstaller : IInstaller
     {
         public void InstallService(IServiceCollection services, IConfiguration configuration)

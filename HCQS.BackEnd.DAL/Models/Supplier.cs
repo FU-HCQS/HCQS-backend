@@ -9,6 +9,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string SupplierName { get; set; }
         public SupplierType Type { get; set; }
+
         public enum SupplierType
         {
             ConstructionMaterialsSupplier,

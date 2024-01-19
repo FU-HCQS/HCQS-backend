@@ -1,24 +1,16 @@
 ﻿using AutoMapper;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using HCQS.BackEnd.DAL.Implementations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
-using OfficeOpenXml.DataValidation;
-using Microsoft.AspNetCore.Mvc;
-using NPOI.SS.Formula.Functions;
+using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -236,20 +228,15 @@ namespace HCQS.BackEnd.Service.Implementations
                                     };
 
                                     excelBytes = modifiedStream.ToArray();
-
                                 }
                             }
                             else
                             {
-
-
                                 await _supplierRepository.InsertRange(_mapper.Map<List<Supplier>>(data));
                                 await _unitOfWork.SaveChangeAsync();
                             }
 
-
                             scope.Complete();
-
                         }
                     }
                 }
@@ -269,13 +256,10 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         FileDownloadName = "template.xlsx"
                     };
-
                 }
                 return new OkObjectResult(new AppActionResult { IsSuccess = true, Result = null, Messages = null });
             }
         }
-
-
 
         public async Task<AppActionResult> UpdateSupplier(SupplierRequest supplierRequest)
         {
@@ -309,8 +293,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
-
         }
     }
-
 }

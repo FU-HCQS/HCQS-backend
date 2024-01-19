@@ -48,7 +48,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _accountService.UpdateAccount(request);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles =Permission.ALL)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         [HttpPost("get-account-by-id/{id}")]
         public async Task<AppActionResult> GetAccountByUserId(string id)
         {
@@ -112,6 +112,7 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _accountService.SendEmailForgotPassword(email);
         }
+
         [HttpPost("send-email-for-active-account/{email}")]
         public async Task<AppActionResult> SendEmailForActiveCode(string email)
         {
@@ -121,7 +122,7 @@ namespace HCQS.BackEnd.API.Controllers
         [HttpPost("google-callback")]
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
         {
-            return await _accountService.GoogleCallBack(accessTokenFromGoogle); 
+            return await _accountService.GoogleCallBack(accessTokenFromGoogle);
         }
     }
 }

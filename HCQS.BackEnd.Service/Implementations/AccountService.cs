@@ -10,11 +10,8 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Dto;
-using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
-using NPOI.SS.Formula.Functions;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Transactions;
 using Utility = HCQS.BackEnd.DAL.Util.Utility;
 
@@ -724,24 +721,23 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<string> GenerateVerifyCode(string email, bool isForForgettingPassword)
         {
-          
-                string code = string.Empty;
-                try
-                {
-                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == isForForgettingPassword);
+            string code = string.Empty;
+            try
+            {
+                var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == isForForgettingPassword);
 
-                    if (user != null)
-                    {
-                        code = Guid.NewGuid().ToString("N").Substring(0, 6);
-                        user.VerifyCode = code;
-                    }
-                    await _unitOfWork.SaveChangeAsync();
-                }
-                catch (Exception ex)
+                if (user != null)
                 {
-                    _logger.LogError(ex.Message, this);
+                    code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                    user.VerifyCode = code;
                 }
-                return code;
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+            }
+            return code;
         }
 
         public async Task<string> GenerateVerifyCodeGoogle(string email)
@@ -774,7 +770,6 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-
                 var existingFirebaseApp = FirebaseApp.DefaultInstance;
                 if (existingFirebaseApp == null)
                 {
@@ -796,7 +791,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         Credential = credential
                     });
-
                 }
 
                 var verifiedToken = await FirebaseAuth.DefaultInstance
@@ -817,14 +811,12 @@ namespace HCQS.BackEnd.Service.Implementations
                             Account account = (Account)resultCreate.Result.Data;
                             result = await LoginDefault(userEmail, account);
                         }
-
                     }
                     result = await LoginDefault(userEmail, user);
-
                 }
             }
-            catch(Exception ex) {
-
+            catch (Exception ex)
+            {
                 result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                 _logger.LogError(ex.Message, this);
             }

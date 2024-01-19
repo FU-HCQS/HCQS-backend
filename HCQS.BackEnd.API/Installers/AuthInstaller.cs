@@ -8,7 +8,6 @@ namespace HCQS.BackEnd.API.Installers
     {
         public void InstallService(IServiceCollection services, IConfiguration configuration)
         {
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

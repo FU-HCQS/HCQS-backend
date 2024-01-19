@@ -1,13 +1,13 @@
 ﻿using FluentValidation;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Validator;
-using HCQS.BackEnd.Service.Contracts;
-using Microsoft.AspNetCore.Mvc;
 using HCQS.BackEnd.DAL.Util;
+using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -18,6 +18,7 @@ namespace HCQS.BackEnd.API.Controllers
         private readonly IValidator<SupplierRequest> _validator;
         private readonly HandleErrorValidator _handleErrorValidator;
         private ISupplierService _supplierService;
+
         public SupplierController(IValidator<SupplierRequest> validator, HandleErrorValidator handleErrorValidator, ISupplierService service)
         {
             _validator = validator;
@@ -35,7 +36,6 @@ namespace HCQS.BackEnd.API.Controllers
                 return _handleErrorValidator.HandleError(result);
             }
             return await _supplierService.CreateSupplier(request);
-
         }
 
         [HttpPut("update-supplier")]
@@ -48,16 +48,13 @@ namespace HCQS.BackEnd.API.Controllers
                 return _handleErrorValidator.HandleError(result);
             }
             return await _supplierService.UpdateSupplier(request);
-
         }
 
         [HttpPost("import-supplier-from-excelsheet")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<IActionResult> ImportSupplierFromExcelsheet(IFormFile request)
         {
-           
             return await _supplierService.ImportSupplierWithExcelFile(request);
-
         }
 
         [HttpDelete("delete-supplier-by-id/{Id}")]
@@ -65,14 +62,14 @@ namespace HCQS.BackEnd.API.Controllers
         public async Task<AppActionResult> DeleteSupplierById(Guid Id)
         {
             return await _supplierService.DeleteSupplierById(Id);
-
         }
+
         [HttpGet("get-supplier-by-id/{Id}")]
         public async Task<AppActionResult> GetSupplierById(Guid Id)
         {
             return await _supplierService.GetSupplierById(Id);
-
         }
+
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {

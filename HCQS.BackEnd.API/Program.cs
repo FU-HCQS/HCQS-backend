@@ -1,7 +1,5 @@
 using Hangfire;
 using HCQS.BackEnd.API.Installers;
-using HCQS.BackEnd.DAL.Data;
-using Microsoft.EntityFrameworkCore;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 

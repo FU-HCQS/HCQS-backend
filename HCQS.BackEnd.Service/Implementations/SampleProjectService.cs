@@ -3,17 +3,10 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using NPOI.SS.Formula.Functions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+using HCQS.BackEnd.Service.Dto;
 using System.Transactions;
 using static HCQS.BackEnd.DAL.Util.Utility;
 
@@ -32,14 +25,12 @@ namespace HCQS.BackEnd.Service.Implementations
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _sampleProjectRepository = sampleProjectRepository;
-
         }
 
         public async Task<AppActionResult> CreateSampleProject(SampleProjectRequest sampleProjectRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-
                 AppActionResult result = new AppActionResult();
                 try
                 {
@@ -50,7 +41,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with header {projectDb.Header} is existed!");
                     }
-
 
                     await _sampleProjectRepository.Insert(project);
                     await _unitOfWork.SaveChangeAsync();
@@ -72,7 +62,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (typeFile == FileChecker.FileType.IsImage)
                                 {
                                     type = StaticFile.Type.Image;
-                                }else if(typeFile == FileChecker.FileType.IsVideo)
+                                }
+                                else if (typeFile == FileChecker.FileType.IsVideo)
                                 {
                                     type = StaticFile.Type.Video;
                                 }
@@ -86,11 +77,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                     await staticFileRepository.Insert(staticFile);
                                     await _unitOfWork.SaveChangeAsync();
                                 }
-
-                                   
                             }
                         }
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -159,28 +147,33 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var sampleList = await _sampleProjectRepository.GetAll();
-                var fileService = Resolve<IFileService>();
+                List<SampleProjectResponse> sampleProjects = new List<SampleProjectResponse>();
+                var staticFileRepository = Resolve<IStaticFileRepository>();
+
+                foreach (var sample in sampleList)
+                {
+                    sampleProjects.Add(new SampleProjectResponse { SampleProject = sample, StaticFiles = await staticFileRepository.GetListByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video) });
+                }
+
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                var samples = Utility.ConvertIOrderQueryAbleToList(sampleList);
+                var sampleData = Utility.ConvertListToIOrderedQueryable(sampleProjects);
 
-                sampleList = Utility.ConvertListToIOrderedQueryable(samples);
-
-                if (sampleList.Any())
+                if (sampleData.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;
                     if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
-                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleList.Count(), pageSize);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleData.Count(), pageSize);
 
                     if (sortInfos != null)
                     {
-                        sampleList = DataPresentationHelper.ApplySorting(sampleList, sortInfos);
+                        sampleData = DataPresentationHelper.ApplySorting(sampleData, sortInfos);
                     }
                     if (pageIndex > 0 && pageSize > 0)
                     {
-                        sampleList = DataPresentationHelper.ApplyPaging(sampleList, pageIndex, pageSize);
+                        sampleData = DataPresentationHelper.ApplyPaging(sampleData, pageIndex, pageSize);
                     }
-                    result.Result.Data = sampleList;
+                    result.Result.Data = sampleData;
                     result.Result.TotalPage = totalPage;
                 }
                 else
@@ -219,7 +212,6 @@ namespace HCQS.BackEnd.Service.Implementations
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-
                 AppActionResult result = new AppActionResult();
                 try
                 {
@@ -229,7 +221,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with id {sampleProjectRequest.Id} is existed!");
                     }
-
 
                     await _sampleProjectRepository.Update(project);
                     await _unitOfWork.SaveChangeAsync();

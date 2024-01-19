@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using HCQS.BackEnd.Common.Dto.Request;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Common.Validator
 {
@@ -14,8 +9,6 @@ namespace HCQS.BackEnd.Common.Validator
         {
             RuleFor(x => x.SupplierName).NotNull().NotEmpty().WithMessage("the supplierName is required!");
             RuleFor(x => x.Type).IsInEnum().NotEmpty().WithMessage("the supplierName is required!");
-
         }
-
     }
 }

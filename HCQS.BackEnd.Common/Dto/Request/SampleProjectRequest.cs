@@ -1,11 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Common.Dto.Request
 {
@@ -34,7 +27,5 @@ namespace HCQS.BackEnd.Common.Dto.Request
         /// </summary>
 
         public List<IFormFile> ImageFiles { get; set; }
-        
-
     }
 }
