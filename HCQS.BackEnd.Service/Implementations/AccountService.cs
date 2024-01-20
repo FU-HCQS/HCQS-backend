@@ -310,14 +310,14 @@ namespace HCQS.BackEnd.Service.Implementations
                 var userRoleRepository = Resolve<IUserRoleRepository>();
                 var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 List<AccountResponse> accounts = new List<AccountResponse>();
-                var list = await _accountRepository.GetAll();
+                var list = await _accountRepository.GetAllDataByExpression(null,null);
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
 
                 foreach (var account in list)
                 {
-                    var userRole = await userRoleRepository.GetListByExpression(s => s.UserId == account.Id, null);
+                    var userRole = await userRoleRepository.GetAllDataByExpression(s => s.UserId == account.Id, null);
                     var listRole = new List<IdentityRole>();
                     foreach (var role in userRole)
                     {
@@ -326,7 +326,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                var data = accounts.AsQueryable().OrderBy(x => x.User.Id);
+                var data = accounts.OrderBy(x => x.User.Id).ToList();
                 if (sortInfos != null)
                 {
                     data = DataPresentationHelper.ApplySorting(data, sortInfos);
@@ -392,7 +392,8 @@ namespace HCQS.BackEnd.Service.Implementations
 
             try
             {
-                var source = (IOrderedQueryable<Account>)await _accountRepository.GetListByExpression(a => !(bool)a.IsDeleted, null);
+                var source = await _accountRepository.GetAllDataByExpression(a => !(bool)a.IsDeleted, null);
+               
                 int pageSize = filterRequest.pageSize;
                 if (filterRequest.pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -406,7 +407,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = (IOrderedQueryable<Account>)await _accountRepository.GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword));
+                            source = await _accountRepository.GetAllDataByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword));
                         }
                         if (filterRequest.filterInfoList != null)
                         {

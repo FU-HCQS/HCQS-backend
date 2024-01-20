@@ -45,7 +45,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var supplier = _mapper.Map<Supplier>(supplierRequest);
                         supplier.Id = Guid.NewGuid();
-                        await _supplierRepository.Insert(supplier);
+                        result.Result.Data = await _supplierRepository.Insert(supplier);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -77,7 +77,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        await _supplierRepository.DeleteById(id);
+                        result.Result.Data = await _supplierRepository.DeleteById(id);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -102,11 +102,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierList = await _supplierRepository.GetAll();
+                    var supplierList = await _supplierRepository.GetAllDataByExpression(null,null);
 
-                    var supplier = Utility.ConvertIOrderQueryAbleToList(supplierList);
 
-                    supplierList = Utility.ConvertListToIOrderedQueryable(supplier);
 
                     if (supplierList.Any())
                     {
@@ -277,7 +275,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var supplier = _mapper.Map<Supplier>(supplierRequest);
                         supplierDb.SupplierName = supplier.SupplierName;
-                        await _supplierRepository.Update(supplierDb);
+                        result.Result.Data = await _supplierRepository.Update(supplierDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
 

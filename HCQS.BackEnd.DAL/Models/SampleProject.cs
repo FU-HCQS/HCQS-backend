@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HCQS.BackEnd.DAL.Models
 {
@@ -23,5 +24,9 @@ namespace HCQS.BackEnd.DAL.Models
         public string Content { get; set; }
         public double EstimatePrice { get; set; }
         public string Location { get; set; }
+
+        public string? AccountId { get; set; }
+        [ForeignKey(nameof(AccountId))]
+        public Account? Account { get; set; }
     }
 }

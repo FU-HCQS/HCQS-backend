@@ -40,6 +40,8 @@ namespace HCQS.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))
                 .ForMember(desc => desc.TotalArea, act => act.MapFrom(src => src.TotalArea))
                 .ForMember(desc => desc.ProjectType, act => act.MapFrom(src => src.ProjectType))
+                .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
+
                 ;
             });
             return mappingConfig;

@@ -41,7 +41,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with header {projectDb.Header} is existed!");
                     }
+                    var accountRepository = Resolve<IAccountRepository>();
 
+                    var account = await accountRepository.GetByExpression(a => a.Id == sampleProjectRequest.AccountId);
+                    if (account == null) {
+                        result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
+                    }
                     await _sampleProjectRepository.Insert(project);
                     await _unitOfWork.SaveChangeAsync();
 
@@ -74,7 +79,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (!BuildAppActionResultIsError(result))
                                 {
                                     StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = url, StaticFileType = type };
-                                    await staticFileRepository.Insert(staticFile);
+                                    result.Result.Data = await staticFileRepository.Insert(staticFile);
                                     await _unitOfWork.SaveChangeAsync();
                                 }
                             }
@@ -106,16 +111,17 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with id {projectDb.Header} is not existed!");
                     }
+
                     else
                     {
-                        await _sampleProjectRepository.DeleteById(id);
+                        result.Result.Data = await _sampleProjectRepository.DeleteById(id);
                         await _unitOfWork.SaveChangeAsync();
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
                         var fileService = Resolve<IFileService>();
                         var staticFileRepository = Resolve<IStaticFileRepository>();
-                        var listStaticFile = await staticFileRepository.GetListByExpression(f => f.SampleProjectId == id && f.StaticFileType != StaticFile.Type.Pdf);
+                        var listStaticFile = await staticFileRepository.GetAllDataByExpression(f => f.SampleProjectId == id && f.StaticFileType != StaticFile.Type.Pdf);
 
                         foreach (var item in listStaticFile)
                         {
@@ -146,34 +152,33 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var sampleList = await _sampleProjectRepository.GetAll();
+                var sampleList = await _sampleProjectRepository.GetAllDataByExpression(null,null);
                 List<SampleProjectResponse> sampleProjects = new List<SampleProjectResponse>();
                 var staticFileRepository = Resolve<IStaticFileRepository>();
 
                 foreach (var sample in sampleList)
                 {
-                    sampleProjects.Add(new SampleProjectResponse { SampleProject = sample, StaticFiles = await staticFileRepository.GetListByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video) });
+                    sampleProjects.Add(new SampleProjectResponse { SampleProject = sample, StaticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video) });
                 }
 
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                var sampleData = Utility.ConvertListToIOrderedQueryable(sampleProjects);
 
-                if (sampleData.Any())
+                if (sampleList.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;
                     if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
-                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleData.Count(), pageSize);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleList.Count(), pageSize);
 
                     if (sortInfos != null)
                     {
-                        sampleData = DataPresentationHelper.ApplySorting(sampleData, sortInfos);
+                        sampleList = DataPresentationHelper.ApplySorting(sampleList, sortInfos);
                     }
                     if (pageIndex > 0 && pageSize > 0)
                     {
-                        sampleData = DataPresentationHelper.ApplyPaging(sampleData, pageIndex, pageSize);
+                        sampleList = DataPresentationHelper.ApplyPaging(sampleList, pageIndex, pageSize);
                     }
-                    result.Result.Data = sampleData;
+                    result.Result.Data = sampleList;
                     result.Result.TotalPage = totalPage;
                 }
                 else
@@ -221,15 +226,21 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with id {sampleProjectRequest.Id} is existed!");
                     }
+                    var accountRepository = Resolve<IAccountRepository>();
 
-                    await _sampleProjectRepository.Update(project);
+                    var account = await accountRepository.GetByExpression(a => a.Id == sampleProjectRequest.AccountId);
+                    if (account == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
+                    }
+                    result.Result.Data = await _sampleProjectRepository.Update(project);
                     await _unitOfWork.SaveChangeAsync();
 
                     if (!BuildAppActionResultIsError(result))
                     {
                         var fileService = Resolve<IFileService>();
                         var staticFileRepository = Resolve<IStaticFileRepository>();
-                        var listStaticFile = await staticFileRepository.GetListByExpression(f => f.SampleProjectId == sampleProjectRequest.Id);
+                        var listStaticFile = await staticFileRepository.GetAllDataByExpression(f => f.SampleProjectId == sampleProjectRequest.Id);
 
                         foreach (var item in listStaticFile)
                         {

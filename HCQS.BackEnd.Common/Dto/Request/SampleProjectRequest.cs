@@ -22,6 +22,8 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public string? Content { get; set; }
         public double? EstimatePrice { get; set; }
         public string? Location { get; set; }
+        public string? AccountId { get; set; }
+
         /// <summary>
         /// Image files to upload (multiple files allowed).
         /// </summary>

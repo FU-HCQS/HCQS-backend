@@ -43,7 +43,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, $"The blog with header is existed! {blogDb.Header}");
                     }
 
-                    await _blogRepository.Insert(blog);
+               result.Result.Data=      await _blogRepository.Insert(blog);
                     await _unitOfWork.SaveChangeAsync();
 
                     if (!BuildAppActionResultIsError(result))
@@ -92,7 +92,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
-                            await _blogRepository.DeleteById(blogDb.Id);
+                            result.Result.Data = await _blogRepository.DeleteById(blogDb.Id);
                             await _unitOfWork.SaveChangeAsync();
                         }
                     }
@@ -160,8 +160,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                 blogDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
                                 blogDb.Content = blog.Content;
                                 blogDb.Header = blog.Header;
-
-                                await _unitOfWork.SaveChangeAsync();
+                                result.Result.Data = blogDb;
+                             await _unitOfWork.SaveChangeAsync();
                             }
                         }
                     }
@@ -184,13 +184,11 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var blogList = await _blogRepository.GetAll();
+                var blogList = await _blogRepository.GetAllDataByExpression(null, b=> b.Account);
                 var fileService = Resolve<IFileService>();
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                var blogs = Utility.ConvertIOrderQueryAbleToList(blogList);
 
-                blogList = Utility.ConvertListToIOrderedQueryable(blogs);
 
                 if (blogList.Any())
                 {

@@ -5,6 +5,6 @@ namespace HCQS.BackEnd.Service.Dto
     public class SampleProjectResponse
     {
         public SampleProject SampleProject { get; set; }
-        public IOrderedQueryable<StaticFile> StaticFiles { get; set; }
+        public List<StaticFile> StaticFiles { get; set; }
     }
 }

@@ -3,13 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HCQS.BackEnd.DAL.Models
 {
-    public class ConstructionMaterial
+    public class ProgressConstructionMaterial
     {
         [Key]
         public Guid Id { get; set; }
 
         public double Discount { get; set; }
         public double Total { get; set; }
+        public int Quantity { get; set; }
         public Guid ProjectId { get; set; }
 
         [ForeignKey(nameof(ProjectId))]
@@ -23,6 +24,11 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid? MaterialHistoryId { get; set; }
 
         [ForeignKey(nameof(MaterialHistoryId))]
-        public MaterialHistory? MaterialHistory { get; set; }
+        public SupplierPriceQuotation? MaterialHistory { get; set; }
+
+        public Guid? QuotationDetailId { get; set; }
+
+        [ForeignKey(nameof(QuotationDetailId))]
+        public QuotationDetail? QuotationDetail { get; set; }
     }
 }
