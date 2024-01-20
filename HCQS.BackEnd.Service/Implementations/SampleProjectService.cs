@@ -115,7 +115,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         var staticFileRepository = Resolve<IStaticFileRepository>();
-                        var listStaticFile = await staticFileRepository.GetListByExpression(f => f.SampleProjectId == id && f.StaticFileType != StaticFile.Type.Pdf);
+                        var listStaticFile = await staticFileRepository.GetAllDataByExpression(f => f.SampleProjectId == id && f.StaticFileType != StaticFile.Type.Pdf);
 
                         foreach (var item in listStaticFile)
                         {
@@ -146,34 +146,33 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var sampleList = await _sampleProjectRepository.GetAll();
+                var sampleList = await _sampleProjectRepository.GetAllDataByExpression(null,null);
                 List<SampleProjectResponse> sampleProjects = new List<SampleProjectResponse>();
                 var staticFileRepository = Resolve<IStaticFileRepository>();
 
                 foreach (var sample in sampleList)
                 {
-                    sampleProjects.Add(new SampleProjectResponse { SampleProject = sample, StaticFiles = await staticFileRepository.GetListByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video) });
+                    sampleProjects.Add(new SampleProjectResponse { SampleProject = sample, StaticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video) });
                 }
 
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                var sampleData = Utility.ConvertListToIOrderedQueryable(sampleProjects);
 
-                if (sampleData.Any())
+                if (sampleList.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;
                     if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
-                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleData.Count(), pageSize);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleList.Count(), pageSize);
 
                     if (sortInfos != null)
                     {
-                        sampleData = DataPresentationHelper.ApplySorting(sampleData, sortInfos);
+                        sampleList = DataPresentationHelper.ApplySorting(sampleList, sortInfos);
                     }
                     if (pageIndex > 0 && pageSize > 0)
                     {
-                        sampleData = DataPresentationHelper.ApplyPaging(sampleData, pageIndex, pageSize);
+                        sampleList = DataPresentationHelper.ApplyPaging(sampleList, pageIndex, pageSize);
                     }
-                    result.Result.Data = sampleData;
+                    result.Result.Data = sampleList;
                     result.Result.TotalPage = totalPage;
                 }
                 else
@@ -229,7 +228,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         var staticFileRepository = Resolve<IStaticFileRepository>();
-                        var listStaticFile = await staticFileRepository.GetListByExpression(f => f.SampleProjectId == sampleProjectRequest.Id);
+                        var listStaticFile = await staticFileRepository.GetAllDataByExpression(f => f.SampleProjectId == sampleProjectRequest.Id);
 
                         foreach (var item in listStaticFile)
                         {

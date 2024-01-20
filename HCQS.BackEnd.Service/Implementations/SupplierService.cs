@@ -102,11 +102,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierList = await _supplierRepository.GetAll();
+                    var supplierList = await _supplierRepository.GetAllDataByExpression(null,null);
 
-                    var supplier = Utility.ConvertIOrderQueryAbleToList(supplierList);
 
-                    supplierList = Utility.ConvertListToIOrderedQueryable(supplier);
 
                     if (supplierList.Any())
                     {

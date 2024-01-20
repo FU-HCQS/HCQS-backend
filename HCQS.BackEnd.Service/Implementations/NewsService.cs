@@ -6,6 +6,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
+using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -117,13 +118,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var newsList = await _newsRepository.GetAll();
+                    var newsList = await _newsRepository.GetAllDataByExpression( null,a => a.Account);
                     var fileService = Resolve<IFileService>();
                     var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
+                //    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
 
-                    newsList = Utility.ConvertListToIOrderedQueryable(news);
+                   var newss = Utility.ConvertListToIOrderedQueryable(newsList);
 
                     if (newsList.Any())
                     {
@@ -133,11 +134,11 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         if (sortInfos != null)
                         {
-                            newsList = DataPresentationHelper.ApplySorting(newsList, sortInfos);
+                     newsList = DataPresentationHelper.ApplySorting(newsList, sortInfos);
                         }
                         if (pageIndex > 0 && pageSize > 0)
                         {
-                            newsList = DataPresentationHelper.ApplyPaging(newsList, pageIndex, pageSize);
+                      newsList = DataPresentationHelper.ApplyPaging(newsList, pageIndex, pageSize);
                         }
                         result.Result.Data = newsList;
                         result.Result.TotalPage = totalPage;

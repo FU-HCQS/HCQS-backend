@@ -4,13 +4,12 @@ namespace HCQS.BackEnd.DAL.Contracts
 {
     public interface IRepository<T> where T : class
     {
-        Task<IOrderedQueryable<T>> GetAll();
+        Task<List<T>> GetAllDataByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
 
         Task<T> GetById(object id);
 
         Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);
 
-        Task<IOrderedQueryable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);
 
         Task<T> Insert(T entity);
 
@@ -18,8 +17,8 @@ namespace HCQS.BackEnd.DAL.Contracts
 
         Task<IEnumerable<T>> DeleteRange(IEnumerable<T> entities);
 
-        Task Update(T entity);
+        Task<T> Update(T entity);
 
-        Task DeleteById(object id);
+        Task<T> DeleteById(object id);
     }
 }

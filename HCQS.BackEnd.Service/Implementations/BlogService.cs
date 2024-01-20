@@ -184,13 +184,11 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var blogList = await _blogRepository.GetAll();
+                var blogList = await _blogRepository.GetAllDataByExpression(null, b=> b.Account);
                 var fileService = Resolve<IFileService>();
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                var blogs = Utility.ConvertIOrderQueryAbleToList(blogList);
 
-                blogList = Utility.ConvertListToIOrderedQueryable(blogs);
 
                 if (blogList.Any())
                 {

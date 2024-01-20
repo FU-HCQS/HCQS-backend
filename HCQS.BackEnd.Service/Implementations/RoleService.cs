@@ -122,7 +122,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                result.Result.Data = await _roleRepository.GetAll();
+                result.Result.Data = await _roleRepository.GetAllDataByExpression(null,null);
             }
             catch (Exception ex)
             {

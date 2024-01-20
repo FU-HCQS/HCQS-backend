@@ -1,47 +1,18 @@
 ﻿using HCQS.BackEnd.Common.Dto.BaseRequest;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace HCQS.BackEnd.DAL.Util
 {
     public class DataPresentationHelper
     {
-        public static IOrderedQueryable<T> ApplyFiltering<T>(IOrderedQueryable<T> source, IList<FilterInfo> filterList)
-        {
-            if (source == null || source.Count() == 0)
-            {
-                return source;
-            }
-            Expression<Func<T, bool>> combinedExpression = t => true;
-            if (filterList != null)
-            {
-                foreach (var filterInfo in filterList)
-                {
-                    Expression<Func<T, bool>> subFilter = null;
-                    /*if (!filterInfo.isValueFilter)
-                        subFilter = CreateRangeFilterExpression<T>(filterInfo);
-                    else */
-                    subFilter = CreateRangeFilterExpression<T>(filterInfo);
-
-                    if (subFilter != null)
-                    {
-                        var invokedExpr = Expression.Invoke(subFilter, combinedExpression.Parameters);
-                        combinedExpression = Expression.Lambda<Func<T, bool>>(
-                            Expression.AndAlso(invokedExpr, combinedExpression.Body),
-                            combinedExpression.Parameters);
-                    }
-                }
-                IOrderedQueryable<T> result = (IOrderedQueryable<T>)source.Where(combinedExpression);
-                return result;
-            }
-            return source;
-        }
-
-        public static IOrderedQueryable<T> ApplyPaging<T>(IOrderedQueryable<T> source, int pageIndex, int pageSize)
+      
+        public static List<T> ApplyPaging<T>(IEnumerable<T> source, int pageIndex, int pageSize)
         {
             int toSkip = (pageIndex - 1) * pageSize;
-            return (IOrderedQueryable<T>)source.Skip(toSkip).Take(pageSize);
+            return source.Skip(toSkip).Take(pageSize).ToList();
         }
-
         private static Expression<Func<T, bool>> CreateRangeFilterExpression<T>(FilterInfo filterInfoToRange)
         {
             var parameter = Expression.Parameter(typeof(T), "c");
@@ -56,39 +27,74 @@ namespace HCQS.BackEnd.DAL.Util
             return Expression.Lambda<Func<T, bool>>(andAlso, parameter);
         }
 
-        /*private static Expression<Func<T, bool>> CreateValueFilterExpression<T>(FilterInfo filterInfoToValue)
+        public static List<T> ApplyFiltering<T>(List<T> source, IList<FilterInfo> filterList)
         {
-            var parameter = Expression.Parameter(typeof(T), "c");
-            var conjunctions = new List<Expression>();
-
-            var fieldName = filterInfoToValue.fieldName;
-            var filterValues = filterInfoToValue.values;
-
-            if (filterValues is IEnumerable<object> values)
+            if (source == null || source.Count == 0 || filterList == null || filterList.Count == 0)
             {
-                // Create equality expressions for each value
-                foreach (var filterValue in values)
+                return source;
+            }
+
+            // Initialize the combined expression to always true
+            Expression<Func<T, bool>> combinedExpression = t => true;
+
+            foreach (var filterInfo in filterList)
+            {
+                Expression<Func<T, bool>> subFilter = CreateFilterExpression<T>(filterInfo);
+
+                if (subFilter != null)
                 {
-                    var property = Expression.Property(parameter, fieldName);
-                    var value = Expression.Constant(filterValue);
-                        var equality = Expression.Equal(property, value);
-                    conjunctions.Add(equality);
+                    // Combine the sub-filter with the existing combined expression using AndAlso
+                    combinedExpression = Expression.Lambda<Func<T, bool>>(
+                        Expression.AndAlso(
+                            Expression.Invoke(subFilter, combinedExpression.Parameters),
+                            combinedExpression.Body),
+                        combinedExpression.Parameters);
                 }
             }
-            else
-            {
-                throw new InvalidOperationException("filterValues must be of type IEnumerable<object> for filtering.");
-            }
-            // Use OR for the same field name and AND for different field names
-            var combinedFilter = conjunctions.Aggregate((current, next) => Expression.Or(current, next));
-            return Expression.Lambda<Func<T, bool>>(combinedFilter, parameter);
-        }*/
 
-        public static IOrderedQueryable<T> ApplySorting<T>(IOrderedQueryable<T> filteredData, IList<SortInfo> sortingList)
+            // Apply the combined filter to the source and return the result
+            return source.Where(combinedExpression.Compile()).ToList();
+        }
+
+        private static Expression<Func<T, bool>> CreateFilterExpression<T>(FilterInfo filterInfo)
         {
-            IOrderedQueryable<T> orderedQuery = filteredData;
+            var parameter = Expression.Parameter(typeof(T));
+            var property = Expression.Property(parameter, filterInfo.fieldName);
 
-            orderedQuery = filteredData.OrderBy(x => 0); // Order by a constant to initiate sorting.
+            if (filterInfo.min.HasValue && filterInfo.max.HasValue)
+            {
+                // Range filter
+                var lowerBound = Expression.Constant(filterInfo.min.Value, property.Type);
+                var upperBound = Expression.Constant(filterInfo.max.Value, property.Type);
+                var lowerCondition = Expression.GreaterThanOrEqual(property, lowerBound);
+                var upperCondition = Expression.LessThanOrEqual(property, upperBound);
+                var rangeCondition = Expression.AndAlso(lowerCondition, upperCondition);
+                return Expression.Lambda<Func<T, bool>>(rangeCondition, parameter);
+            }
+            else if (filterInfo.min.HasValue)
+            {
+                // Greater than or equal filter
+                var lowerBound = Expression.Constant(filterInfo.min.Value, property.Type);
+                var condition = Expression.GreaterThanOrEqual(property, lowerBound);
+                return Expression.Lambda<Func<T, bool>>(condition, parameter);
+            }
+            else if (filterInfo.max.HasValue)
+            {
+                // Less than or equal filter
+                var upperBound = Expression.Constant(filterInfo.max.Value, property.Type);
+                var condition = Expression.LessThanOrEqual(property, upperBound);
+                return Expression.Lambda<Func<T, bool>>(condition, parameter);
+            }
+
+            // Add more filter types based on your requirements...
+
+            return null; // Return null if unable to create a valid filter expression
+        }
+
+        public static List<T> ApplySorting<T>(List<T> filteredData, IList<SortInfo> sortingList)
+        {
+            // Order by a constant to initiate sorting.
+            IOrderedEnumerable<T> orderedQuery = filteredData.OrderBy(x => 0);
 
             foreach (var sortInfo in sortingList)
             {
@@ -106,15 +112,15 @@ namespace HCQS.BackEnd.DAL.Util
 
                 if (sortInfo.ascending)
                 {
-                    orderedQuery = orderedQuery.ThenBy(lambda);
+                    orderedQuery = orderedQuery.ThenBy(lambda.Compile());
                 }
                 else
                 {
-                    orderedQuery = orderedQuery.ThenByDescending(lambda);
+                    orderedQuery = orderedQuery.ThenByDescending(lambda.Compile());
                 }
             }
 
-            return orderedQuery;
+            return orderedQuery.ToList();
         }
 
         public static int CalculateTotalPageSize(int totalRecord, int pageSize)
