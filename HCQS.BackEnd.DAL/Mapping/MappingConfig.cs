@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Models;
 
 namespace HCQS.BackEnd.DAL.Mapping
@@ -43,6 +44,13 @@ namespace HCQS.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
 
                 ;
+
+                config.CreateMap<StaticFile, StaticFileResponse >()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
+               .ForMember(desc => desc.Url, act => act.MapFrom(src => src.Url))
+               .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
+               ;
             });
             return mappingConfig;
         }

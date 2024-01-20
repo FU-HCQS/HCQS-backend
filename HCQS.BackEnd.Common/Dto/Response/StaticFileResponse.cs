@@ -1,9 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace HCQS.BackEnd.DAL.Models
+namespace HCQS.BackEnd.Common.Dto.Response
 {
-    public class StaticFile
+    public class StaticFileResponse
     {
         [Key]
         public Guid Id { get; set; }
@@ -21,7 +26,5 @@ namespace HCQS.BackEnd.DAL.Models
 
         public Guid? SampleProjectId { get; set; }
 
-        [ForeignKey(nameof(SampleProjectId))]
-        public SampleProject? SampleProject { get; set; }
     }
 }

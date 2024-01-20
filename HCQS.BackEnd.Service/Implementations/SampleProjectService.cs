@@ -2,7 +2,9 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
@@ -158,27 +160,34 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 foreach (var sample in sampleList)
                 {
-                    sampleProjects.Add(new SampleProjectResponse { SampleProject = sample, StaticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video) });
+                    List<StaticFile> staticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video, null);
+                  
+                    sampleProjects.Add(
+                        
+                        new SampleProjectResponse { 
+                            SampleProject = sample, 
+                            StaticFiles = _mapper.Map<List<StaticFileResponse>>(staticFiles)
+                });
                 }
 
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
 
-                if (sampleList.Any())
+                if (sampleProjects.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;
                     if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
-                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleList.Count(), pageSize);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleProjects.Count(), pageSize);
 
                     if (sortInfos != null)
                     {
-                        sampleList = DataPresentationHelper.ApplySorting(sampleList, sortInfos);
+                        sampleProjects = DataPresentationHelper.ApplySorting(sampleProjects, sortInfos);
                     }
                     if (pageIndex > 0 && pageSize > 0)
                     {
-                        sampleList = DataPresentationHelper.ApplyPaging(sampleList, pageIndex, pageSize);
+                        sampleProjects = DataPresentationHelper.ApplyPaging(sampleProjects, pageIndex, pageSize);
                     }
-                    result.Result.Data = sampleList;
+                    result.Result.Data = sampleProjects;
                     result.Result.TotalPage = totalPage;
                 }
                 else
@@ -200,9 +209,18 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var sampleDb = await _sampleProjectRepository.GetById(id);
+                var staticFileRepository = Resolve<IStaticFileRepository>();
+                List<StaticFile> staticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video, null);
+                SampleProjectResponse sampleProjectResponse = new SampleProjectResponse 
+                { 
+                    SampleProject = sampleDb, 
+                    StaticFiles =
+                    _mapper.Map<List<StaticFileResponse>>(staticFiles)
+                };
+            
                 if (sampleDb != null)
                 {
-                    result.Result.Data = sampleDb;
+                    result.Result.Data = sampleProjectResponse;
                 }
             }
             catch (Exception ex)

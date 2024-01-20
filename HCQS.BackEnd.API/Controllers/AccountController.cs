@@ -76,7 +76,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("assign-role-for-userId")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ADMIN)]
+     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ADMIN)]
         public async Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId)
         {
             return await _accountService.AssignRoleForUserId(userId, roleId);
