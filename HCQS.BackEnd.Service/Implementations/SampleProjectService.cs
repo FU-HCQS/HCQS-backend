@@ -41,7 +41,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with header {projectDb.Header} is existed!");
                     }
+                    var accountRepository = Resolve<IAccountRepository>();
 
+                    var account = await accountRepository.GetByExpression(a => a.Id == sampleProjectRequest.AccountId);
+                    if (account == null) {
+                        result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
+                    }
                     await _sampleProjectRepository.Insert(project);
                     await _unitOfWork.SaveChangeAsync();
 
@@ -74,7 +79,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (!BuildAppActionResultIsError(result))
                                 {
                                     StaticFile staticFile = new StaticFile { Id = Guid.NewGuid(), SampleProjectId = project.Id, Url = url, StaticFileType = type };
-                                    await staticFileRepository.Insert(staticFile);
+                                    result.Result.Data = await staticFileRepository.Insert(staticFile);
                                     await _unitOfWork.SaveChangeAsync();
                                 }
                             }
@@ -106,9 +111,10 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with id {projectDb.Header} is not existed!");
                     }
+
                     else
                     {
-                        await _sampleProjectRepository.DeleteById(id);
+                        result.Result.Data = await _sampleProjectRepository.DeleteById(id);
                         await _unitOfWork.SaveChangeAsync();
                     }
                     if (!BuildAppActionResultIsError(result))
@@ -220,8 +226,14 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with id {sampleProjectRequest.Id} is existed!");
                     }
+                    var accountRepository = Resolve<IAccountRepository>();
 
-                    await _sampleProjectRepository.Update(project);
+                    var account = await accountRepository.GetByExpression(a => a.Id == sampleProjectRequest.AccountId);
+                    if (account == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
+                    }
+                    result.Result.Data = await _sampleProjectRepository.Update(project);
                     await _unitOfWork.SaveChangeAsync();
 
                     if (!BuildAppActionResultIsError(result))

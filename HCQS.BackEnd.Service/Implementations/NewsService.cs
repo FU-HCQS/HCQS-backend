@@ -43,7 +43,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The news whose header: {newsDb.Header} has existed!");
                     }
-                    await _newsRepository.Insert(news);
+                    result.Result.Data = await _newsRepository.Insert(news);
                     await _unitOfWork.SaveChangeAsync();
 
                     if (!BuildAppActionResultIsError(result))
@@ -93,7 +93,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
-                            await _newsRepository.DeleteById(id);
+                            result.Result.Data = await _newsRepository.DeleteById(id);
                             await _unitOfWork.SaveChangeAsync();
                         }
                     }
@@ -118,13 +118,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var newsList = await _newsRepository.GetAllDataByExpression( null,a => a.Account);
+                    var newsList = await _newsRepository.GetAllDataByExpression(null, a => a.Account);
                     var fileService = Resolve<IFileService>();
                     var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                //    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
+                    //    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
 
-                   var newss = Utility.ConvertListToIOrderedQueryable(newsList);
+                    var newss = Utility.ConvertListToIOrderedQueryable(newsList);
 
                     if (newsList.Any())
                     {
@@ -134,11 +134,11 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         if (sortInfos != null)
                         {
-                     newsList = DataPresentationHelper.ApplySorting(newsList, sortInfos);
+                            newsList = DataPresentationHelper.ApplySorting(newsList, sortInfos);
                         }
                         if (pageIndex > 0 && pageSize > 0)
                         {
-                      newsList = DataPresentationHelper.ApplyPaging(newsList, pageIndex, pageSize);
+                            newsList = DataPresentationHelper.ApplyPaging(newsList, pageIndex, pageSize);
                         }
                         result.Result.Data = newsList;
                         result.Result.TotalPage = totalPage;
@@ -206,7 +206,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 newsDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
                                 newsDb.Content = news.Content;
                                 newsDb.Header = news.Header;
-
+                                result.Result.Data = newsDb;
                                 await _unitOfWork.SaveChangeAsync();
                             }
                         }

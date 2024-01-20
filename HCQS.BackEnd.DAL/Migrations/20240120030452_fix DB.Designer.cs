@@ -4,6 +4,7 @@ using HCQS.BackEnd.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    partial class HCQSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240120030452_fix DB")]
+    partial class fixDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -421,7 +423,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.HasIndex("QuotationDetailId");
 
-                    b.ToTable("ProgressConstructionMaterials");
+                    b.ToTable("ConstructionMaterials");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>
@@ -652,7 +654,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.HasIndex("SupllierId");
 
-                    b.ToTable("SupplierPriceQuotations");
+                    b.ToTable("MaterialHistories");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>
@@ -734,22 +736,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "80967e13-e26c-45e9-9746-9686e70c62c9",
+                            Id = "e4515974-db46-438a-8d4f-473459e4e1c7",
+                            ConcurrencyStamp = "8c0236af-d52f-40c7-b4b7-3c383a89d6f2",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
-                            Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "cd8bbf22-0928-421b-8d8d-a903641783f6",
+                            Id = "6be54b9f-c492-4973-b37b-2a374bacd0a5",
+                            ConcurrencyStamp = "e94620de-87a7-4e02-bd94-20e2d67bc767",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
-                            Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "78cb594d-007e-4263-a19a-30273272631a",
+                            Id = "828b7fe7-8ae6-45f0-bcb8-46a3e3cd4808",
+                            ConcurrencyStamp = "303c4373-c5f6-4e9e-a11d-636c6393a491",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
