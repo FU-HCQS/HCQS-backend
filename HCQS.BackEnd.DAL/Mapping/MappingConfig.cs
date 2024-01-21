@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Models;
@@ -42,8 +43,14 @@ namespace HCQS.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.TotalArea, act => act.MapFrom(src => src.TotalArea))
                 .ForMember(desc => desc.ProjectType, act => act.MapFrom(src => src.ProjectType))
                 .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
-
                 ;
+
+                config.CreateMap<MaterialRequest, Material>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.Name, act => act.MapFrom(src => src.Name))
+              .ForMember(desc => desc.UnitMaterial, act => act.MapFrom(src => src.UnitMaterial))
+              .ForMember(desc => desc.MaterialType, act => act.MapFrom(src => src.MaterialType))
+              .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity));
 
                 config.CreateMap<StaticFile, StaticFileResponse >()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
@@ -51,6 +58,11 @@ namespace HCQS.BackEnd.DAL.Mapping
                .ForMember(desc => desc.Url, act => act.MapFrom(src => src.Url))
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                ;
+
+
+
+
+
             });
             return mappingConfig;
         }
