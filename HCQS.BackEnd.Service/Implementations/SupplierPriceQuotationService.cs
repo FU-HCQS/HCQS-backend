@@ -146,7 +146,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> UploadQuotationWithExcelFile(IFormFile file)
+        public async Task<AppActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
         {
             AppActionResult result = new AppActionResult();
             if (file == null || file.Length == 0)
@@ -162,7 +162,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         //Format: Name_ddmmyyy
                         string[] supplierInfo = file.FileName.Split('_');
                         string supplierName = supplierInfo[0];
-                        string dateString = supplierInfo[1];
+                        string dateString = supplierInfo[1].Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
                             result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
@@ -183,7 +183,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 SupplierId = supplier.Id
                             };
                             await _supplierPriceQuotationRepository.Insert(newSupplierPriceQuotation);
-                            _unitOfWork.SaveChangeAsync();
+                            await _unitOfWork.SaveChangeAsync();
                             Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
                             List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
                             List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
@@ -195,8 +195,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
                                 else
                                 {
-                                    var material = await materialRepository.GetByExpression(m => m.Name.ToLower().Equals(record.MaterialName.ToLower())
-                                                                                        && m.UnitMaterial.ToString().ToLower().Equals(record.Unit.ToLower()));
+                                    var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName)
+                                                                                        && m.UnitMaterial.ToString().Equals(record.Unit));
                                     if (material == null)
                                     {
                                         // Color red the cell :vv
@@ -272,6 +272,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             SupplierMaterialQuotationRecord record = new SupplierMaterialQuotationRecord()
                             {
+                                Id = Guid.NewGuid(),
                                 MaterialName = worksheet.Cells[row, 2].Value.ToString().ToString(),
                                 Unit = worksheet.Cells[row, 3].Value.ToString().ToString(),
                                 MQO = int.Parse(worksheet.Cells[row, 4].Value.ToString().ToString()),
