@@ -10,8 +10,8 @@ namespace HCQS.BackEnd.DAL.Models
 
         public DateTime Date { get; set; }
 
-        public Guid SupllierId { get; set; }
-        [ForeignKey(nameof(SupllierId))]
+        public Guid SupplierId { get; set; }
+        [ForeignKey(nameof(SupplierId))]
         public Supplier? Supplier { get; set; }
     }
 }
