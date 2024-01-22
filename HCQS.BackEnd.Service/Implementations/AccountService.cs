@@ -163,10 +163,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, "The email or username is existed");
                     }
 
-                    if (await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower()) == null)
-                    {
-                        result = BuildAppActionResultError(result, $"The role with name {signUpRequest.RoleName} is not existed");
-                    }
+                    
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -203,36 +200,17 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} USER");
                         }
 
-                        var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower());
-                        List<string> roleAssign = new List<string>();
 
-                        if (signUpRequest.RoleName.ToLower() == "admin")
+                        var resultCreateRole = await _userManager.AddToRoleAsync(user, Permission.CUSTOMER);
+                        if (resultCreateRole.Succeeded)
                         {
-                            roleAssign.Add(Permission.ADMIN);
-                            roleAssign.Add(Permission.STAFF);
-                            roleAssign.Add(Permission.CUSTOMER);
-                        }
-                        else if (signUpRequest.RoleName.ToLower() == "staff")
-                        {
-                            roleAssign.Add(Permission.STAFF);
-                            roleAssign.Add(Permission.CUSTOMER);
+                            BuildAppActionResultSuccess(result, $"ASSIGN ROLE SUCCESSFUL");
                         }
                         else
                         {
-                            roleAssign.Add(Permission.CUSTOMER);
+                            result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
-                        foreach (var role in roleAssign)
-                        {
-                            var resultCreateRole = await _userManager.AddToRoleAsync(user, role);
-                            if (resultCreateRole.Succeeded)
-                            {
-                                BuildAppActionResultSuccess(result, $"ASSIGN ROLE SUCCESSFUL");
-                            }
-                            else
-                            {
-                                result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
-                            }
-                        }
+                       
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -806,7 +784,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
                     if (user == null)
                     {
-                        var resultCreate = await CreateAccount(new SignUpRequestDto { Email = userEmail, FirstName = name, Gender = true, RoleName = "customer", LastName = string.Empty, Password = "Google123@", PhoneNumber = string.Empty }, true);
+                        var resultCreate = await CreateAccount(new SignUpRequestDto { Email = userEmail, FirstName = name, Gender = true,  LastName = string.Empty, Password = "Google123@", PhoneNumber = string.Empty }, true);
                         if (resultCreate != null && resultCreate.IsSuccess)
                         {
                             Account account = (Account)resultCreate.Result.Data;

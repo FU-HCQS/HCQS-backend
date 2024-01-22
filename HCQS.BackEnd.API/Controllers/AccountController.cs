@@ -75,20 +75,6 @@ namespace HCQS.BackEnd.API.Controllers
             return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }
 
-        [HttpPut("assign-role-for-userId")]
-     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ADMIN)]
-        public async Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId)
-        {
-            return await _accountService.AssignRoleForUserId(userId, roleId);
-        }
-
-        [HttpPut("remove-role-for-userId")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ADMIN)]
-        public async Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId)
-        {
-            return await _accountService.RemoveRoleForUserId(userId, roleId);
-        }
-
         [HttpPost("get-new-token")]
         public async Task<AppActionResult> GetNewToken([FromBody] string refreshToken, string userId)
         {

@@ -9,6 +9,5 @@
         public bool Gender { get; set; }
         public string PhoneNumber { get; set; }
 
-        public string RoleName { get; set; }
     }
 }

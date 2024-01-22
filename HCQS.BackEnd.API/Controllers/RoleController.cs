@@ -22,15 +22,15 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("assign-role-for-user")]
-        public async Task<AppActionResult> AssignRoleForUser(string userId, string roleName)
+        public async Task<AppActionResult> AssignRoleForUser(string userId)
         {
-            return await _roleService.AssignRoleForUser(userId, roleName);
+            return await _roleService.AssignRoleForUser(userId);
         }
 
         [HttpDelete("remove-role-for-user")]
-        public async Task<AppActionResult> RemoveRoleForUser(string userId, string roleName)
+        public async Task<AppActionResult> RemoveRoleForUser(string userId)
         {
-            return await _roleService.RemoveRoleForUser(userId, roleName);
+            return await _roleService.RemoveRoleForUser(userId);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace HCQS.BackEnd.Service.Implementations
             _logger = logger;
         }
 
-        public async Task<AppActionResult> AssignRoleForUser(string userId, string roleName)
+        public async Task<AppActionResult> AssignRoleForUser(string userId)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -39,20 +39,29 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var accountRepository = Resolve<IAccountRepository>();
-                    if (await accountRepository.GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
+                    var account = await accountRepository.GetByExpression(u => u.Id == userId && u.IsDeleted == false && u.IsVerified == true);
+                    if (account == null)
                     {
                         result = BuildAppActionResultError(result, $"The user with id {userId} not found");
                     }
-                    if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                    var userRoleRepository = Resolve<IUserRoleRepository>();
+                    var userRole = await userRoleRepository.GetAllDataByExpression(s => s.UserId == userId);
+                    var staffRole = await _roleRepository.GetByExpression(s => s.Name.ToLower() == Permission.STAFF.ToLower());
+
+                    foreach (var role in userRole)
                     {
-                        result = BuildAppActionResultError(result, $"The role with name {roleName} not found");
+                        if (role.RoleId == staffRole.Id)
+                        {
+                            result = BuildAppActionResultError(result, $"The user with id {userId} has the current role of staff");
+
+                        }
                     }
 
                     if (!BuildAppActionResultIsError(result))
                     {
                         var user = await accountRepository.GetById(userId);
-                        var AddToRole = await _userManager.AddToRoleAsync(user, roleName);
-                        if (AddToRole.Succeeded)
+                        var addToRole = await _userManager.AddToRoleAsync(user, Permission.STAFF.ToLower());
+                        if (addToRole.Succeeded)
                         {
                             result = BuildAppActionResultSuccess(result, $"ASSIGN ROLE SUCCESSFUL");
                         }
@@ -60,8 +69,12 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
+
+
+                        await _unitOfWork.SaveChangeAsync();
+
+
                     }
-                    await _unitOfWork.SaveChangeAsync();
                     if (!BuildAppActionResultIsError(result))
                     {
                         scope.Complete();
@@ -76,53 +89,13 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> CreateRole(string roleName)
-        {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                AppActionResult result = new AppActionResult();
-                try
-                {
-                    if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
-                    {
-                        result = BuildAppActionResultError(result, $"The role with name {roleName} is existed");
-                    }
-                    if (!BuildAppActionResultIsError(result))
-                    {
-                        var role = new IdentityRole();
-                        role.Name = roleName;
-                        var CreateAsyncResult = await _roleManager.CreateAsync(role);
-
-                        if (CreateAsyncResult.Succeeded)
-                        {
-                            result = BuildAppActionResultSuccess(result, $"{SD.ResponseMessage.CREATE_SUCCESSFUL} ROLE");
-                        }
-                        else
-                        {
-                            result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} ROLE");
-                        }
-                    }
-                    await _unitOfWork.SaveChangeAsync();
-                    if (!BuildAppActionResultIsError(result))
-                    {
-                        scope.Complete();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
-                    _logger.LogError(ex.Message, this);
-                }
-                return result;
-            }
-        }
 
         public async Task<AppActionResult> GetAllRole()
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                result.Result.Data = await _roleRepository.GetAllDataByExpression(null,null);
+                result.Result.Data = await _roleRepository.GetAllDataByExpression(null, null);
             }
             catch (Exception ex)
             {
@@ -132,7 +105,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> RemoveRoleForUser(string userId, string roleName)
+        public async Task<AppActionResult> RemoveRoleForUser(string userId)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -144,14 +117,29 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The user with id {userId} not found");
                     }
-                    if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                    var userRoleRepository = Resolve<IUserRoleRepository>();
+                    var userRole = await userRoleRepository.GetAllDataByExpression(s => s.UserId == userId);
+                    var staffRole = await _roleRepository.GetByExpression(s => s.Name.ToLower() == Permission.STAFF.ToLower());
+                    bool flag = false;
+                    foreach (var role in userRole)
                     {
-                        result = BuildAppActionResultError(result, $"The role with name {roleName} not found");
+                        if (role.RoleId == staffRole.Id)
+                        {
+                            flag = true;
+
+                        }
+                      
                     }
+
+                    if (flag!= true)
+                    {
+                        result = BuildAppActionResultError(result, $"The user with id don't have staff role");
+                    }
+
                     if (!BuildAppActionResultIsError(result))
                     {
                         var user = await accountRepository.GetById(userId);
-                        var RemoveFromRoleAsyncResult = await _userManager.RemoveFromRoleAsync(user, roleName);
+                        var RemoveFromRoleAsyncResult = await _userManager.RemoveFromRoleAsync(user, Permission.STAFF.ToLower());
                         if (RemoveFromRoleAsyncResult.Succeeded)
                         {
                             result = BuildAppActionResultSuccess(result, $"REMOVE ROLE SUCCESSFUL");
@@ -159,44 +147,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         else
                         {
                             result = BuildAppActionResultError(result, $"REMOVE ROLE FAILED");
-                        }
-                    }
-                    await _unitOfWork.SaveChangeAsync();
-                    if (!BuildAppActionResultIsError(result))
-                    {
-                        scope.Complete();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
-                    _logger.LogError(ex.Message, this);
-                }
-                return result;
-            }
-        }
-
-        public async Task<AppActionResult> UpdateRole(IdentityRole role)
-        {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                AppActionResult result = new AppActionResult();
-                try
-                {
-                    if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == role.Name.ToLower()) == null)
-                    {
-                        result = BuildAppActionResultError(result, $"The role with name {role.Name} not found");
-                    }
-                    if (!BuildAppActionResultIsError(result))
-                    {
-                        var UpdateAsyncResult = await _roleManager.UpdateAsync(role);
-                        if (UpdateAsyncResult.Succeeded)
-                        {
-                            result = BuildAppActionResultSuccess(result, $"{SD.ResponseMessage.UPDATE_SUCCESSFUL} ROLE");
-                        }
-                        else
-                        {
-                            result = BuildAppActionResultError(result, $"{SD.ResponseMessage.UPDATE_FAILED} ROLE");
                         }
                     }
                     await _unitOfWork.SaveChangeAsync();
