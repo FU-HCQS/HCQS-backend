@@ -21,7 +21,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _roleService.GetAllRole();
         }
 
-        [HttpPost("assign-role-for-user")]
+        [HttpPut("assign-role-for-user")]
         public async Task<AppActionResult> AssignRoleForUser(string userId)
         {
             return await _roleService.AssignRoleForUser(userId);
