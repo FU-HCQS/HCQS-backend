@@ -43,7 +43,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPut("update-account")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
-        public async Task<AppActionResult> UpdateAccount(Account request)
+        public async Task<AppActionResult> UpdateAccount(UpdateAccountRequestDto request)
         {
             return await _accountService.UpdateAccount(request);
         }

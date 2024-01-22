@@ -13,7 +13,7 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle);
 
-        Task<AppActionResult> UpdateAccount(Account applicationUser);
+        Task<AppActionResult> UpdateAccount(UpdateAccountRequestDto applicationUser);
 
         Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
 
