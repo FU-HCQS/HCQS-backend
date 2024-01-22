@@ -4,64 +4,54 @@
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class fix_Field_errorsupplier : Migration
+    public partial class AddFieldAreaToProjectModel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "MOQ",
-                table: "SupplierPriceDetails",
-                newName: "MOQ");
-
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
                 column: "ConcurrencyStamp",
-                value: "0bfc3808-0b79-4c0a-916a-b070bca6574a");
+                value: "c9fbdd16-f03a-4b59-aa5d-51f314dafbaa");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: "2f28c722-04c9-41fd-85e4-eaa506acda38",
                 column: "ConcurrencyStamp",
-                value: "e5bcfe66-c60a-4ad6-af8c-a66abdb5386a");
+                value: "21a3e994-3dad-4920-87b4-f87e771ea0c0");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
                 column: "ConcurrencyStamp",
-                value: "937410d5-765c-4aa4-b316-9cf2e1a88b2d");
+                value: "07cde738-4a30-4279-af3a-f8e29c9e4565");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "MOQ",
-                table: "SupplierPriceDetails",
-                newName: "MOQ");
-
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
                 column: "ConcurrencyStamp",
-                value: "cb3c2885-420a-4d31-80c8-8342ac835561");
+                value: "855dfdc5-9753-49e7-b96b-dc7675a55c42");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: "2f28c722-04c9-41fd-85e4-eaa506acda38",
                 column: "ConcurrencyStamp",
-                value: "464ea0dc-c298-47a5-aa81-cbfe2f27181c");
+                value: "7c75ecda-f5bc-4edb-a160-9bef747c3a1c");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
                 column: "ConcurrencyStamp",
-                value: "db23e24d-b8ac-4ce1-8d7e-650f4a12ab67");
+                value: "a0808775-caa1-43ee-af35-f747555d74a6");
         }
     }
 }

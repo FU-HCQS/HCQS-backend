@@ -212,7 +212,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 {
                                     Id = Guid.NewGuid(),
                                     MaterialId = materialId,
-                                    MQO = int.Parse(record.MQO.ToString()),
+                                    MOQ = int.Parse(record.MOQ.ToString()),
                                     Price = record.Price,
                                     SupplierPriceQuotationId = newSupplierPriceQuotation.Id
                                 };
@@ -275,7 +275,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Id = Guid.NewGuid(),
                                 MaterialName = worksheet.Cells[row, 2].Value.ToString().ToString(),
                                 Unit = worksheet.Cells[row, 3].Value.ToString().ToString(),
-                                MQO = int.Parse(worksheet.Cells[row, 4].Value.ToString().ToString()),
+                                MOQ = int.Parse(worksheet.Cells[row, 4].Value.ToString().ToString()),
                                 Price = double.Parse(worksheet.Cells[row, 5].Value.ToString().ToString())
                             };
                             records.Add(record);

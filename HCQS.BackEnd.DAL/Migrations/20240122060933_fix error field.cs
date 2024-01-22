@@ -9,16 +9,16 @@ namespace HCQS.BackEnd.DAL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_SupplierPriceQuotations_Suppliers_SupllierId",
+                name: "FK_SupplierPriceQuotations_Suppliers_SupplierId",
                 table: "SupplierPriceQuotations");
 
             migrationBuilder.RenameColumn(
-                name: "SupllierId",
+                name: "SupplierId",
                 table: "SupplierPriceQuotations",
                 newName: "SupplierId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_SupplierPriceQuotations_SupllierId",
+                name: "IX_SupplierPriceQuotations_SupplierId",
                 table: "SupplierPriceQuotations",
                 newName: "IX_SupplierPriceQuotations_SupplierId");
 
@@ -61,12 +61,12 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.RenameColumn(
                 name: "SupplierId",
                 table: "SupplierPriceQuotations",
-                newName: "SupllierId");
+                newName: "SupplierId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_SupplierPriceQuotations_SupplierId",
                 table: "SupplierPriceQuotations",
-                newName: "IX_SupplierPriceQuotations_SupllierId");
+                newName: "IX_SupplierPriceQuotations_SupplierId");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
@@ -90,9 +90,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 value: "db23e24d-b8ac-4ce1-8d7e-650f4a12ab67");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_SupplierPriceQuotations_Suppliers_SupllierId",
+                name: "FK_SupplierPriceQuotations_Suppliers_SupplierId",
                 table: "SupplierPriceQuotations",
-                column: "SupllierId",
+                column: "SupplierId",
                 principalTable: "Suppliers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);

@@ -11,7 +11,7 @@ namespace HCQS.BackEnd.Common.Dto.Record
         public Guid Id { get; set; }
         public string MaterialName { get; set; }
         public string Unit { get; set; }
-        public int MQO { get; set; }
+        public int MOQ { get; set; }
         public double Price { get; set; }
     }
 }

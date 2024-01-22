@@ -617,7 +617,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("MQO")
+                    b.Property<int>("MOQ")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("MaterialId")
@@ -647,12 +647,12 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("SupllierId")
+                    b.Property<Guid>("SupplierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SupllierId");
+                    b.HasIndex("SupplierId");
 
                     b.ToTable("SupplierPriceQuotations");
                 });
@@ -1066,7 +1066,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.Supplier", "Supplier")
                         .WithMany()
-                        .HasForeignKey("SupllierId")
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

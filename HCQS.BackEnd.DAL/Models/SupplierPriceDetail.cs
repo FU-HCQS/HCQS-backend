@@ -10,7 +10,7 @@ namespace HCQS.BackEnd.DAL.Models
     public class SupplierPriceDetail
     {
         public Guid Id { get; set; }
-        public int MQO { get; set; }
+        public int MOQ { get; set; }
         public double Price { get; set; }
 
         public Guid? MaterialId { get; set; }

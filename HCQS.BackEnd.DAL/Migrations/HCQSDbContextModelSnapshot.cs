@@ -434,6 +434,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<double>("Area")
+                        .HasColumnType("float");
+
                     b.Property<int>("CementMixingRatio")
                         .HasColumnType("int");
 
@@ -735,21 +738,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "7d55762b-bfcf-4683-aaa9-f6e86a376bcc",
+                            ConcurrencyStamp = "c9fbdd16-f03a-4b59-aa5d-51f314dafbaa",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "d77cd71f-8ea0-4f46-9bdd-d551e0c582cd",
+                            ConcurrencyStamp = "21a3e994-3dad-4920-87b4-f87e771ea0c0",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "1b37c5b1-7145-4463-a69a-38516b45d64b",
+                            ConcurrencyStamp = "07cde738-4a30-4279-af3a-f8e29c9e4565",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });

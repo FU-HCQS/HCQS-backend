@@ -617,7 +617,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("MQO")
+                    b.Property<int>("MOQ")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("MaterialId")
