@@ -37,6 +37,7 @@ namespace HCQS.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.EstimatePrice, act => act.MapFrom(src => src.EstimatePrice))
                 .ForMember(desc => desc.ConstructionArea, act => act.MapFrom(src => src.ConstructionArea))
                 .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
+                .ForMember(desc => desc.ProjectType, act => act.MapFrom(src => src.ProjectType))
                 .ForMember(desc => desc.Function, act => act.MapFrom(src => src.Function))
                 .ForMember(desc => desc.Location, act => act.MapFrom(src => src.Location))
                 .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))

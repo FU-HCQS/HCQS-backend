@@ -43,14 +43,14 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var sampleList = await _supplierPriceQuotationRepository.GetAllDataByExpression(null, null);
-                List<SupplierPriceQuotationResponse> sampleProjects = new List<SupplierPriceQuotationResponse>();
+                List<SupplierPriceQuotationResponse> supplierQuotations = new List<SupplierPriceQuotationResponse>();
                 var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
 
                 foreach (var sample in sampleList)
                 {
                     List<SupplierPriceDetail> supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(S => S.SupplierPriceQuotationId == sample.Id, null);
 
-                    sampleProjects.Add(
+                    supplierQuotations.Add(
 
                         new SupplierPriceQuotationResponse
                         {
@@ -62,21 +62,21 @@ namespace HCQS.BackEnd.Service.Implementations
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
 
-                if (sampleProjects.Any())
+                if (supplierQuotations.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;
                     if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
-                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleProjects.Count(), pageSize);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(supplierQuotations.Count(), pageSize);
 
                     if (sortInfos != null)
                     {
-                        sampleProjects = DataPresentationHelper.ApplySorting(sampleProjects, sortInfos);
+                        supplierQuotations = DataPresentationHelper.ApplySorting(supplierQuotations, sortInfos);
                     }
                     if (pageIndex > 0 && pageSize > 0)
                     {
-                        sampleProjects = DataPresentationHelper.ApplyPaging(sampleProjects, pageIndex, pageSize);
+                        supplierQuotations = DataPresentationHelper.ApplyPaging(supplierQuotations, pageIndex, pageSize);
                     }
-                    result.Result.Data = sampleProjects;
+                    result.Result.Data = supplierQuotations;
                     result.Result.TotalPage = totalPage;
                 }
                 else
@@ -98,14 +98,14 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var sampleList = await _supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Date.Month == month && s.Date.Year == year, null);
-                List<SupplierPriceQuotationResponse> sampleProjects = new List<SupplierPriceQuotationResponse>();
+                List<SupplierPriceQuotationResponse> supplierQuotations = new List<SupplierPriceQuotationResponse>();
                 var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
 
                 foreach (var sample in sampleList)
                 {
                     List<SupplierPriceDetail> supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(S => S.SupplierPriceQuotationId == sample.Id, null);
 
-                    sampleProjects.Add(
+                    supplierQuotations.Add(
 
                         new SupplierPriceQuotationResponse
                         {
@@ -116,21 +116,21 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                if (sampleProjects.Any())
+                if (supplierQuotations.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;
                     if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
-                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(sampleProjects.Count(), pageSize);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(supplierQuotations.Count(), pageSize);
 
                     if (sortInfos != null)
                     {
-                        sampleProjects = DataPresentationHelper.ApplySorting(sampleProjects, sortInfos);
+                        supplierQuotations = DataPresentationHelper.ApplySorting(supplierQuotations, sortInfos);
                     }
                     if (pageIndex > 0 && pageSize > 0)
                     {
-                        sampleProjects = DataPresentationHelper.ApplyPaging(sampleProjects, pageIndex, pageSize);
+                        supplierQuotations = DataPresentationHelper.ApplyPaging(supplierQuotations, pageIndex, pageSize);
                     }
-                    result.Result.Data = sampleProjects;
+                    result.Result.Data = supplierQuotations;
                     result.Result.TotalPage = totalPage;
                 }
                 else

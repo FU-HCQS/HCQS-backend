@@ -20,9 +20,9 @@ namespace HCQS.BackEnd.Common.Dto.Request
             BAR,
         }
 
-        public Type MaterialType { get; set; }
+        public MaterialConstructionType MaterialType { get; set; }
 
-        public enum Type
+        public enum MaterialConstructionType
         {
             RawMaterials,
             Furniture
