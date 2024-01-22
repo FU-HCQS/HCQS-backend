@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240120030452_fix DB")]
-    partial class fixDB
+    [Migration("20240122073656_UpdateSupplierFieldName")]
+    partial class UpdateSupplierFieldName
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -423,7 +423,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.HasIndex("QuotationDetailId");
 
-                    b.ToTable("ConstructionMaterials");
+                    b.ToTable("ProgressConstructionMaterials");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>
@@ -576,7 +576,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SampleProjectId")
+                    b.Property<Guid?>("SampleProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("StaticFileType")
@@ -647,14 +647,14 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("SupllierId")
+                    b.Property<Guid>("SupplierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SupllierId");
+                    b.HasIndex("SupplierId");
 
-                    b.ToTable("MaterialHistories");
+                    b.ToTable("SupplierPriceQuotations");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>
@@ -736,22 +736,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e4515974-db46-438a-8d4f-473459e4e1c7",
-                            ConcurrencyStamp = "8c0236af-d52f-40c7-b4b7-3c383a89d6f2",
+                            Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
+                            ConcurrencyStamp = "51e6bfd9-2743-4d84-8ece-c6ba3ca7e310",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
-                            Id = "6be54b9f-c492-4973-b37b-2a374bacd0a5",
-                            ConcurrencyStamp = "e94620de-87a7-4e02-bd94-20e2d67bc767",
+                            Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
+                            ConcurrencyStamp = "3a2f4ca1-e404-4d46-9c5e-59569f0cc226",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
-                            Id = "828b7fe7-8ae6-45f0-bcb8-46a3e3cd4808",
-                            ConcurrencyStamp = "303c4373-c5f6-4e9e-a11d-636c6393a491",
+                            Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
+                            ConcurrencyStamp = "49981d4b-0bf5-4299-908f-f519cede88ca",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -1040,9 +1040,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.SampleProject", "SampleProject")
                         .WithMany()
-                        .HasForeignKey("SampleProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SampleProjectId");
 
                     b.Navigation("SampleProject");
                 });
@@ -1066,7 +1064,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.Supplier", "Supplier")
                         .WithMany()
-                        .HasForeignKey("SupllierId")
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
