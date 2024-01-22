@@ -163,7 +163,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, "The email or username is existed");
                     }
 
-                    
+
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -210,7 +210,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
-                       
+
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -226,26 +226,31 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> UpdateAccount(Account Account)
+        public async Task<AppActionResult> UpdateAccount(UpdateAccountRequestDto accountRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    if (await _accountRepository.GetByExpression(a => a.Id == Account.Id) == null)
+                    var account = await _accountRepository.GetByExpression(a => a.UserName.ToLower() == accountRequest.Email.ToLower());
+                    if (account == null)
                     {
-                        result = BuildAppActionResultError(result, $"The user with id {Account.Id} not found");
+                        result = BuildAppActionResultError(result, $"The user with email {account.Email} not found");
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        await _accountRepository.Update(Account);
-                        result = BuildAppActionResultSuccess(result, SD.ResponseMessage.UPDATE_SUCCESSFUL);
+                        account.FirstName = accountRequest.FirstName;
+                        account.LastName = accountRequest.LastName;
+                        account.PhoneNumber = accountRequest.PhoneNumber;
+                        result.Result.Data = await _accountRepository.Update(account);
                     }
                     await _unitOfWork.SaveChangeAsync();
                     if (!BuildAppActionResultIsError(result))
                     {
                         scope.Complete();
+                        result = BuildAppActionResultSuccess(result, SD.ResponseMessage.UPDATE_SUCCESSFUL);
+
                     }
                 }
                 catch (Exception ex)
@@ -288,7 +293,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var userRoleRepository = Resolve<IUserRoleRepository>();
                 var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 List<AccountResponse> accounts = new List<AccountResponse>();
-                var list = await _accountRepository.GetAllDataByExpression(null,null);
+                var list = await _accountRepository.GetAllDataByExpression(null, null);
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
@@ -371,7 +376,7 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var source = await _accountRepository.GetAllDataByExpression(a => !(bool)a.IsDeleted, null);
-               
+
                 int pageSize = filterRequest.pageSize;
                 if (filterRequest.pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -784,7 +789,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
                     if (user == null)
                     {
-                        var resultCreate = await CreateAccount(new SignUpRequestDto { Email = userEmail, FirstName = name, Gender = true,  LastName = string.Empty, Password = "Google123@", PhoneNumber = string.Empty }, true);
+                        var resultCreate = await CreateAccount(new SignUpRequestDto { Email = userEmail, FirstName = name, Gender = true, LastName = string.Empty, Password = "Google123@", PhoneNumber = string.Empty }, true);
                         if (resultCreate != null && resultCreate.IsSuccess)
                         {
                             Account account = (Account)resultCreate.Result.Data;
