@@ -12,6 +12,7 @@ namespace HCQS.BackEnd.DAL.Models
         public int SandMixingRatio { get; set; }
         public int CementMixingRatio { get; set; }
         public int StoneMixingRatio { get; set; }
+        public double Area { get; set; }
         public double TiledArea { get; set; }
         public Status ProjectStatus { get; set; }
 
