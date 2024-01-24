@@ -289,6 +289,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _accountRepository.GetAllDataByExpression(null, null);
+                if (sortInfos != null)
+                {
+                    list = DataPresentationHelper.ApplySorting(list, sortInfos);
+                }
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
@@ -304,16 +308,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                var data = accounts.OrderBy(x => x.User.Id).ToList();
-                if (sortInfos != null)
-                {
-                    data = DataPresentationHelper.ApplySorting(data, sortInfos);
-                }
+                
                 if (pageIndex > 0 && pageSize > 0)
                 {
-                    data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
+                    accounts = DataPresentationHelper.ApplyPaging(accounts, pageIndex, pageSize);
                 }
-                result.Result.Data = data;
+                result.Result.Data = accounts;
                 result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)

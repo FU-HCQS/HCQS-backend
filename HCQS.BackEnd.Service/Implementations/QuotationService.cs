@@ -2,6 +2,7 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
@@ -143,23 +144,25 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
+                    var contractRepository = Resolve<IContractRepository>();
+                    var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
+                    var paymentRepository = Resolve<IPaymentRepository>();
+                    var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                    var projectRepository = Resolve<IProjectRepository>();
+
+                    var accountRepository = Resolve<IAccountRepository>();
                     var quotationDb = await _quotationRepository.GetById(quotationId);
                     var emailService = Resolve<IEmailService>();
                     string code = Guid.NewGuid().ToString("N").Substring(0, 6);
-
+                    var project = await projectRepository.GetById(quotationDb.ProjectId);
+                    var account = await accountRepository.GetById(project.AccountId);
                     if (quotationDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationId} is not existed");
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        var contractRepository = Resolve<IContractRepository>();
-                        var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
-                        var paymentRepository = Resolve<IPaymentRepository>();
-                        var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
-                        var projectRepository = Resolve<IProjectRepository>();
-
-                        var accountRepository = Resolve<IAccountRepository>();
+                       
                         var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == quotationId);
 
                         if (!quotationDetails.Any())
@@ -212,8 +215,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             result.Result.Data = await contractRepository.Insert(contract);
                             await contractProgressPaymentRepository.Insert(contractProgressPayment);
                             await paymentRepository.Insert(payment);
-                            var project = await projectRepository.GetById(quotationDb.ProjectId);
-                            var account = await accountRepository.GetById(project.AccountId);
+                      
                             if (account.ContractVerifyCode == null)
                             {
                                 account.ContractVerifyCode = code;
@@ -236,7 +238,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (!BuildAppActionResultIsError(result))
                     {
                         scope.Complete();
-                        emailService.SendEmail(quotationDb.Project.Account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
                     }
                 }
                 catch (Exception ex)

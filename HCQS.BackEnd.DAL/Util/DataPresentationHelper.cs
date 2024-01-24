@@ -11,20 +11,6 @@ namespace HCQS.BackEnd.DAL.Util
             return source.Skip(toSkip).Take(pageSize).ToList();
         }
 
-        private static Expression<Func<T, bool>> CreateRangeFilterExpression<T>(FilterInfo filterInfoToRange)
-        {
-            var parameter = Expression.Parameter(typeof(T), "c");
-            var property = Expression.PropertyOrField(parameter, filterInfoToRange.fieldName);
-            var minValue = Expression.Constant(filterInfoToRange.min, typeof(double?));
-            var maxValue = Expression.Constant(filterInfoToRange.max, typeof(double?));
-
-            var greaterThanOrEqual = Expression.GreaterThanOrEqual(property, minValue);
-            var lessThanOrEqual = Expression.LessThanOrEqual(property, maxValue);
-            var andAlso = Expression.AndAlso(greaterThanOrEqual, lessThanOrEqual);
-
-            return Expression.Lambda<Func<T, bool>>(andAlso, parameter);
-        }
-
         public static List<T> ApplyFiltering<T>(List<T> source, IList<FilterInfo> filterList)
         {
             if (source == null || source.Count == 0 || filterList == null || filterList.Count == 0)
@@ -57,29 +43,29 @@ namespace HCQS.BackEnd.DAL.Util
         private static Expression<Func<T, bool>> CreateFilterExpression<T>(FilterInfo filterInfo)
         {
             var parameter = Expression.Parameter(typeof(T));
-            var property = Expression.Property(parameter, filterInfo.fieldName);
+            var property = Expression.Property(parameter, filterInfo.FieldName);
 
-            if (filterInfo.min.HasValue && filterInfo.max.HasValue)
+            if (filterInfo.Min.HasValue && filterInfo.Max.HasValue)
             {
                 // Range filter
-                var lowerBound = Expression.Constant(filterInfo.min.Value, property.Type);
-                var upperBound = Expression.Constant(filterInfo.max.Value, property.Type);
+                var lowerBound = Expression.Constant(filterInfo.Min.Value, property.Type);
+                var upperBound = Expression.Constant(filterInfo.Max.Value, property.Type);
                 var lowerCondition = Expression.GreaterThanOrEqual(property, lowerBound);
                 var upperCondition = Expression.LessThanOrEqual(property, upperBound);
                 var rangeCondition = Expression.AndAlso(lowerCondition, upperCondition);
                 return Expression.Lambda<Func<T, bool>>(rangeCondition, parameter);
             }
-            else if (filterInfo.min.HasValue)
+            else if (filterInfo.Min.HasValue)
             {
                 // Greater than or equal filter
-                var lowerBound = Expression.Constant(filterInfo.min.Value, property.Type);
+                var lowerBound = Expression.Constant(filterInfo.Min.Value, property.Type);
                 var condition = Expression.GreaterThanOrEqual(property, lowerBound);
                 return Expression.Lambda<Func<T, bool>>(condition, parameter);
             }
-            else if (filterInfo.max.HasValue)
+            else if (filterInfo.Max.HasValue)
             {
                 // Less than or equal filter
-                var upperBound = Expression.Constant(filterInfo.max.Value, property.Type);
+                var upperBound = Expression.Constant(filterInfo.Max.Value, property.Type);
                 var condition = Expression.LessThanOrEqual(property, upperBound);
                 return Expression.Lambda<Func<T, bool>>(condition, parameter);
             }
@@ -89,7 +75,7 @@ namespace HCQS.BackEnd.DAL.Util
             return null; // Return null if unable to create a valid filter expression
         }
 
-        public static List<T> ApplySorting<T>(List<T> filteredData, IList<SortInfo> sortingList)
+        public static List<T> ApplySorting<T>(IList<T> filteredData, IList<SortInfo> sortingList)
         {
             // Order by a constant to initiate sorting.
             IOrderedEnumerable<T> orderedQuery = filteredData.OrderBy(x => 0);
@@ -120,10 +106,10 @@ namespace HCQS.BackEnd.DAL.Util
 
             return orderedQuery.ToList();
         }
-
         public static int CalculateTotalPageSize(int totalRecord, int pageSize)
         {
             return (int)Math.Ceiling(totalRecord * 1.00 / pageSize);
         }
+     
     }
 }
