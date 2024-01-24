@@ -13,6 +13,9 @@ namespace HCQS.BackEnd.DAL.Models
 
         [ForeignKey(nameof(SupplierPriceDetailId))]
         public SupplierPriceDetail? SupplierPriceDetail { get; set; }
-      
+
+        public Guid? ProgressConstructionMaterialId { get; set; }
+        [ForeignKey(nameof(ProgressConstructionMaterialId))]
+        public ProgressConstructionMaterial? ProgressConstructionMaterial { get; set; }
     }
 }

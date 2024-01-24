@@ -15,7 +15,15 @@ namespace HCQS.BackEnd.DAL.Models
         public DateTime DateOfContract { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public double ExpectedPrice { get; set; }
+        public double MaterialPrice { get; set; }
+        public double LaborPrice { get; set; }
+        public double FurniturePrice { get; set; }
+        public Status ContractStatus { get; set; }
+       public enum Status
+        {
+            IN_ACTIVE,
+            ACTIVE
+        }
         public Guid ProjectId { get; set; }
 
         [ForeignKey(nameof(ProjectId))]

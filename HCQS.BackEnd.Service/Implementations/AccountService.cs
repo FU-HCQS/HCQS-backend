@@ -163,8 +163,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, "The email or username is existed");
                     }
 
-
-
                     if (!BuildAppActionResultIsError(result))
                     {
                         var emailService = Resolve<IEmailService>();
@@ -200,7 +198,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} USER");
                         }
 
-
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, Permission.CUSTOMER);
                         if (resultCreateRole.Succeeded)
                         {
@@ -210,7 +207,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -250,7 +246,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         scope.Complete();
                         result = BuildAppActionResultSuccess(result, SD.ResponseMessage.UPDATE_SUCCESSFUL);
-
                     }
                 }
                 catch (Exception ex)
@@ -676,6 +671,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> SendEmailForActiveCode(string email)
         {
             AppActionResult result = new AppActionResult();
@@ -722,31 +718,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return code;
-        }
-
-        public async Task<string> GenerateVerifyCodeGoogle(string email)
-        {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                string code = string.Empty;
-                try
-                {
-                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false);
-
-                    if (user != null)
-                    {
-                        code = Guid.NewGuid().ToString("N").Substring(0, 6);
-                        user.VerifyCode = code;
-                    }
-                    await _unitOfWork.SaveChangeAsync();
-                    scope.Complete();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message, this);
-                }
-                return code;
-            }
         }
 
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)

@@ -10,16 +10,20 @@ namespace HCQS.BackEnd.DAL.Models
 
         public double RawMaterialPrice { get; set; }
         public double FurniturePrice { get; set; }
-        public double LabelPrice { get; set; }
+        public double LaborPrice { get; set; }
         public double Total { get; set; }
         public Status QuotationStatus { get; set; }
+        public double MaterialDiscount { get; set; }
+        public double FurnitureDiscount { get; set; }
+        public double LaborDiscount { get; set; }
 
         public enum Status
         {
             Pending,
             WaitingForCustomerResponse,
-            Rejected,
+            Cancel,
             Approved
+            
         }
 
         public Guid ProjectId { get; set; }

@@ -16,13 +16,9 @@ builder.Services.AddCors(p => p.AddPolicy(MyAllowSpecificOrigins, builder =>
 builder.Services.InstallerServicesInAssembly(builder.Configuration);
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
 app.UseSwagger(options =>
 {
-    options.SerializeAsV2 = true;
+ //   options.SerializeAsV2 = true;
 });
 app.UseSwaggerUI(options =>
 {

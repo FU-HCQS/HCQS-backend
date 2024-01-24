@@ -53,6 +53,8 @@ namespace HCQS.BackEnd.DAL.Util
             public static string WELCOME = "[THANK YOU] WELCOME TO LOVE HOUSE";
             public static string REMIND_PAYMENT = "REMIND PAYMENT";
             public static string PASSCODE_FORGOT_PASSWORD = "[LOVE HOUSE] PASSCODE FORGOT PASSWORD";
+            public static string SIGN_CONTRACT_VERIFICATION_CODE = "[LOVE HOUSE] You are in the process of completing contract procedures".ToUpper();
+
         }
 
         public class WeekForYear

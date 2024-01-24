@@ -31,6 +31,30 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<ISampleProjectRepository, SampleProjectRepository>();
             services.AddScoped<ISampleProjectService, SampleProjectService>();
             services.AddScoped<IStaticFileRepository, StaticFileRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IExportPriceMaterialRepository, ExportPriceMaterialRepository>();
+            services.AddScoped<IMaterialRepository, MaterialRepository>();
+            services.AddScoped<IQuotationRepository, QuotationRepository>();
+            services.AddScoped<IQuotationDetailRepository, QuotationDetailRepository>();
+            services.AddScoped<IQuotationDetailService, QuotationDetailService>();
+
+            services.AddScoped<IContractRepository, ContractRepository>();
+            services.AddScoped<IContractProgressPaymentRepository, ContractProgressPaymentRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IPaymentService, PaymentService>();
+
+            services.AddScoped<IPaymentResponseRepository, PaymentResponseRepository>();
+
+            services.AddScoped<IContractService, ContractService>();
+
+            services.AddScoped<IQuotationDealingRepository, QuotationDealingRepository>();
+            services.AddScoped<IQuotationService, QuotationService>();
+
+
+
+
+
             services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));
             services.AddHangfireServer();
         }

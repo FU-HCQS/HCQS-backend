@@ -21,14 +21,12 @@ namespace HCQS.BackEnd.DAL.Models
         [ForeignKey(nameof(ExportPriceMaterialId))]
         public ExportPriceMaterial ExportPriceMaterial { get; set; }
 
-        public Guid? MaterialHistoryId { get; set; }
-
-        [ForeignKey(nameof(MaterialHistoryId))]
-        public SupplierPriceQuotation? MaterialHistory { get; set; }
 
         public Guid? QuotationDetailId { get; set; }
 
         [ForeignKey(nameof(QuotationDetailId))]
         public QuotationDetail? QuotationDetail { get; set; }
+
+        public ImportExportInventoryHistory? InventoryHistory { get; set; }
     }
 }

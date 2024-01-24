@@ -15,6 +15,11 @@ namespace HCQS.BackEnd.DAL.Models
 
         [ForeignKey(nameof(QuotationId))]
         public Quotation? Quotation { get; set; }
-        
+
+        public Guid? MaterialId { get; set; }
+
+        [ForeignKey(nameof(MaterialId))]
+        public Material? Material { get; set; }
+
     }
 }

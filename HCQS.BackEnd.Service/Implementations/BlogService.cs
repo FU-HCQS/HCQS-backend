@@ -43,7 +43,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, $"The blog with header is existed! {blogDb.Header}");
                     }
 
-               result.Result.Data=      await _blogRepository.Insert(blog);
+                    result.Result.Data = await _blogRepository.Insert(blog);
                     await _unitOfWork.SaveChangeAsync();
 
                     if (!BuildAppActionResultIsError(result))
@@ -161,7 +161,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 blogDb.Content = blog.Content;
                                 blogDb.Header = blog.Header;
                                 result.Result.Data = blogDb;
-                             await _unitOfWork.SaveChangeAsync();
+                                await _unitOfWork.SaveChangeAsync();
                             }
                         }
                     }
@@ -184,11 +184,9 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var blogList = await _blogRepository.GetAllDataByExpression(null, b=> b.Account);
+                var blogList = await _blogRepository.GetAllDataByExpression(null, b => b.Account);
                 var fileService = Resolve<IFileService>();
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
-
-
 
                 if (blogList.Any())
                 {

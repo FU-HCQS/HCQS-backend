@@ -6,7 +6,6 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -111,6 +110,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -161,6 +161,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> GetNewsById(Guid id)
         {
             AppActionResult result = new AppActionResult();
