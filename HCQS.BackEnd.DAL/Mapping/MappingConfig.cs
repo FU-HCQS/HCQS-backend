@@ -52,14 +52,12 @@ namespace HCQS.BackEnd.DAL.Mapping
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                ;
 
-
                 config.CreateMap<ProjectDto, Project>()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))
                .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                .ForMember(desc => desc.Area, act => act.MapFrom(src => src.Area))
                  ;
-
 
                 config.CreateMap<QuotationDetailDto, QuotationDetail>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
@@ -74,24 +72,20 @@ namespace HCQS.BackEnd.DAL.Mapping
               .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
                ;
 
-
                 config.CreateMap<ExportPriceMaterialDto, ExportPriceMaterial>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
               .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
               .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
                  ;
-               config.CreateMap<QuotationDealingDto, QuotationDealing>()
-              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
-              .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId))
-              .ForMember(desc => desc.FurnitureDiscount, act => act.MapFrom(src => src.FurnitureDiscount))
-              .ForMember(desc => desc.MaterialDiscount, act => act.MapFrom(src => src.MaterialDiscount))
-              .ForMember(desc => desc.LaborDiscount, act => act.MapFrom(src => src.LaborDiscount))
+                config.CreateMap<QuotationDealingDto, QuotationDealing>()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId))
+               .ForMember(desc => desc.FurnitureDiscount, act => act.MapFrom(src => src.FurnitureDiscount))
+               .ForMember(desc => desc.MaterialDiscount, act => act.MapFrom(src => src.MaterialDiscount))
+               .ForMember(desc => desc.LaborDiscount, act => act.MapFrom(src => src.LaborDiscount))
 
-              ;
-
-
+               ;
             }); return mappingConfig;
-
         }
     }
 }

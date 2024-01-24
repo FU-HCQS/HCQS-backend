@@ -19,11 +19,13 @@ namespace HCQS.BackEnd.DAL.Models
         public double LaborPrice { get; set; }
         public double FurniturePrice { get; set; }
         public Status ContractStatus { get; set; }
-       public enum Status
+
+        public enum Status
         {
             IN_ACTIVE,
             ACTIVE
         }
+
         public Guid ProjectId { get; set; }
 
         [ForeignKey(nameof(ProjectId))]

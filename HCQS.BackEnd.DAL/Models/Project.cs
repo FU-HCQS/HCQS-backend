@@ -17,7 +17,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double WallLength { get; set; }
         public double WallHeight { get; set; }
 
-        public string? LandDrawingFileUrl {  get; set; }
+        public string? LandDrawingFileUrl { get; set; }
         public Status ProjectStatus { get; set; }
 
         public enum Status

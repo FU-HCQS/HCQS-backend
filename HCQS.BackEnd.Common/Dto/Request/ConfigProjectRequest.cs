@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HCQS.BackEnd.Common.Dto.Request
+﻿namespace HCQS.BackEnd.Common.Dto.Request
 {
     public class ConfigProjectRequest
     {
@@ -22,8 +12,5 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public double WallHeight { get; set; }
         public int EstimatedTimeOfCompletion { get; set; }
         public int NumberOfLabor { get; set; }
-
-
-       
     }
 }

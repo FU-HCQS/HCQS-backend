@@ -8,16 +8,10 @@ using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService.Payment.PaymentLibrary;
 using HCQS.BackEnd.Service.UtilityService.Payment.PaymentRequest;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -31,6 +25,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private readonly IConfiguration _configuration;
         private MomoConfiguration _momoConfiguration;
         private VNPayConfiguration _vnPayConfiguration;
+
         public PaymentService(IConfiguration configuration, BackEndLogger backEndLogger, IUnitOfWork unitOfWork, IMapper mapper, IPaymentRepository paymentRepository, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _configuration = configuration;
@@ -64,7 +59,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 else if (paymentDb.Price > 5000000 || paymentDb.Price < 1000)
                 {
                     result = BuildAppActionResultError(result, $"Momo only supports amounts from 1000 to 5000000");
-
                 }
                 if (!BuildAppActionResultIsError(result))
                 {
@@ -137,9 +131,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         JObject jmessage = JObject.Parse(response.Content);
                         result.Result.Data = jmessage.GetValue("payUrl").ToString();
                     }
-
                 }
-
             }
             catch (Exception ex)
             {
@@ -228,7 +220,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         PaymentId = Guid.Parse(paymentId)
                     };
 
-                    if(status == true)
+                    if (status == true)
                     {
                         paymentDb.PaymentStatus = Payment.Status.Success;
                     }
@@ -242,16 +234,11 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-
                     result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                     _logger.LogError(ex.Message, this);
-
                 }
                 return result;
-
             }
-
-
         }
     }
 }

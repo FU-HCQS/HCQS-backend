@@ -6,7 +6,7 @@ namespace HCQS.BackEnd.DAL.Util
 {
     public class Utility
     {
-        public  DateTime GetCurrentDateTimeInTimeZone()
+        public DateTime GetCurrentDateTimeInTimeZone()
         {
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
@@ -19,7 +19,7 @@ namespace HCQS.BackEnd.DAL.Util
             return vietnamTime;
         }
 
-        public  DateTime GetCurrentDateInTimeZone()
+        public DateTime GetCurrentDateInTimeZone()
         {
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 

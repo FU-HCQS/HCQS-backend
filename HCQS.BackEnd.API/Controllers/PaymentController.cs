@@ -1,10 +1,7 @@
 ﻿using HCQS.BackEnd.Common.Dto;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService.Payment.PaymentRespone;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static Google.Apis.Requests.BatchRequest;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -24,11 +21,13 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _paymentService.CreatePaymentUrlVNPay(paymentId, HttpContext);
         }
+
         [HttpGet("create-payment-url-momo")]
         public async Task<AppActionResult> CreatePaymentUrlMomo(Guid paymentId)
         {
             return await _paymentService.CreatePaymentUrlMomo(paymentId);
         }
+
         [HttpGet("VNPayIpn")]
         public async Task<IActionResult> VNPayIPN()
         {
@@ -48,7 +47,6 @@ namespace HCQS.BackEnd.API.Controllers
                     Success = true
                 };
 
-
                 if (response.VnPayResponseCode == "00")
                 {
                     await _paymentService.UpdatePaymentStatus(response.OrderId, true, 0);
@@ -56,7 +54,6 @@ namespace HCQS.BackEnd.API.Controllers
                 else
                 {
                     await _paymentService.UpdatePaymentStatus(response.OrderId, false, 0);
-
                 }
                 return Ok();
             }
@@ -65,6 +62,7 @@ namespace HCQS.BackEnd.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
         [HttpPost("MomoIpn")]
         public async Task<IActionResult> MomoIPN(MomoResponseDto momo)
         {
@@ -73,7 +71,6 @@ namespace HCQS.BackEnd.API.Controllers
                 if (momo.resultCode == 0)
                 {
                     await _paymentService.UpdatePaymentStatus(momo.extraData, true, 1);
-
                 }
                 else
                 {

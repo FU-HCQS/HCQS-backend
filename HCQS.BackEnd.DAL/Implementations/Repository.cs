@@ -16,26 +16,21 @@ namespace HCQS.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-       
-
-
-        public Task <List<T>> GetAllDataByExpression( Expression<Func<T, bool>> filter , params Expression<Func<T, object>>[] includes )
+        public Task<List<T>> GetAllDataByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
-            if(filter != null)
+            if (filter != null)
             {
                 query = query.Where(filter);
             }
-            if(includes != null)
+            if (includes != null)
             {
                 foreach (var item in includes)
                 {
                     query = query.Include(item);
                 }
-
             }
-            
 
             return query.ToListAsync();
         }
@@ -67,9 +62,6 @@ namespace HCQS.BackEnd.DAL.Implementations
             }
             return entityToDelete;
         }
-
-        
-
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {

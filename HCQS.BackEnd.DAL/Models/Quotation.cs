@@ -23,7 +23,6 @@ namespace HCQS.BackEnd.DAL.Models
             WaitingForCustomerResponse,
             Cancel,
             Approved
-            
         }
 
         public Guid ProjectId { get; set; }

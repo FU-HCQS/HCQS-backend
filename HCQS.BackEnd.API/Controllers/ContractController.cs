@@ -1,6 +1,5 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Service.Contracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
@@ -15,11 +14,11 @@ namespace HCQS.BackEnd.API.Controllers
         {
             _contractService = contractService;
         }
+
         [HttpPut("sign-contract")]
         public async Task<AppActionResult> SignContract(Guid contractId, Guid accountId, string verificationCode)
         {
             return await _contractService.SignContract(contractId, accountId, verificationCode);
         }
-        
     }
 }
