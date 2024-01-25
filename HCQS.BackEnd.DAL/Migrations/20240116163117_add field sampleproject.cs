@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class updatemigration : Migration
+    public partial class addfieldsampleproject : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -62,6 +61,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UnitMaterial = table.Column<int>(type: "int", nullable: false),
+                    MaterialType = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -75,7 +76,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,6 +92,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     NumOfFloor = table.Column<int>(type: "int", nullable: false),
                     ConstructionArea = table.Column<double>(type: "float", nullable: false),
                     TotalArea = table.Column<double>(type: "float", nullable: false),
+                    ProjectType = table.Column<int>(type: "int", nullable: false),
                     Function = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -106,7 +109,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SupplierName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    SupplierName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -226,7 +230,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -248,8 +252,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -272,6 +277,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     CementMixingRatio = table.Column<int>(type: "int", nullable: false),
                     StoneMixingRatio = table.Column<int>(type: "int", nullable: false),
                     TiledArea = table.Column<double>(type: "float", nullable: false),
+                    ProjectStatus = table.Column<int>(type: "int", nullable: false),
                     EstimatedTimeOfCompletion = table.Column<int>(type: "int", nullable: false),
                     NumberOfLabor = table.Column<int>(type: "int", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -314,6 +320,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Amount = table.Column<double>(type: "float", nullable: false),
+                    PaymentTypeResponse = table.Column<int>(type: "int", nullable: false),
                     OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsSuccess = table.Column<bool>(type: "bit", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -335,6 +342,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StaticFileType = table.Column<int>(type: "int", nullable: false),
                     SampleProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -429,6 +437,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     FurniturePrice = table.Column<double>(type: "float", nullable: false),
                     LabelPrice = table.Column<double>(type: "float", nullable: false),
                     Total = table.Column<double>(type: "float", nullable: false),
+                    QuotationStatus = table.Column<int>(type: "int", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -595,17 +604,17 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "669a806c-b60b-4254-b9d4-f64ae873ddc4", "9314d516-2fd4-4e20-9f9c-d8f089e1b4d2", "ADMIN", "admin" });
+                values: new object[] { "c9faf411-0d6f-40b5-818b-a75ea1ac9406", "9f70af7e-e982-4aa9-86b3-7e6cba34c559", "ADMIN", "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "701c774a-cf9d-49a0-a898-15524d9c481f", "43d02958-cb3a-4a4c-955f-8dcbfb966826", "STAFF", "staff" });
+                values: new object[] { "cbc3e3d2-7866-4370-8853-066d732ee80a", "660459fc-837f-4372-8a58-48d3ed48a7c9", "STAFF", "staff" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "9c00cff6-88e7-4164-9650-927e2cd063a2", "07ce6ecd-420a-428d-8d49-0ad2c7cccd14", "CUSTOMER", "customer" });
+                values: new object[] { "e4be700b-16d1-499e-8ddc-f7b5da3261b0", "2af8e291-246e-42a3-8eb4-b269a17aa63c", "CUSTOMER", "customer" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

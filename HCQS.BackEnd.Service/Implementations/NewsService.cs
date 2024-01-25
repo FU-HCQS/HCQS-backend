@@ -1,16 +1,12 @@
-﻿using AutoMapper;
+using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.DAL.Models;
+using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 using NPOI.POIFS.Storage;
 using System.Reflection.Metadata;
@@ -18,7 +14,7 @@ using HCQS.BackEnd.DAL.Implementations;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
-    public class NewsService : GenericBackendService,INewsService 
+    public class NewsService : GenericBackendService, INewsService
     {
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
@@ -41,17 +37,38 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var newsDb = await _newsRepository.GetByExpression(b => b.Id.Equals(NewsRequest.Id));
+
+                   var newsDb = await _newsRepository.GetByExpression(b => b.Id.Equals(NewsRequest.Id));
                     if (newsDb == null)
+                    var news = _mapper.Map<News>(NewsRequest);
+                    news.Id = Guid.NewGuid();
+                    news.ImageUrl = string.Empty;
+                    var newsDb = await _newsRepository.GetByExpression(n => n.Header.ToLower().Equals(news.Header.ToLower()));
+                    var accountRepository = Resolve<IAccountRepository>();
+                    var accountId = await accountRepository.GetByExpression(n => n.Id == news.AccountId);
+                    if (newsDb != null)
                     {
                         result = BuildAppActionResultError(result, $"The news with {NewsRequest.Id} not found !");
                     }
                     else
+                    result.Result.Data = await _newsRepository.Insert(news);
+                    await _unitOfWork.SaveChangeAsync();
+
+                    if (!BuildAppActionResultIsError(result))
                     {
 
                         var fileService = Resolve<IFileService>();
+
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
                         var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+
+                        string url = $"{SD.FirebasePathName.NEWS_PREFIX}{news.Id}";
+                        var resultFirebase = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
+                        if (resultFirebase != null && resultFirebase.IsSuccess)
+                        {
+                            news.ImageUrl = Convert.ToString(resultFirebase.Result.Data);
+                            await _unitOfWork.SaveChangeAsync();
+                        }
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
@@ -91,9 +108,11 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var newsDb = _newsRepository.GetById(id);
-                    if (newsDb == null){
+                    if (newsDb == null)
+                    {
                         result = BuildAppActionResultError(result, $"The news with {id} not found!");
-                    } else
+                    }
+                    else
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
@@ -102,7 +121,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
-                            await _newsRepository.DeleteById(id);
+                            result.Result.Data = await _newsRepository.DeleteById(id);
                             await _unitOfWork.SaveChangeAsync();
                         }
                     }
@@ -127,13 +146,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var newsList = await _newsRepository.GetAll();
+                    var newsList = await _newsRepository.GetAllDataByExpression(null, a => a.Account);
                     var fileService = Resolve<IFileService>();
                     var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
 
-                    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
+                    //    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
 
-                    newsList = Utility.ConvertListToIOrderedQueryable(news);
+                    var newss = Utility.ConvertListToIOrderedQueryable(newsList);
 
                     if (newsList.Any())
                     {
@@ -151,9 +170,15 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         result.Result.Data = newsList;
                         result.Result.TotalPage = totalPage;
-                    } else
+                    }
+                    else
                     {
                         result.Messages.Add("EMpty news list");
+                    }
+
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
                     }
                 }
                 catch (Exception ex)
@@ -166,13 +191,58 @@ namespace HCQS.BackEnd.Service.Implementations
         }
         public async Task<AppActionResult> GetNewsById(Guid id)
         {
-           
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var newsDb = await _newsRepository.GetById(id);
+                if (newsDb != null)
+                {
+                    result.Result.Data = newsDb;
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> UpdateNews(NewsRequest NewsRequest)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var newsDb = await _newsRepository.GetById(id);
-                    if (newsDb != null) {
-                    result.Result.Data = newsDb;
+                    var newsDb = await _newsRepository.GetByExpression(n => n.Id.Equals(NewsRequest.Id));
+                    if (newsDb == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The news with {NewsRequest.Id} not found !");
+                    }
+                    else
+                    {
+                        var fileService = Resolve<IFileService>();
+                        string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
+                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+                        if (resultFirebase != null && resultFirebase.IsSuccess)
+                        {
+                            var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
+                            if (uploadFileResult.IsSuccess)
+                            {
+                                var news = _mapper.Map<News>(NewsRequest);
+                                newsDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
+                                newsDb.Content = news.Content;
+                                newsDb.Header = news.Header;
+                                result.Result.Data = newsDb;
+                                await _unitOfWork.SaveChangeAsync();
+                            }
+                        }
+                    }
+
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
                     }
                 }
                 catch (Exception ex)
@@ -181,45 +251,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
-        }
-
-                    public async Task<AppActionResult> UpdateNews(NewsRequest NewsRequest)
-                    {
-                        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                        {
-                            AppActionResult result = new AppActionResult();
-                            try
-                            {
-                                var newsDb = await _newsRepository.GetByExpression(n => n.Id.Equals(NewsRequest.Id));
-                                if(newsDb == null)
-                                {
-                        result = BuildAppActionResultError(result, $"The news with {NewsRequest.Id} not found !");
-                                } else
-                                {
-                                    var fileService = Resolve<IFileService>();
-                                    string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
-                                    var resultFirebase = await fileService.DeleteImageFromFirebase(url);
-                                    if(resultFirebase != null && resultFirebase.IsSuccess)
-                                    {
-                                        var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
-                                        if(uploadFileResult.IsSuccess) {
-                                            var news = _mapper.Map<News>(NewsRequest);
-                                            newsDb.ImageUrl = Convert.ToString(uploadFileResult.Result.Data);
-                                            newsDb.Content = news.Content;
-                                            newsDb.Header = news.Header;
-
-                                            await _unitOfWork.SaveChangeAsync();
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
-                                _logger.LogError(ex.Message, this);
-                            }
-                            return result;
-                        }
-                    }
-                }
             }
+        }
+    }
+}

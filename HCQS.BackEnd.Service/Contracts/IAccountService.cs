@@ -13,7 +13,7 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle);
 
-        Task<AppActionResult> UpdateAccount(Account applicationUser);
+        Task<AppActionResult> UpdateAccount(UpdateAccountRequestDto applicationUser);
 
         Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
 
@@ -35,10 +35,12 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> SendEmailForgotPassword(string email);
 
-        Task<string> GenerateVerifyCode(string email);
+        Task<string> GenerateVerifyCode(string email, bool isForForgettingPassword);
 
         Task<string> GenerateVerifyCodeGoogle(string email);
 
         Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle);
+
+        public Task<AppActionResult> SendEmailForActiveCode(string email);
     }
 }

@@ -10,6 +10,8 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string Url { get; set; }
 
+        public Type StaticFileType { get; set; }
+
         public enum Type
         {
             Image,
@@ -17,9 +19,9 @@ namespace HCQS.BackEnd.DAL.Models
             Pdf
         }
 
-        public Guid SampleProjectId { get; set; }
+        public Guid? SampleProjectId { get; set; }
 
         [ForeignKey(nameof(SampleProjectId))]
-        public SampleProject SampleProject { get; set; }
+        public SampleProject? SampleProject { get; set; }
     }
 }

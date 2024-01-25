@@ -18,7 +18,6 @@ namespace HCQS.BackEnd.API.Installers
                      Type = SecuritySchemeType.ApiKey,
                      Scheme = "Bearer"
                  });
-
                  option.AddSecurityRequirement(new OpenApiSecurityRequirement
      {
         {

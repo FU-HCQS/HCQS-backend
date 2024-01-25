@@ -10,10 +10,8 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Dto;
-using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Transactions;
 using Utility = HCQS.BackEnd.DAL.Util.Utility;
 
@@ -165,10 +163,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, "The email or username is existed");
                     }
 
-                    if (await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower()) == null)
-                    {
-                        result = BuildAppActionResultError(result, $"The role with name {signUpRequest.RoleName} is not existed");
-                    }
+
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -205,36 +200,17 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} USER");
                         }
 
-                        var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == signUpRequest.RoleName.ToLower());
-                        List<string> roleAssign = new List<string>();
 
-                        if (signUpRequest.RoleName.ToLower() == "admin")
+                        var resultCreateRole = await _userManager.AddToRoleAsync(user, Permission.CUSTOMER);
+                        if (resultCreateRole.Succeeded)
                         {
-                            roleAssign.Add(Permission.ADMIN);
-                            roleAssign.Add(Permission.STAFF);
-                            roleAssign.Add(Permission.CUSTOMER);
-                        }
-                        else if (signUpRequest.RoleName.ToLower() == "staff")
-                        {
-                            roleAssign.Add(Permission.STAFF);
-                            roleAssign.Add(Permission.CUSTOMER);
+                            BuildAppActionResultSuccess(result, $"ASSIGN ROLE SUCCESSFUL");
                         }
                         else
                         {
-                            roleAssign.Add(Permission.CUSTOMER);
+                            result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
-                        foreach (var role in roleAssign)
-                        {
-                            var resultCreateRole = await _userManager.AddToRoleAsync(user, role);
-                            if (resultCreateRole.Succeeded)
-                            {
-                                BuildAppActionResultSuccess(result, $"ASSIGN ROLE SUCCESSFUL");
-                            }
-                            else
-                            {
-                                result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
-                            }
-                        }
+
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -250,26 +226,31 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> UpdateAccount(Account Account)
+        public async Task<AppActionResult> UpdateAccount(UpdateAccountRequestDto accountRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    if (await _accountRepository.GetByExpression(a => a.Id == Account.Id) == null)
+                    var account = await _accountRepository.GetByExpression(a => a.UserName.ToLower() == accountRequest.Email.ToLower());
+                    if (account == null)
                     {
-                        result = BuildAppActionResultError(result, $"The user with id {Account.Id} not found");
+                        result = BuildAppActionResultError(result, $"The user with email {account.Email} not found");
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        await _accountRepository.Update(Account);
-                        result = BuildAppActionResultSuccess(result, SD.ResponseMessage.UPDATE_SUCCESSFUL);
+                        account.FirstName = accountRequest.FirstName;
+                        account.LastName = accountRequest.LastName;
+                        account.PhoneNumber = accountRequest.PhoneNumber;
+                        result.Result.Data = await _accountRepository.Update(account);
                     }
                     await _unitOfWork.SaveChangeAsync();
                     if (!BuildAppActionResultIsError(result))
                     {
                         scope.Complete();
+                        result = BuildAppActionResultSuccess(result, SD.ResponseMessage.UPDATE_SUCCESSFUL);
+
                     }
                 }
                 catch (Exception ex)
@@ -312,14 +293,14 @@ namespace HCQS.BackEnd.Service.Implementations
                 var userRoleRepository = Resolve<IUserRoleRepository>();
                 var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 List<AccountResponse> accounts = new List<AccountResponse>();
-                var list = await _accountRepository.GetAll();
+                var list = await _accountRepository.GetAllDataByExpression(null, null);
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
 
                 foreach (var account in list)
                 {
-                    var userRole = await userRoleRepository.GetListByExpression(s => s.UserId == account.Id, null);
+                    var userRole = await userRoleRepository.GetAllDataByExpression(s => s.UserId == account.Id, null);
                     var listRole = new List<IdentityRole>();
                     foreach (var role in userRole)
                     {
@@ -328,7 +309,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                var data = accounts.AsQueryable().OrderBy(x => x.User.Id);
+                var data = accounts.OrderBy(x => x.User.Id).ToList();
                 if (sortInfos != null)
                 {
                     data = DataPresentationHelper.ApplySorting(data, sortInfos);
@@ -394,7 +375,8 @@ namespace HCQS.BackEnd.Service.Implementations
 
             try
             {
-                var source = (IOrderedQueryable<Account>)await _accountRepository.GetListByExpression(a => !(bool)a.IsDeleted, null);
+                var source = await _accountRepository.GetAllDataByExpression(a => !(bool)a.IsDeleted, null);
+
                 int pageSize = filterRequest.pageSize;
                 if (filterRequest.pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -408,7 +390,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = (IOrderedQueryable<Account>)await _accountRepository.GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword));
+                            source = await _accountRepository.GetAllDataByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword));
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -683,7 +665,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var emailService = Resolve<IEmailService>();
-                    string code = await GenerateVerifyCode(user.Email);
+                    string code = await GenerateVerifyCode(user.Email, true);
                     emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, code);
                 }
             }
@@ -694,46 +676,67 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
-
-        public async Task<string> GenerateVerifyCode(string email)
+        public async Task<AppActionResult> SendEmailForActiveCode(string email)
         {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
+            AppActionResult result = new AppActionResult();
 
-                    if (user != null)
-                    {
-                        string code = Guid.NewGuid().ToString("N").Substring(0, 6);
-                        user.VerifyCode = code;
-                        return code;
-                    }
-                    await _unitOfWork.SaveChangeAsync();
-                    scope.Complete();
-                }
-                catch (Exception ex)
+            try
+            {
+                var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
+                if (user == null)
                 {
-                    _logger.LogError(ex.Message, this);
+                    result = BuildAppActionResultError(result, "The user does not existed or is verified");
+                }
+
+                if (!BuildAppActionResultIsError(result))
+                {
+                    var emailService = Resolve<IEmailService>();
+                    string code = await GenerateVerifyCode(user.Email, false);
+                    emailService.SendEmail(email, SD.SubjectMail.VERIFY_ACCOUNT, code);
                 }
             }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
 
-            return string.Empty;
+        public async Task<string> GenerateVerifyCode(string email, bool isForForgettingPassword)
+        {
+            string code = string.Empty;
+            try
+            {
+                var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == isForForgettingPassword);
+
+                if (user != null)
+                {
+                    code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                    user.VerifyCode = code;
+                }
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+            }
+            return code;
         }
 
         public async Task<string> GenerateVerifyCodeGoogle(string email)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                string code = string.Empty;
                 try
                 {
                     var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false);
 
                     if (user != null)
                     {
-                        string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                        code = Guid.NewGuid().ToString("N").Substring(0, 6);
                         user.VerifyCode = code;
-                        return code;
                     }
                     await _unitOfWork.SaveChangeAsync();
                     scope.Complete();
@@ -742,42 +745,64 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     _logger.LogError(ex.Message, this);
                 }
+                return code;
             }
-
-            return string.Empty;
         }
 
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
         {
             AppActionResult result = new AppActionResult();
-            var config = Resolve<FirebaseAdminSDK>();
-            var credential = GoogleCredential.FromJson(JsonConvert.SerializeObject(new
+            try
             {
-                type = config.Type,
-                project_id = config.Project_id,
-                private_key_id = config.Private_key_id,
-                private_key = config.Private_key,
-                client_email = config.Client_email,
-                client_id = config.Client_id,
-                auth_uri = config.Auth_uri,
-                token_uri = config.Token_uri,
-                auth_provider_x509_cert_url = config.Auth_provider_x509_cert_url,
-                client_x509_cert_url = config.Client_x509_cert_url
-            }));
+                var existingFirebaseApp = FirebaseApp.DefaultInstance;
+                if (existingFirebaseApp == null)
+                {
+                    var config = Resolve<FirebaseAdminSDK>();
+                    var credential = GoogleCredential.FromJson(JsonConvert.SerializeObject(new
+                    {
+                        type = config.Type,
+                        project_id = config.Project_id,
+                        private_key_id = config.Private_key_id,
+                        private_key = config.Private_key,
+                        client_email = config.Client_email,
+                        client_id = config.Client_id,
+                        auth_uri = config.Auth_uri,
+                        token_uri = config.Token_uri,
+                        auth_provider_x509_cert_url = config.Auth_provider_x509_cert_url,
+                        client_x509_cert_url = config.Client_x509_cert_url
+                    }));
+                    var firebaseApp = FirebaseApp.Create(new AppOptions
+                    {
+                        Credential = credential
+                    });
+                }
 
-            var firebaseApp = FirebaseApp.Create(new AppOptions
-            {
-                Credential = credential
-            });
-            var verifiedToken = await FirebaseAuth.DefaultInstance
-                 .VerifyIdTokenAsync(accessTokenFromGoogle);
-            var emailClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "email");
-            var userEmail = emailClaim.Value.ToString();
+                var verifiedToken = await FirebaseAuth.DefaultInstance
+               .VerifyIdTokenAsync(accessTokenFromGoogle);
+                var emailClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "email");
+                var nameClaim = verifiedToken.Claims.FirstOrDefault(c => c.Key == "name");
+                var name = nameClaim.Value.ToString();
+                var userEmail = emailClaim.Value.ToString();
 
-            if (userEmail != null)
+                if (userEmail != null)
+                {
+                    var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
+                    if (user == null)
+                    {
+                        var resultCreate = await CreateAccount(new SignUpRequestDto { Email = userEmail, FirstName = name, Gender = true, LastName = string.Empty, Password = "Google123@", PhoneNumber = string.Empty }, true);
+                        if (resultCreate != null && resultCreate.IsSuccess)
+                        {
+                            Account account = (Account)resultCreate.Result.Data;
+                            result = await LoginDefault(userEmail, account);
+                        }
+                    }
+                    result = await LoginDefault(userEmail, user);
+                }
+            }
+            catch (Exception ex)
             {
-                var user = await _accountRepository.GetByExpression(a => a.Email == userEmail && a.IsDeleted == false);
-                result = await LoginDefault(userEmail, user);
+                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                _logger.LogError(ex.Message, this);
             }
 
             return result;

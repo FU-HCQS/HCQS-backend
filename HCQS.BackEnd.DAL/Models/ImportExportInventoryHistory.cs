@@ -9,9 +9,10 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid Id { get; set; }
 
         public int Quantity { get; set; }
-        public Guid MaterialHistoryId { get; set; }
+        public Guid? SupplierPriceDetailId { get; set; }
 
-        [ForeignKey(nameof(MaterialHistoryId))]
-        public MaterialHistory MaterialHistory { get; set; }
+        [ForeignKey(nameof(SupplierPriceDetailId))]
+        public SupplierPriceDetail? SupplierPriceDetail { get; set; }
+      
     }
 }

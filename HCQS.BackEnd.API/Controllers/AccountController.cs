@@ -4,6 +4,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,15 +42,15 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-account")]
-        [Authorize(Roles = Permission.ALL)]
-        public async Task<AppActionResult> UpdateAccount(Account request)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+        public async Task<AppActionResult> UpdateAccount(UpdateAccountRequestDto request)
         {
             return await _accountService.UpdateAccount(request);
         }
 
-        [HttpGet("get-account-by-id/{id}")]
-        [Authorize(Roles = Permission.ALL)]
-        public async Task<AppActionResult> UpdateAccount(string id)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+        [HttpPost("get-account-by-id/{id}")]
+        public async Task<AppActionResult> GetAccountByUserId(string id)
         {
             return await _accountService.GetAccountByUserId(id);
         }
@@ -61,31 +62,17 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("change-password")]
-        [Authorize(Roles = Permission.ALL)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         public async Task<AppActionResult> ChangePassword(ChangePasswordDto dto)
         {
             return await _accountService.ChangePassword(dto);
         }
 
         [HttpPost("get-accounts-with-searching")]
-       // [Authorize(Roles = Permission.MANAGEMENT)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.MANAGEMENT)]
         public async Task<AppActionResult> GetAccountWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
-        }
-
-        [HttpPut("assign-role-for-userId")]
-        [Authorize(Roles = Permission.ADMIN)]
-        public async Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId)
-        {
-            return await _accountService.AssignRoleForUserId(userId, roleId);
-        }
-
-        [HttpPut("remove-role-for-userId")]
-        [Authorize(Roles = Permission.ADMIN)]
-        public async Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId)
-        {
-            return await _accountService.RemoveRoleForUserId(userId, roleId);
         }
 
         [HttpPost("get-new-token")]
@@ -112,10 +99,16 @@ namespace HCQS.BackEnd.API.Controllers
             return await _accountService.SendEmailForgotPassword(email);
         }
 
+        [HttpPost("send-email-for-active-account/{email}")]
+        public async Task<AppActionResult> SendEmailForActiveCode(string email)
+        {
+            return await _accountService.SendEmailForActiveCode(email);
+        }
+
         [HttpPost("google-callback")]
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
         {
-            return await _accountService.GoogleCallBack(accessTokenFromGoogle); 
+            return await _accountService.GoogleCallBack(accessTokenFromGoogle);
         }
     }
 }

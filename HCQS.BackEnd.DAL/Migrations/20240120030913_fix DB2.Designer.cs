@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240115115327_update migration")]
-    partial class updatemigration
+    [Migration("20240120030913_fix DB2")]
+    partial class fixDB2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -137,7 +137,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -145,39 +144,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasIndex("AccountId");
 
                     b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ConstructionMaterial", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
-
-                    b.Property<Guid?>("ExportPriceMaterialId")
-                        .IsRequired()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("MaterialHistoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("Total")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExportPriceMaterialId");
-
-                    b.HasIndex("MaterialHistoryId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ConstructionMaterials");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Contract", b =>
@@ -279,15 +245,15 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("MaterialHistoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("SupplierPriceDetailId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("MaterialHistoryId");
+                    b.HasIndex("SupplierPriceDetailId");
 
                     b.ToTable("ImportExportInventoryHistorys");
                 });
@@ -298,6 +264,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("MaterialType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -305,31 +274,12 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int>("UnitMaterial")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Materials");
-                });
-
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.MaterialHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("ImportPrice")
-                        .HasColumnType("float");
-
-                    b.Property<Guid>("MaterialSupplierId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MaterialSupplierId");
-
-                    b.ToTable("MaterialHistories");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.MaterialSupplier", b =>
@@ -367,11 +317,14 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Header")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
+                    b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -391,6 +344,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -419,11 +375,55 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("PaymentTypeResponse")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PaymentId");
 
                     b.ToTable("PaymentResponses");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ProgressConstructionMaterial", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Discount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("ExportPriceMaterialId")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("MaterialHistoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("QuotationDetailId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Total")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExportPriceMaterialId");
+
+                    b.HasIndex("MaterialHistoryId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("QuotationDetailId");
+
+                    b.ToTable("ProgressConstructionMaterials");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>
@@ -449,6 +449,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("NumberOfLabor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("SandMixingRatio")
@@ -482,6 +485,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("QuotationStatus")
+                        .HasColumnType("int");
+
                     b.Property<double>("RawMaterialPrice")
                         .HasColumnType("float");
 
@@ -501,9 +507,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ConstructionMaterialId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -515,8 +518,6 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConstructionMaterialId");
-
                     b.HasIndex("QuotationId");
 
                     b.ToTable("QuotationDetails");
@@ -527,6 +528,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("ConstructionArea")
                         .HasColumnType("float");
@@ -553,10 +557,15 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<int>("NumOfFloor")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProjectType")
+                        .HasColumnType("int");
+
                     b.Property<double>("TotalArea")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.ToTable("SampleProjects");
                 });
@@ -569,6 +578,9 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<Guid>("SampleProjectId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("StaticFileType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -591,9 +603,58 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.SupplierPriceDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MOQ")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("MaterialId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("SupplierPriceQuotationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("SupplierPriceQuotationId");
+
+                    b.ToTable("SupplierPriceDetails");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.SupplierPriceQuotation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SupllierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupllierId");
+
+                    b.ToTable("SupplierPriceQuotations");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>
@@ -675,22 +736,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "669a806c-b60b-4254-b9d4-f64ae873ddc4",
-                            ConcurrencyStamp = "9314d516-2fd4-4e20-9f9c-d8f089e1b4d2",
+                            Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
+                            ConcurrencyStamp = "80967e13-e26c-45e9-9746-9686e70c62c9",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
-                            Id = "701c774a-cf9d-49a0-a898-15524d9c481f",
-                            ConcurrencyStamp = "43d02958-cb3a-4a4c-955f-8dcbfb966826",
+                            Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
+                            ConcurrencyStamp = "cd8bbf22-0928-421b-8d8d-a903641783f6",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
-                            Id = "9c00cff6-88e7-4164-9650-927e2cd063a2",
-                            ConcurrencyStamp = "07ce6ecd-420a-428d-8d49-0ad2c7cccd14",
+                            Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
+                            ConcurrencyStamp = "78cb594d-007e-4263-a19a-30273272631a",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -813,31 +874,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ConstructionMaterial", b =>
-                {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.ExportPriceMaterial", "ExportPriceMaterial")
-                        .WithMany()
-                        .HasForeignKey("ExportPriceMaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HCQS.BackEnd.DAL.Models.MaterialHistory", "MaterialHistory")
-                        .WithMany()
-                        .HasForeignKey("MaterialHistoryId");
-
-                    b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExportPriceMaterial");
-
-                    b.Navigation("MaterialHistory");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Contract", b =>
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
@@ -881,24 +917,11 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ImportExportInventoryHistory", b =>
                 {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.MaterialHistory", "MaterialHistory")
+                    b.HasOne("HCQS.BackEnd.DAL.Models.SupplierPriceDetail", "SupplierPriceDetail")
                         .WithMany()
-                        .HasForeignKey("MaterialHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SupplierPriceDetailId");
 
-                    b.Navigation("MaterialHistory");
-                });
-
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.MaterialHistory", b =>
-                {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.MaterialSupplier", "MaterialSupplier")
-                        .WithMany()
-                        .HasForeignKey("MaterialSupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MaterialSupplier");
+                    b.Navigation("SupplierPriceDetail");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.MaterialSupplier", b =>
@@ -942,6 +965,37 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ProgressConstructionMaterial", b =>
+                {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.ExportPriceMaterial", "ExportPriceMaterial")
+                        .WithMany()
+                        .HasForeignKey("ExportPriceMaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HCQS.BackEnd.DAL.Models.SupplierPriceQuotation", "MaterialHistory")
+                        .WithMany()
+                        .HasForeignKey("MaterialHistoryId");
+
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HCQS.BackEnd.DAL.Models.QuotationDetail", "QuotationDetail")
+                        .WithMany()
+                        .HasForeignKey("QuotationDetailId");
+
+                    b.Navigation("ExportPriceMaterial");
+
+                    b.Navigation("MaterialHistory");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("QuotationDetail");
+                });
+
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>
                 {
                     b.HasOne("HCQS.BackEnd.DAL.Models.Account", "Account")
@@ -966,17 +1020,20 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.QuotationDetail", b =>
                 {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.ConstructionMaterial", "ConstructionMaterial")
-                        .WithMany()
-                        .HasForeignKey("ConstructionMaterialId");
-
                     b.HasOne("HCQS.BackEnd.DAL.Models.Quotation", "Quotation")
                         .WithMany()
                         .HasForeignKey("QuotationId");
 
-                    b.Navigation("ConstructionMaterial");
-
                     b.Navigation("Quotation");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.SampleProject", b =>
+                {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId");
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.StaticFile", b =>
@@ -988,6 +1045,32 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("SampleProject");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.SupplierPriceDetail", b =>
+                {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId");
+
+                    b.HasOne("HCQS.BackEnd.DAL.Models.SupplierPriceQuotation", "SupplierPriceQuotation")
+                        .WithMany()
+                        .HasForeignKey("SupplierPriceQuotationId");
+
+                    b.Navigation("Material");
+
+                    b.Navigation("SupplierPriceQuotation");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.SupplierPriceQuotation", b =>
+                {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupllierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>

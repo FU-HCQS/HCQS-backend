@@ -63,7 +63,7 @@ namespace HCQS.BackEnd.Service.Implementations
                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                        new Claim("AccountId", user.Id)
                     };
-                        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+                        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role.ToUpper())));
                         var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.Key));
                         var token = new JwtSecurityToken(
                             issuer: _jwtConfiguration.Issuer,

@@ -16,9 +16,28 @@ namespace HCQS.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IOrderedQueryable<T>> GetAll()
+       
+
+
+        public Task <List<T>> GetAllDataByExpression( Expression<Func<T, bool>> filter , params Expression<Func<T, object>>[] includes )
         {
-            return (IOrderedQueryable<T>)_dbSet.AsNoTracking();
+            IQueryable<T> query = _dbSet;
+
+            if(filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if(includes != null)
+            {
+                foreach (var item in includes)
+                {
+                    query = query.Include(item);
+                }
+
+            }
+            
+
+            return query.ToListAsync();
         }
 
         public async Task<T> GetById(object id)
@@ -32,41 +51,25 @@ namespace HCQS.BackEnd.DAL.Implementations
             return entity;
         }
 
-        public async Task Update(T entity)
+        public async Task<T> Update(T entity)
         {
             _dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
 
-        public async Task DeleteById(object id)
+        public async Task<T> DeleteById(object id)
         {
             T entityToDelete = await _dbSet.FindAsync(id);
             if (entityToDelete != null)
             {
                 _dbSet.Remove(entityToDelete);
             }
+            return entityToDelete;
         }
 
-        public async Task<IOrderedQueryable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
-        {
-            var query = _dbSet.AsQueryable();
+        
 
-            // Apply eager loading
-            if (includeProperties != null)
-            {
-                foreach (var includeProperty in includeProperties)
-                {
-                    query = query.Include(includeProperty);
-                }
-            }
-
-            if (filter == null && includeProperties.Length > 0)
-            {
-                return (IOrderedQueryable<T>)await query.ToListAsync();
-            }
-
-            return (IOrderedQueryable<T>)query.Where(filter);
-        }
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {

@@ -6,8 +6,6 @@ namespace HCQS.BackEnd.Service.Contracts
 {
     public interface IFileService
     {
-   
-
         public IActionResult ConvertDataToExcel();
 
         public ActionResult<List<List<string>>> UploadExcel(IFormFile file);
@@ -17,8 +15,6 @@ namespace HCQS.BackEnd.Service.Contracts
         public IActionResult GenerateTemplateExcel<T>(T dataList);
 
         public Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName);
-
-        public Task<string> GetUrlImageFromFirebase(string pathFileName);
 
         public Task<AppActionResult> DeleteImageFromFirebase(string pathFileName);
     }

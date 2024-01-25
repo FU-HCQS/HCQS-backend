@@ -1,4 +1,5 @@
-﻿using HCQS.BackEnd.DAL.Contracts;
+﻿using Hangfire;
+using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Implementations;
@@ -13,21 +14,22 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IIdentityRoleRepository, IdentityRoleRepository>();
             services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IRoleService, RoleService>();
-
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileService, FileService>();
-
-
             services.AddScoped<IBlogRepository, BlogRepository>();
             services.AddScoped<IBlogService, BlogService>();
-
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
+            services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<INewsRepository, NewsRepository>();
             services.AddScoped<INewsService, NewsService>();
-
+            services.AddScoped<ISampleProjectRepository, SampleProjectRepository>();
+            services.AddScoped<ISampleProjectService, SampleProjectService>();
+            services.AddScoped<IStaticFileRepository, StaticFileRepository>();
+            services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));
+            services.AddHangfireServer();
 
         }
     }
