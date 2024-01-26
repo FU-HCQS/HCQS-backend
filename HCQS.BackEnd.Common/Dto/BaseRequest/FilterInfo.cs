@@ -2,12 +2,12 @@
 {
     public class FilterInfo
     {
-        public string fieldName { get; set; }
+        public string FieldName { get; set; }
 
         //public bool isValueFilter { get; set; }
-        public double? min { get; set; }
+        public double? Min { get; set; }
 
-        public double? max { get; set; }
+        public double? Max { get; set; }
         //public IList<SearchFieldDto>? values { get; set; }
     }
 }

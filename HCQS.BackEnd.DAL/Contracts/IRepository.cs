@@ -10,7 +10,6 @@ namespace HCQS.BackEnd.DAL.Contracts
 
         Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);
 
-
         Task<T> Insert(T entity);
 
         Task<IEnumerable<T>> InsertRange(IEnumerable<T> entities);

@@ -3,6 +3,7 @@ using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Models;
+using static HCQS.BackEnd.Common.Dto.Request.CreateQuotationDeallingStaffRequest;
 
 namespace HCQS.BackEnd.DAL.Mapping
 {
@@ -16,7 +17,6 @@ namespace HCQS.BackEnd.DAL.Mapping
                    .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                    .ForMember(desc => desc.Header, act => act.MapFrom(src => src.Header))
                    .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
-                   .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
                    .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                    ;
 
@@ -24,7 +24,6 @@ namespace HCQS.BackEnd.DAL.Mapping
                    .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                    .ForMember(desc => desc.Header, act => act.MapFrom(src => src.Header))
                    .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
-                   .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
                    .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                    ;
                 config.CreateMap<SupplierRequest, Supplier>()
@@ -45,27 +44,53 @@ namespace HCQS.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.ProjectType, act => act.MapFrom(src => src.ProjectType))
                 .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                 ;
-
                 config.CreateMap<MaterialRequest, Material>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
               .ForMember(desc => desc.Name, act => act.MapFrom(src => src.Name))
               .ForMember(desc => desc.UnitMaterial, act => act.MapFrom(src => src.UnitMaterial))
               .ForMember(desc => desc.MaterialType, act => act.MapFrom(src => src.MaterialType))
               .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity));
+               config.CreateMap<StaticFile, StaticFileResponse >()
 
-                config.CreateMap<StaticFile, StaticFileResponse >()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                .ForMember(desc => desc.Url, act => act.MapFrom(src => src.Url))
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                ;
+                config.CreateMap<ProjectDto, Project>()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))
+               .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
+               .ForMember(desc => desc.Area, act => act.MapFrom(src => src.Area))
+                 ;
 
+                config.CreateMap<QuotationDetailDto, QuotationDetail>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId))
+              .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity))
+              .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
+                ;
 
+                config.CreateMap<ExportPriceMaterialDto, ExportPriceMaterial>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
+              .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
+               ;
+                config.CreateMap<ExportPriceMaterialDto, ExportPriceMaterial>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
+              .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
+                 ;
+                config.CreateMap<QuotationDealingDto, QuotationDealing>()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId))
+               .ForMember(desc => desc.FurnitureDiscount, act => act.MapFrom(src => src.FurnitureDiscount))
+               .ForMember(desc => desc.MaterialDiscount, act => act.MapFrom(src => src.MaterialDiscount))
+               .ForMember(desc => desc.LaborDiscount, act => act.MapFrom(src => src.LaborDiscount))
 
-
-
-            });
-            return mappingConfig;
+               ;
+            }); 
+          return mappingConfig;
         }
     }
 }

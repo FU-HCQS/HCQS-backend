@@ -4,7 +4,6 @@ using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
@@ -46,7 +45,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     var accountRepository = Resolve<IAccountRepository>();
 
                     var account = await accountRepository.GetByExpression(a => a.Id == sampleProjectRequest.AccountId);
-                    if (account == null) {
+                    if (account == null)
+                    {
                         result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
                     }
                     await _sampleProjectRepository.Insert(project);
@@ -113,7 +113,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The project with id {projectDb.Header} is not existed!");
                     }
-
                     else
                     {
                         result.Result.Data = await _sampleProjectRepository.DeleteById(id);
@@ -154,24 +153,24 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var sampleList = await _sampleProjectRepository.GetAllDataByExpression(null,null);
+                var sampleList = await _sampleProjectRepository.GetAllDataByExpression(null, null);
                 List<SampleProjectResponse> sampleProjects = new List<SampleProjectResponse>();
                 var staticFileRepository = Resolve<IStaticFileRepository>();
 
                 foreach (var sample in sampleList)
                 {
                     List<StaticFile> staticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == sample.Id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video, null);
-                  
+
                     sampleProjects.Add(
-                        
-                        new SampleProjectResponse { 
-                            SampleProject = sample, 
+
+                        new SampleProjectResponse
+                        {
+                            SampleProject = sample,
                             StaticFiles = _mapper.Map<List<StaticFileResponse>>(staticFiles)
-                });
+                        });
                 }
 
                 var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
-
 
                 if (sampleProjects.Any())
                 {
@@ -211,13 +210,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 var sampleDb = await _sampleProjectRepository.GetById(id);
                 var staticFileRepository = Resolve<IStaticFileRepository>();
                 List<StaticFile> staticFiles = await staticFileRepository.GetAllDataByExpression(S => S.SampleProjectId == id && S.StaticFileType == StaticFile.Type.Image || S.StaticFileType == StaticFile.Type.Video, null);
-                SampleProjectResponse sampleProjectResponse = new SampleProjectResponse 
-                { 
-                    SampleProject = sampleDb, 
+                SampleProjectResponse sampleProjectResponse = new SampleProjectResponse
+                {
+                    SampleProject = sampleDb,
                     StaticFiles =
                     _mapper.Map<List<StaticFileResponse>>(staticFiles)
                 };
-            
+
                 if (sampleDb != null)
                 {
                     result.Result.Data = sampleProjectResponse;
@@ -305,7 +304,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
