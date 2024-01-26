@@ -1,7 +1,10 @@
-﻿using HCQS.BackEnd.Common.Dto;
+﻿using FluentValidation;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -10,21 +13,38 @@ namespace HCQS.BackEnd.API.Controllers
     public class ProjectController : ControllerBase
     {
         private IProjectService _projectService;
+        private readonly IValidator<ProjectDto> _validator;
+        private readonly IValidator<ConfigProjectRequest> _validatorConfig;
 
-        public ProjectController(IProjectService projectService)
+        private readonly HandleErrorValidator _handleErrorValidator;
+
+        public ProjectController(IProjectService projectService, IValidator<ProjectDto> validator, IValidator<ConfigProjectRequest> validatorConfig, HandleErrorValidator handleErrorValidator)
         {
             _projectService = projectService;
+            _validator = validator;
+            _handleErrorValidator = handleErrorValidator;
+            _validatorConfig = validatorConfig;
         }
 
         [HttpPost("create-project-by-user")]
         public async Task<AppActionResult> CreateProjectByUser([FromForm] ProjectDto projectDto)
         {
+            var result = await _validator.ValidateAsync(projectDto);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _projectService.CreateProjectByUser(projectDto);
         }
 
         [HttpPut("config-project")]
         public async Task<AppActionResult> ConfigProject(ConfigProjectRequest projectDto)
         {
+            var result = await _validatorConfig.ValidateAsync(projectDto);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _projectService.ConfigProject(projectDto);
         }
 

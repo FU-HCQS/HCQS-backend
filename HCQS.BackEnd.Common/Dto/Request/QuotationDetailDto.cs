@@ -2,7 +2,7 @@
 {
     public class QuotationDetailDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         public int Quantity { get; set; }
         public double Total { get; set; }

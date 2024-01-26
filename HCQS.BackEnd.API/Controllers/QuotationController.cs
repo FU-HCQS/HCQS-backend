@@ -1,5 +1,7 @@
-﻿using HCQS.BackEnd.Common.Dto;
+﻿using FluentValidation;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,10 +15,17 @@ namespace HCQS.BackEnd.API.Controllers
     public class QuotationController : ControllerBase
     {
         private IQuotationService _service;
+        private readonly IValidator<QuotationDealingDto> _validatorConfig;
+        private readonly IValidator<CreateQuotationDeallingStaffRequest> _validator;
 
-        public QuotationController(IQuotationService service)
+        private readonly HandleErrorValidator _handleErrorValidator;
+
+        public QuotationController(IQuotationService service, IValidator<QuotationDealingDto> validatorConfig, IValidator<CreateQuotationDeallingStaffRequest> validator, HandleErrorValidator handleErrorValidator)
         {
             _service = service;
+            _validatorConfig = validatorConfig;
+            _handleErrorValidator = handleErrorValidator;
+            _validator = validator;
         }
 
         [HttpGet("get-all-quotation-by-projectId/{projectId}")]
@@ -32,6 +41,11 @@ namespace HCQS.BackEnd.API.Controllers
 
         public async Task<AppActionResult> CreateQuotationDealingRequest(QuotationDealingDto quotationDealingDto)
         {
+            var result = await _validatorConfig.ValidateAsync(quotationDealingDto);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _service.CreateQuotationDealingRequest(quotationDealingDto);
         }
 
@@ -47,6 +61,11 @@ namespace HCQS.BackEnd.API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateQuotationDealingByStaff(CreateQuotationDeallingStaffRequest request)
         {
+             var result = await _validator.ValidateAsync(request);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _service.CreateQuotationDealingByStaff(request);
         }
     }

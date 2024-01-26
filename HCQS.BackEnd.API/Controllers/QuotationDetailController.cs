@@ -1,5 +1,7 @@
-﻿using HCQS.BackEnd.Common.Dto;
+﻿using FluentValidation;
+using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,10 +15,14 @@ namespace HCQS.BackEnd.API.Controllers
     public class QuotationDetailController : ControllerBase
     {
         private IQuotationDetailService _service;
+        private readonly IValidator<QuotationDetailDto> _validator;
+        private readonly HandleErrorValidator _handleErrorValidator;
 
-        public QuotationDetailController(IQuotationDetailService service)
+        public QuotationDetailController(IQuotationDetailService service, IValidator<QuotationDetailDto> validator, HandleErrorValidator handleErrorValidator)
         {
             _service = service;
+            _validator = validator;
+            _handleErrorValidator = handleErrorValidator;
         }
 
         [HttpGet("get-quotation-detail-by-id/{id}")]
@@ -39,6 +45,11 @@ namespace HCQS.BackEnd.API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail)
         {
+            var result = await _validator.ValidateAsync(quotationDetail);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _service.CreateQuotationDetail(quotationDetail);
         }
 
@@ -47,6 +58,11 @@ namespace HCQS.BackEnd.API.Controllers
 
         public async Task<AppActionResult> UpdateQuotationDetail(QuotationDetailDto quotationDetail)
         {
+            var result = await _validator.ValidateAsync(quotationDetail);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _service.UpdateQuotationDetail(quotationDetail);
         }
 
