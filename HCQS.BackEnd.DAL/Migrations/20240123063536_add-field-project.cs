@@ -11,7 +11,7 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "LandDrawingFileUrl",
                 table: "Projects",
-                type: "nvarchar(max)",
+                type: "nvarchar(Max)",
                 nullable: true);
 
             migrationBuilder.AddColumn<double>(

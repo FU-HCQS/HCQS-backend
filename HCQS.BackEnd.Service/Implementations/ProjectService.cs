@@ -92,16 +92,16 @@ namespace HCQS.BackEnd.Service.Implementations
                         var exportPriceMaterialRepository = Resolve<IExportPriceMaterialRepository>();
                         BuildingInputModel buildingInputModel = new BuildingInputModel()
                         {
-                            CementRatio = project.CementMixingRatio,
-                            SandRatio = project.SandMixingRatio,
-                            StoneRatio = project.StoneMixingRatio,
-                            WallHeight = project.WallHeight,
-                            WallLength = project.WallLength
+                            CementRatio = (double)project.CementMixingRatio,
+                            SandRatio = (double)project.SandMixingRatio,
+                            StoneRatio = (double)project.StoneMixingRatio,
+                            WallHeight = (double)project.WallHeight,
+                            WallLength = (double)project.WallLength
                         };
                         int birckCount = BuildingUtility.CalculateBrickCount(wallLength: buildingInputModel.WallLength, wallHeight: buildingInputModel.WallHeight);
                         var buildingMaterial = BuildingUtility.CalculateMaterials(buildingInputModel);
 
-                        Quotation quotation = new Quotation { Id = Guid.NewGuid(), ProjectId = project.Id, QuotationStatus = Quotation.Status.Pending };
+                        Quotation quotation = new Quotation { Id = Guid.NewGuid(), ProjectId = (Guid)project.Id, QuotationStatus = Quotation.Status.Pending };
                         List<QuotationDetail> quotationDetailList = new List<QuotationDetail>();
                         var brickDb = await materialRepository.GetByExpression(b => b.Name.ToLower() == "Brick".ToLower());
                         var sandDb = await materialRepository.GetByExpression(b => b.Name.ToLower() == "Sand".ToLower());

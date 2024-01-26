@@ -65,7 +65,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             Id = Guid.NewGuid(),
                             FurnitureDiscount = request.FurnitureDiscount,
                             LaborDiscount = request.LaborDiscount,
-                            MaterialDiscount = request.MaterialDiscount,
+                            RawMaterialDiscount = request.MaterialDiscount,
                             ProjectId = quotationDb.ProjectId
                         };
                         List<QuotationDetail> quotationDetails = new List<QuotationDetail>();

@@ -11,7 +11,7 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "ContractVerifyCode",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "nvarchar(Max)",
                 nullable: true);
 
             migrationBuilder.UpdateData(

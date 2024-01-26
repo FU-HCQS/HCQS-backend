@@ -16,14 +16,14 @@ namespace HCQS.BackEnd.Service.Implementations
 {
     public class SupplierService : GenericBackendService, ISupplierService
     {
-        private ISupplierRepository _materialRepository;
+        private ISupplierRepository _supplierRepository;
         private IMapper _mapper;
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
 
         public SupplierService(ISupplierRepository repository, IMapper mapper, BackEndLogger logger, IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _materialRepository = repository;
+            _supplierRepository = repository;
             _mapper = mapper;
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -36,7 +36,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierDb = await _materialRepository.GetByExpression(n => n.SupplierName.Equals(supplierRequest.SupplierName));
+                    var supplierDb = await _supplierRepository.GetByExpression(n => n.SupplierName.Equals(supplierRequest.SupplierName));
                     if (supplierDb != null)
                     {
                         result = BuildAppActionResultError(result, $"The supplier whose name is {supplierRequest.SupplierName} has already existed!");
@@ -45,7 +45,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var supplier = _mapper.Map<Supplier>(supplierRequest);
                         supplier.Id = Guid.NewGuid();
-                        result.Result.Data = await _materialRepository.Insert(supplier);
+                        result.Result.Data = await _supplierRepository.Insert(supplier);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -70,14 +70,14 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierDb = await _materialRepository.GetById(id);
+                    var supplierDb = await _supplierRepository.GetById(id);
                     if (supplierDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The supplier with {id} not found !");
                     }
                     else
                     {
-                        result.Result.Data = await _materialRepository.DeleteById(id);
+                        result.Result.Data = await _supplierRepository.DeleteById(id);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -145,7 +145,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var supplierDb = await _materialRepository.GetById(id);
+                var supplierDb = await _supplierRepository.GetById(id);
                 if (supplierDb != null)
                 {
                     result.Result.Data = supplierDb;
@@ -164,7 +164,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var supplierDb = await _materialRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(name.ToLower()));
+                var supplierDb = await _supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(name.ToLower()));
                 if (supplierDb != null)
                 {
                     result.Result.Data = supplierDb;
@@ -211,7 +211,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     {
                                         throw new Exception("ngu ngok");
                                     }
-                                    var duplicatedSupplier = await _materialRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(name.ToLower()));
+                                    var duplicatedSupplier = await _supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(name.ToLower()));
                                     if (duplicatedSupplier != null)
                                     {
                                         if (!containDuplicated) containDuplicated = true;
@@ -247,7 +247,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             }
                             else
                             {
-                                await _materialRepository.InsertRange(_mapper.Map<List<Supplier>>(data));
+                                await _supplierRepository.InsertRange(_mapper.Map<List<Supplier>>(data));
                                 await _unitOfWork.SaveChangeAsync();
                             }
 
@@ -283,7 +283,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierDb = await _materialRepository.GetByExpression(n => n.Id.Equals(supplierRequest.Id));
+                    var supplierDb = await _supplierRepository.GetByExpression(n => n.Id.Equals(supplierRequest.Id));
                     if (supplierDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The supplier with {supplierRequest.Id} not found !");
@@ -292,7 +292,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var supplier = _mapper.Map<Supplier>(supplierRequest);
                         supplierDb.SupplierName = supplier.SupplierName;
-                        result.Result.Data = await _materialRepository.Update(supplierDb);
+                        result.Result.Data = await _supplierRepository.Update(supplierDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
 

@@ -34,7 +34,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -45,7 +45,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("Gender")
                         .HasColumnType("bit");
@@ -58,7 +58,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -75,22 +75,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
                     b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -100,7 +100,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("VerifyCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -127,17 +127,17 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Header")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -154,7 +154,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("DateOfContract")
                         .HasColumnType("datetime2");
@@ -202,7 +202,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
@@ -277,7 +277,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -323,18 +323,18 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Header")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -351,7 +351,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
@@ -378,7 +378,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("OrderInfo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
@@ -452,7 +452,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("LandDrawingFileUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("NumOfFloor")
                         .HasColumnType("int");
@@ -557,22 +557,22 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<double>("EstimatePrice")
                         .HasColumnType("float");
 
                     b.Property<string>("Function")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Header")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("NumOfFloor")
                         .HasColumnType("int");
@@ -604,7 +604,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -621,7 +621,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("SupplierName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -688,7 +688,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("PositionName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -734,7 +734,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -786,10 +786,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
@@ -811,10 +811,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -836,7 +836,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -876,7 +876,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
