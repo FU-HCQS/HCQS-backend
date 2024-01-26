@@ -11,24 +11,17 @@ namespace HCQS.BackEnd.DAL.Models
         public double Discount { get; set; }
         public double Total { get; set; }
         public int Quantity { get; set; }
-        public Guid ProjectId { get; set; }
-
-        [ForeignKey(nameof(ProjectId))]
-        public Project Project { get; set; }
-
+        public DateTime Date { get; set; }
         public Guid? ExportPriceMaterialId { get; set; }
 
         [ForeignKey(nameof(ExportPriceMaterialId))]
         public ExportPriceMaterial ExportPriceMaterial { get; set; }
 
-        public Guid? MaterialHistoryId { get; set; }
-
-        [ForeignKey(nameof(MaterialHistoryId))]
-        public SupplierPriceQuotation? MaterialHistory { get; set; }
-
         public Guid? QuotationDetailId { get; set; }
 
         [ForeignKey(nameof(QuotationDetailId))]
         public QuotationDetail? QuotationDetail { get; set; }
+
+        public ImportExportInventoryHistory? InventoryHistory { get; set; }
     }
 }

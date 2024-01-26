@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using HCQS.BackEnd.Common.Dto.Request;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Common.Validator
 {

@@ -6,7 +6,6 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations

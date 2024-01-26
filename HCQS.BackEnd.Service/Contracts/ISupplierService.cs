@@ -9,6 +9,7 @@ namespace HCQS.BackEnd.Service.Contracts
     public interface ISupplierService
     {
         public Task<AppActionResult> GetSupplierById(Guid id);
+
         public Task<AppActionResult> GetSupplierByName(String name);
 
         Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos);

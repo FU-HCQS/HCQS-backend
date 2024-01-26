@@ -6,8 +6,6 @@ namespace HCQS.BackEnd.DAL.Util
     {
         public static int MAX_RECORD_PER_PAGE = short.MaxValue;
 
-       
-
         public class ResponseMessage
         {
             public static string CREATE_SUCCESSFUL = "CREATE_SUCCESSFULLY";
@@ -72,6 +70,14 @@ namespace HCQS.BackEnd.DAL.Util
             public static string NEWS_PREFIX = "news/";
             public static string BLOG_PREFIX = "blog/";
             public static string SAMPLE_HOUSE_PREFIX = "sample-house/";
+        }
+
+        public class ExcelHeaders
+        {
+            public static List<String> SUPPLIER_QUOTATION_DETAIL = new List<string>{ "No", "MaterialName", "Unit", "MQO", "Price" };
+            public static List<String> EXPORT_PRICE_DETAIL = new List<string>{ "No", "MaterialName", "Price", "Date" };
+            public static List<String> IMPORT_INVENTORY = new List<string>{ "No", "MaterialName", "SupplierName", "Quantity" };
+
         }
     }
 }

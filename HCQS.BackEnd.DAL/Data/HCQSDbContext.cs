@@ -34,6 +34,7 @@ namespace HCQS.BackEnd.DAL.Data
         public DbSet<Worker> Workers { get; set; }
         public DbSet<WorkerForProject> WorkerForProjects { get; set; }
         public DbSet<SupplierPriceDetail> SupplierPriceDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

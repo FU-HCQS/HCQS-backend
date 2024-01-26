@@ -41,7 +41,18 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<ISupplierPriceQuotationService, SupplierPriceQuotationService>();
 
             services.AddScoped<ISupplierPriceDetailRepository, SupplierPriceDetailRepository>();
-            //services.AddScoped<ISupplierPriceDetailService, SupplierPriceDetailService>();
+            services.AddScoped<ISupplierPriceDetailService, SupplierPriceDetailService>();
+
+            services.AddScoped<IExportPriceMaterialRepository, ExportPriceMaterialRepository>();
+            services.AddScoped<IExportPriceMaterialService, ExportPriceMaterialService>();
+
+            services.AddScoped<IImportExportInventoryHistoryRepository, ImportExportInventoryHistoryRepository>();
+            services.AddScoped<IImportExportInventoryHistoryService, ImportExportInventoryHistoryService>();
+
+            services.AddScoped<IProgressConstructionMaterialRepository, ProgressConstructionMaterialRepository>();
+
+            services.AddScoped<IQuotationDetailRepository, QuotationDetailRepository>();
+            services.AddScoped<IQuotationRepository, QuotationRepository>();
 
             services.AddScoped<IStaticFileRepository, StaticFileRepository>();
             services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));

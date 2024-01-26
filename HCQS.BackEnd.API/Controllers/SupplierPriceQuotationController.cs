@@ -1,13 +1,7 @@
-﻿using FluentValidation;
-using HCQS.BackEnd.Common.Dto;
+﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
-using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Implementations;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
@@ -25,13 +19,19 @@ namespace HCQS.BackEnd.API.Controllers
             _supplierPriceQuotationService = supplierPriceQuotationService;
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("Upload-supplier-quotation-with-excel-file")]
         public async Task<AppActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
         {
             return await _supplierPriceQuotationService.UploadSupplierQuotationWithExcelFile(file);
         }
 
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpDelete("delete-supplier-quotation-by-id")]
+        public async Task<AppActionResult> DeleteSupplierQuotationById(Guid Id)
+        {
+            return await _supplierPriceQuotationService.DeleteSupplierPriceQuotationById(Id);
+        }
 
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
@@ -40,7 +40,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("get-all-by-month")]
-        public async Task<AppActionResult> GetAll(int month, int year, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        public async Task<AppActionResult> GetAllByMonth(int month, int year, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _supplierPriceQuotationService.GetQuotationByMonth(month, year, pageIndex, pageSize, sortInfos);
         }

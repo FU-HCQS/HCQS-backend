@@ -1,16 +1,11 @@
-﻿using HCQS.BackEnd.Common.Dto.Response;
-using HCQS.BackEnd.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HCQS.BackEnd.DAL.Models;
 
 namespace HCQS.BackEnd.Service.Dto
 {
     public class SupplierPriceQuotationResponse
     {
-        public SupplierPriceQuotation SupplierPriceQuotations { get; set; }
+        public SupplierPriceQuotation SupplierPriceQuotation { get; set; }
         public List<SupplierPriceDetail> SupplierPriceDetails { get; set; }
+        public DateTime? Date { get; set; }
     }
 }

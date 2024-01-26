@@ -562,6 +562,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     MaterialHistoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -677,7 +678,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_ContractProgressPayment_ContractId",
-                table: "ContractProgressPayment",
+                table: "Contract  Payment",
                 column: "ContractId");
 
             migrationBuilder.CreateIndex(

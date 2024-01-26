@@ -27,7 +27,6 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("create-supplier")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateSupplier(SupplierRequest request)
         {
             var result = await _validator.ValidateAsync(request);

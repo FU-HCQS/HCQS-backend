@@ -1,11 +1,10 @@
 ﻿using FluentValidation;
-using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto;
+using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +57,7 @@ namespace HCQS.BackEnd.API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> UpdateMaterialQuantity(Guid Id, int addQuantity)
         {
-            return await _materialService.UpdateQuantityById(Id,addQuantity);
+            return await _materialService.UpdateQuantityById(Id, addQuantity);
         }
 
         [HttpDelete("delete-material-by-id/{Id}")]

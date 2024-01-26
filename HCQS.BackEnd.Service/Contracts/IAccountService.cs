@@ -1,7 +1,6 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.DAL.Models;
 
 namespace HCQS.BackEnd.Service.Contracts
 {

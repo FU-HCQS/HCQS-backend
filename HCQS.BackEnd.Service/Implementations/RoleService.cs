@@ -53,7 +53,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (role.RoleId == staffRole.Id)
                         {
                             result = BuildAppActionResultError(result, $"The user with id {userId} has the current role of staff");
-
                         }
                     }
 
@@ -70,10 +69,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
 
-
                         await _unitOfWork.SaveChangeAsync();
-
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -88,7 +84,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
-
 
         public async Task<AppActionResult> GetAllRole()
         {
@@ -126,12 +121,10 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (role.RoleId == staffRole.Id)
                         {
                             flag = true;
-
                         }
-                      
                     }
 
-                    if (flag!= true)
+                    if (flag != true)
                     {
                         result = BuildAppActionResultError(result, $"The user with id don't have staff role");
                     }

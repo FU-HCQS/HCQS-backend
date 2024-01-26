@@ -1,18 +1,16 @@
 ﻿using HCQS.BackEnd.Common.Dto.BaseRequest;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace HCQS.BackEnd.DAL.Util
 {
     public class DataPresentationHelper
     {
-      
         public static List<T> ApplyPaging<T>(IEnumerable<T> source, int pageIndex, int pageSize)
         {
             int toSkip = (pageIndex - 1) * pageSize;
             return source.Skip(toSkip).Take(pageSize).ToList();
         }
+
         private static Expression<Func<T, bool>> CreateRangeFilterExpression<T>(FilterInfo filterInfoToRange)
         {
             var parameter = Expression.Parameter(typeof(T), "c");

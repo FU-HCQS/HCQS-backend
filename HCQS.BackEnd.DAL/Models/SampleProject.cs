@@ -26,6 +26,7 @@ namespace HCQS.BackEnd.DAL.Models
         public string Location { get; set; }
 
         public string? AccountId { get; set; }
+
         [ForeignKey(nameof(AccountId))]
         public Account? Account { get; set; }
     }

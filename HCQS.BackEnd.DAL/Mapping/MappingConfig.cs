@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Models;
@@ -53,17 +52,36 @@ namespace HCQS.BackEnd.DAL.Mapping
               .ForMember(desc => desc.MaterialType, act => act.MapFrom(src => src.MaterialType))
               .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity));
 
-                config.CreateMap<StaticFile, StaticFileResponse >()
+                config.CreateMap<SupplierPriceQuotationRequest, SupplierPriceQuotation>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
+              .ForMember(desc => desc.SupplierId, act => act.MapFrom(src => src.SupplierId));
+
+                config.CreateMap<ExportPriceMaterialRequest, ExportPriceMaterial>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
+              .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
+              .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId));
+
+                config.CreateMap<ProgressConstructionMaterialRequest, ProgressConstructionMaterial>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity))
+              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
+              .ForMember(desc => desc.QuotationDetailId, act => act.MapFrom(src => src.QuotationDetailId));
+
+                config.CreateMap<ImportExportInventoryRequest, ImportExportInventoryHistory>()
+             .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+             .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
+             .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity))
+             .ForMember(desc => desc.SupplierPriceDetailId, act => act.MapFrom(src => src.SupplierPriceDetailId))
+             .ForMember(desc => desc.ProgressConstructionMaterialId, act => act.MapFrom(src => src.ProgressConstructionMaterialId));
+
+                config.CreateMap<StaticFile, StaticFileResponse>()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                .ForMember(desc => desc.Url, act => act.MapFrom(src => src.Url))
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                ;
-
-
-
-
-
             });
             return mappingConfig;
         }

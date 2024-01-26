@@ -102,9 +102,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierList = await _materialRepository.GetAllDataByExpression(null,null);
-
-
+                    var supplierList = await _materialRepository.GetAllDataByExpression(null, null);
 
                     if (supplierList.Any())
                     {

@@ -11,7 +11,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double Price { get; set; }
         public DateTime Date { get; set; }
 
-        public Guid MaterialId { get; set; }
+        public Guid? MaterialId { get; set; }
 
         [ForeignKey(nameof(MaterialId))]
         public Material Material { get; set; }
