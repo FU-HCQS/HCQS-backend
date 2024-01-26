@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -59,12 +58,12 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.RenameColumn(
                 name: "MaterialSupplierId",
                 table: "MaterialHistories",
-                newName: "SupllierId");
+                newName: "SupplierId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_MaterialHistories_MaterialSupplierId",
                 table: "MaterialHistories",
-                newName: "IX_MaterialHistories_SupllierId");
+                newName: "IX_MaterialHistories_SupplierId");
 
             migrationBuilder.AddColumn<string>(
                 name: "AccountId",
@@ -171,9 +170,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_MaterialHistories_Suppliers_SupllierId",
+                name: "FK_MaterialHistories_Suppliers_SupplierId",
                 table: "MaterialHistories",
-                column: "SupllierId",
+                column: "SupplierId",
                 principalTable: "Suppliers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
@@ -197,7 +196,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 table: "ImportExportInventoryHistorys");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_MaterialHistories_Suppliers_SupllierId",
+                name: "FK_MaterialHistories_Suppliers_SupplierId",
                 table: "MaterialHistories");
 
             migrationBuilder.DropForeignKey(
@@ -251,12 +250,12 @@ namespace HCQS.BackEnd.DAL.Migrations
                 table: "ConstructionMaterials");
 
             migrationBuilder.RenameColumn(
-                name: "SupllierId",
+                name: "SupplierId",
                 table: "MaterialHistories",
                 newName: "MaterialSupplierId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_MaterialHistories_SupllierId",
+                name: "IX_MaterialHistories_SupplierId",
                 table: "MaterialHistories",
                 newName: "IX_MaterialHistories_MaterialSupplierId");
 

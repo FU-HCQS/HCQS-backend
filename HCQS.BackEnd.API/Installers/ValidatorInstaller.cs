@@ -12,6 +12,11 @@ namespace HCQS.BackEnd.API.Installers
             services.AddValidatorsFromAssemblyContaining<BlogRequest>();
             services.AddValidatorsFromAssemblyContaining<NewsRequest>();
             services.AddValidatorsFromAssemblyContaining<UpdateAccountRequestDto>();
+            services.AddValidatorsFromAssemblyContaining<ConfigProjectRequest>();
+            services.AddValidatorsFromAssemblyContaining<CreateQuotationDeallingStaffRequest>();
+            services.AddValidatorsFromAssemblyContaining<ProjectDto>();
+            services.AddValidatorsFromAssemblyContaining<QuotationDealingDto>();
+            services.AddValidatorsFromAssemblyContaining<QuotationDetailDto>();
 
         }
     }

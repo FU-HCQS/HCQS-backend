@@ -25,7 +25,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 table: "ConstructionMaterials");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_MaterialHistories_Suppliers_SupllierId",
+                name: "FK_MaterialHistories_Suppliers_SupplierId",
                 table: "MaterialHistories");
 
             migrationBuilder.DropForeignKey(
@@ -64,9 +64,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 newName: "ProgressConstructionMaterials");
 
             migrationBuilder.RenameIndex(
-                name: "IX_MaterialHistories_SupllierId",
+                name: "IX_MaterialHistories_SupplierId",
                 table: "SupplierPriceQuotations",
-                newName: "IX_SupplierPriceQuotations_SupllierId");
+                newName: "IX_SupplierPriceQuotations_SupplierId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_ConstructionMaterials_QuotationDetailId",
@@ -151,9 +151,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_SupplierPriceQuotations_Suppliers_SupllierId",
+                name: "FK_SupplierPriceQuotations_Suppliers_SupplierId",
                 table: "SupplierPriceQuotations",
-                column: "SupllierId",
+                column: "SupplierId",
                 principalTable: "Suppliers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
@@ -182,7 +182,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 table: "SupplierPriceDetails");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_SupplierPriceQuotations_Suppliers_SupllierId",
+                name: "FK_SupplierPriceQuotations_Suppliers_SupplierId",
                 table: "SupplierPriceQuotations");
 
             migrationBuilder.DropPrimaryKey(
@@ -217,9 +217,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 newName: "ConstructionMaterials");
 
             migrationBuilder.RenameIndex(
-                name: "IX_SupplierPriceQuotations_SupllierId",
+                name: "IX_SupplierPriceQuotations_SupplierId",
                 table: "MaterialHistories",
-                newName: "IX_MaterialHistories_SupllierId");
+                newName: "IX_MaterialHistories_SupplierId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_ProgressConstructionMaterials_QuotationDetailId",
@@ -297,9 +297,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_MaterialHistories_Suppliers_SupllierId",
+                name: "FK_MaterialHistories_Suppliers_SupplierId",
                 table: "MaterialHistories",
-                column: "SupllierId",
+                column: "SupplierId",
                 principalTable: "Suppliers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);

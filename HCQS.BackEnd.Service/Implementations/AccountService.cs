@@ -163,8 +163,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, "The email or username is existed");
                     }
 
-
-
                     if (!BuildAppActionResultIsError(result))
                     {
                         var emailService = Resolve<IEmailService>();
@@ -200,7 +198,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"{SD.ResponseMessage.CREATE_FAILED} USER");
                         }
 
-
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, Permission.CUSTOMER);
                         if (resultCreateRole.Succeeded)
                         {
@@ -210,7 +207,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"ASSIGN ROLE FAILED");
                         }
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -250,7 +246,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         scope.Complete();
                         result = BuildAppActionResultSuccess(result, SD.ResponseMessage.UPDATE_SUCCESSFUL);
-
                     }
                 }
                 catch (Exception ex)
@@ -294,6 +289,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _accountRepository.GetAllDataByExpression(null, null);
+                if (sortInfos != null)
+                {
+                    list = DataPresentationHelper.ApplySorting(list, sortInfos);
+                }
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
@@ -309,16 +308,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                var data = accounts.OrderBy(x => x.User.Id).ToList();
-                if (sortInfos != null)
-                {
-                    data = DataPresentationHelper.ApplySorting(data, sortInfos);
-                }
+                
                 if (pageIndex > 0 && pageSize > 0)
                 {
-                    data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
+                    accounts = DataPresentationHelper.ApplyPaging(accounts, pageIndex, pageSize);
                 }
-                result.Result.Data = data;
+                result.Result.Data = accounts;
                 result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
@@ -413,7 +408,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result,ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -465,7 +460,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -520,7 +515,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -558,7 +553,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -605,7 +600,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -643,7 +638,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -671,11 +666,12 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
         }
+
         public async Task<AppActionResult> SendEmailForActiveCode(string email)
         {
             AppActionResult result = new AppActionResult();
@@ -697,7 +693,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -722,31 +718,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return code;
-        }
-
-        public async Task<string> GenerateVerifyCodeGoogle(string email)
-        {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                string code = string.Empty;
-                try
-                {
-                    var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false);
-
-                    if (user != null)
-                    {
-                        code = Guid.NewGuid().ToString("N").Substring(0, 6);
-                        user.VerifyCode = code;
-                    }
-                    await _unitOfWork.SaveChangeAsync();
-                    scope.Complete();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message, this);
-                }
-                return code;
-            }
         }
 
         public async Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle)
@@ -801,7 +772,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
 

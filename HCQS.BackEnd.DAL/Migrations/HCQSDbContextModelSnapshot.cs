@@ -32,7 +32,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -43,7 +43,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("Gender")
                         .HasColumnType("bit");
@@ -56,7 +56,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -73,22 +73,22 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
                     b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -98,7 +98,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("VerifyCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -125,17 +125,17 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Header")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -152,7 +152,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("DateOfContract")
                         .HasColumnType("datetime2");
@@ -200,7 +200,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
@@ -224,7 +224,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("MaterialId")
+                    b.Property<Guid?>("MaterialId")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Price")
@@ -243,6 +244,12 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ProgressConstructionMaterialId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -250,6 +257,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProgressConstructionMaterialId")
+                        .IsUnique()
+                        .HasFilter("[ProgressConstructionMaterialId] IS NOT NULL");
 
                     b.HasIndex("SupplierPriceDetailId");
 
@@ -267,7 +278,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -313,18 +324,18 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Header")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -341,7 +352,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
@@ -368,7 +379,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("OrderInfo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
@@ -396,11 +407,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("MaterialHistoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
+                    /*b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");*/
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -414,8 +422,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExportPriceMaterialId");
-
-                    b.HasIndex("MaterialHistoryId");
 
                     b.HasIndex("ProjectId");
 
@@ -434,6 +440,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<double>("Area")
+                        .HasColumnType("float");
+
                     b.Property<int>("CementMixingRatio")
                         .HasColumnType("int");
 
@@ -442,6 +451,9 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<int>("EstimatedTimeOfCompletion")
                         .HasColumnType("int");
+
+                    b.Property<string>("LandDrawingFileUrl")
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("NumOfFloor")
                         .HasColumnType("int");
@@ -459,6 +471,12 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("TiledArea")
+                        .HasColumnType("float");
+
+                    b.Property<double>("WallHeight")
+                        .HasColumnType("float");
+
+                    b.Property<double>("WallLength")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -505,6 +523,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("MaterialId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -515,6 +536,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
 
                     b.HasIndex("QuotationId");
 
@@ -535,22 +558,22 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<double>("EstimatePrice")
                         .HasColumnType("float");
 
                     b.Property<string>("Function")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Header")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("NumOfFloor")
                         .HasColumnType("int");
@@ -582,7 +605,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("Id");
 
@@ -599,7 +622,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("SupplierName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -666,7 +689,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("PositionName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -712,7 +735,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -735,21 +758,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "7d55762b-bfcf-4683-aaa9-f6e86a376bcc",
+                            ConcurrencyStamp = "a39cb60d-73fd-4edb-a2fe-ed7515aef18a",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "d77cd71f-8ea0-4f46-9bdd-d551e0c582cd",
+                            ConcurrencyStamp = "5ec7570c-561b-4791-9273-8cf5f8d6e8e6",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "1b37c5b1-7145-4463-a69a-38516b45d64b",
+                            ConcurrencyStamp = "d3e70e50-53df-424e-bfae-5e4d0550c943",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -764,10 +787,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
@@ -789,10 +812,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -814,7 +837,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -854,7 +877,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(Max)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -915,9 +938,15 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ImportExportInventoryHistory", b =>
                 {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.ProgressConstructionMaterial", "ProgressConstructionMaterial")
+                        .WithOne("InventoryHistory")
+                        .HasForeignKey("HCQS.BackEnd.DAL.Models.ImportExportInventoryHistory", "ProgressConstructionMaterialId");
+
                     b.HasOne("HCQS.BackEnd.DAL.Models.SupplierPriceDetail", "SupplierPriceDetail")
                         .WithMany()
                         .HasForeignKey("SupplierPriceDetailId");
+
+                    b.Navigation("ProgressConstructionMaterial");
 
                     b.Navigation("SupplierPriceDetail");
                 });
@@ -971,10 +1000,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HCQS.BackEnd.DAL.Models.SupplierPriceQuotation", "MaterialHistory")
-                        .WithMany()
-                        .HasForeignKey("MaterialHistoryId");
-
                     b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
@@ -986,8 +1011,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasForeignKey("QuotationDetailId");
 
                     b.Navigation("ExportPriceMaterial");
-
-                    b.Navigation("MaterialHistory");
 
                     b.Navigation("Project");
 
@@ -1018,9 +1041,15 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.QuotationDetail", b =>
                 {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId");
+
                     b.HasOne("HCQS.BackEnd.DAL.Models.Quotation", "Quotation")
                         .WithMany()
                         .HasForeignKey("QuotationId");
+
+                    b.Navigation("Material");
 
                     b.Navigation("Quotation");
                 });
@@ -1154,6 +1183,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     b.Navigation("ContractProgressPayment")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ProgressConstructionMaterial", b =>
+                {
+                    b.Navigation("InventoryHistory");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Project", b =>

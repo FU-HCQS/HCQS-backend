@@ -10,6 +10,8 @@ namespace HCQS.BackEnd.Service.Contracts
     {
         public Task<AppActionResult> GetSupplierById(Guid id);
 
+        public Task<AppActionResult> GetSupplierByName(String name);
+
         Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 
         public Task<AppActionResult> CreateSupplier(SupplierRequest supplierRequest);

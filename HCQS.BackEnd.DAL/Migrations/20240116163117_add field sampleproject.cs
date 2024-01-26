@@ -15,7 +15,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(Max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -27,23 +27,23 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     Gender = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: true),
                     IsVerified = table.Column<bool>(type: "bit", nullable: true),
-                    VerifyCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VerifyCode = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(Max)", nullable: true),
                     RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(Max)", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -60,7 +60,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     UnitMaterial = table.Column<int>(type: "int", nullable: false),
                     MaterialType = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
@@ -76,7 +76,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     PaymentStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -93,11 +93,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                     ConstructionArea = table.Column<double>(type: "float", nullable: false),
                     TotalArea = table.Column<double>(type: "float", nullable: false),
                     ProjectType = table.Column<int>(type: "int", nullable: false),
-                    Function = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Function = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Header = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     EstimatePrice = table.Column<double>(type: "float", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Location = table.Column<string>(type: "nvarchar(Max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,7 +109,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SupplierName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SupplierName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -124,8 +124,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimType = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(Max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -145,8 +145,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimType = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(Max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -165,7 +165,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(Max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -210,7 +210,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Value = table.Column<string>(type: "nvarchar(Max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -228,9 +228,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Header = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(Max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -250,9 +250,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Header = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -321,7 +321,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     PaymentTypeResponse = table.Column<int>(type: "int", nullable: false),
-                    OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderInfo = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     IsSuccess = table.Column<bool>(type: "bit", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -341,7 +341,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     StaticFileType = table.Column<int>(type: "int", nullable: false),
                     SampleProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -386,7 +386,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PositionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PositionName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     LaborCost = table.Column<double>(type: "float", nullable: false),
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -410,7 +410,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Total = table.Column<double>(type: "float", nullable: false),
                     TotalCostsIncurred = table.Column<double>(type: "float", nullable: false),
                     Deposit = table.Column<double>(type: "float", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     DateOfContract = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -503,7 +503,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(Max)", nullable: false),
                     ContractId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -562,6 +562,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     MaterialHistoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -677,7 +678,7 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_ContractProgressPayment_ContractId",
-                table: "ContractProgressPayment",
+                table: "Contract  Payment",
                 column: "ContractId");
 
             migrationBuilder.CreateIndex(

@@ -18,6 +18,7 @@ namespace HCQS.BackEnd.API.Controllers
         private readonly IValidator<NewsRequest> _validator;
         private readonly HandleErrorValidator _handleErrorValidator;
         private INewsService _newsService;
+
         public NewsController(IValidator<NewsRequest> validator, HandleErrorValidator handleErrorValidator, INewsService service)
         {
             _validator = validator;
@@ -50,17 +51,20 @@ namespace HCQS.BackEnd.API.Controllers
             }
             return await _newsService.UpdateNews(request);
         }
+
         [HttpDelete("delete-news-by-id/{Id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> DeleteNewsById(Guid Id)
         {
             return await _newsService.DeleteNewsById(Id);
         }
+
         [HttpGet("get-news-by-id/{Id}")]
         public async Task<AppActionResult> GetNewsById(Guid Id)
         {
             return await _newsService.GetNewsById(Id);
         }
+
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
