@@ -1,4 +1,4 @@
-﻿[![Build and deploy ASP.Net Core app to Azure Web App - hcqs-backend](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/main_hcqs-backend.yml/badge.svg?branch=main&event=deployment)](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/main_hcqs-backend.yml)
+[![Build and deploy ASP.Net Core app to Azure Web App - hcqs-backend](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/main_hcqs-backend.yml/badge.svg)](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/main_hcqs-backend.yml)
 # House Construction Quotation System - Back End Repository
 
 ## Overview
