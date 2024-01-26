@@ -408,7 +408,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result,ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -460,7 +460,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -515,7 +515,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -553,7 +553,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -600,7 +600,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -638,7 +638,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -666,7 +666,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -693,7 +693,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -772,7 +772,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
 
