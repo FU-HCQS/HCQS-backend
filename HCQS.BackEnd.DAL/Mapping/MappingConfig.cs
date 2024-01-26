@@ -16,7 +16,6 @@ namespace HCQS.BackEnd.DAL.Mapping
                    .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                    .ForMember(desc => desc.Header, act => act.MapFrom(src => src.Header))
                    .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
-                   .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
                    .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                    ;
 
@@ -24,7 +23,6 @@ namespace HCQS.BackEnd.DAL.Mapping
                    .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                    .ForMember(desc => desc.Header, act => act.MapFrom(src => src.Header))
                    .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
-                   .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
                    .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                    ;
                 config.CreateMap<SupplierRequest, Supplier>()

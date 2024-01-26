@@ -32,8 +32,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
+                    var utility = Resolve<HCQS.BackEnd.DAL.Util.Utility>();
                     var blog = _mapper.Map<Blog>(blogRequest);
                     blog.Id = Guid.NewGuid();
+                    blog.Date = utility.GetCurrentDateTimeInTimeZone();
                     blog.ImageUrl = string.Empty;
                     var blogDb = await _blogRepository.GetByExpression(b => b.Header.ToLower().Equals(blog.Header));
                     var accountRepository = Resolve<IAccountRepository>();

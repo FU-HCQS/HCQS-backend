@@ -1,4 +1,5 @@
-﻿# House Construction Quotation System - Back End Repository
+﻿[![Build and deploy ASP.Net Core app to Azure Web App - hcqs-backend](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/main_hcqs-backend.yml/badge.svg?branch=main&event=deployment)](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/main_hcqs-backend.yml)
+# House Construction Quotation System - Back End Repository
 
 ## Overview
 The House Construction Quotation System is a comprehensive solution designed to streamline the entire process of house construction, from generating quotes to managing construction contracts and overseeing the execution of the project. This system aims to enhance efficiency, accuracy, and transparency in the construction workflow.

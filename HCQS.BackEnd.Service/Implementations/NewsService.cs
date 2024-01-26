@@ -34,6 +34,8 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var news = _mapper.Map<News>(NewsRequest);
                     news.Id = Guid.NewGuid();
+                    var utility = Resolve<HCQS.BackEnd.DAL.Util.Utility>();
+                    news.Date= utility.GetCurrentDateTimeInTimeZone();
                     news.ImageUrl = string.Empty;
                     var newsDb = await _newsRepository.GetByExpression(n => n.Header.ToLower().Equals(news.Header.ToLower()));
                     var accountRepository = Resolve<IAccountRepository>();
