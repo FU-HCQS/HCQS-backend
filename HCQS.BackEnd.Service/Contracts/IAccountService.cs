@@ -22,10 +22,6 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
 
-        Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId);
-
-        Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId);
-
         Task<AppActionResult> GetNewToken(string refreshToken, string userId);
 
         Task<AppActionResult> ForgotPassword(ForgotPasswordDto dto);
@@ -35,8 +31,6 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> SendEmailForgotPassword(string email);
 
         Task<string> GenerateVerifyCode(string email, bool isForForgettingPassword);
-
-        Task<string> GenerateVerifyCodeGoogle(string email);
 
         Task<AppActionResult> GoogleCallBack(string accessTokenFromGoogle);
 

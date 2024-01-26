@@ -32,8 +32,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
+                    var utility = Resolve<HCQS.BackEnd.DAL.Util.Utility>();
                     var blog = _mapper.Map<Blog>(blogRequest);
                     blog.Id = Guid.NewGuid();
+                    blog.Date = utility.GetCurrentDateTimeInTimeZone();
                     blog.ImageUrl = string.Empty;
                     var blogDb = await _blogRepository.GetByExpression(b => b.Header.ToLower().Equals(blog.Header));
                     var accountRepository = Resolve<IAccountRepository>();
@@ -65,7 +67,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -107,7 +109,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -127,7 +129,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -172,7 +174,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -212,7 +214,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;

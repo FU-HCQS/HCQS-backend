@@ -34,6 +34,8 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var news = _mapper.Map<News>(NewsRequest);
                     news.Id = Guid.NewGuid();
+                    var utility = Resolve<HCQS.BackEnd.DAL.Util.Utility>();
+                    news.Date= utility.GetCurrentDateTimeInTimeZone();
                     news.ImageUrl = string.Empty;
                     var newsDb = await _newsRepository.GetByExpression(n => n.Header.ToLower().Equals(news.Header.ToLower()));
                     var accountRepository = Resolve<IAccountRepository>();
@@ -64,7 +66,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -104,12 +106,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
             }
         }
+
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -154,12 +157,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
             }
         }
+
         public async Task<AppActionResult> GetNewsById(Guid id)
         {
             AppActionResult result = new AppActionResult();
@@ -173,7 +177,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -218,7 +222,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
