@@ -85,6 +85,13 @@ namespace HCQS.BackEnd.DAL.Mapping
                .ForMember(desc => desc.Url, act => act.MapFrom(src => src.Url))
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                ;
+
+                config.CreateMap<ProjectDto, Project>()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))
+               .ForMember(desc => desc.Area, act => act.MapFrom(src => src.Area))
+               .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
+               ;
             });
             return mappingConfig;
         }
