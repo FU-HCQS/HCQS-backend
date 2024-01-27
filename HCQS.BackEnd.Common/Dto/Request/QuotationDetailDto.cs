@@ -5,7 +5,6 @@
         public Guid? Id { get; set; }
 
         public int Quantity { get; set; }
-        public double Total { get; set; }
         public Guid? QuotationId { get; set; }
         public Guid? MaterialId { get; set; }
     }

@@ -36,10 +36,11 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     var materialRepository = Resolve<IMaterialRepository>();
                     var quotationRepository = Resolve<IQuotationRepository>();
-
+                    var exportMaterialPriceRepository = Resolve<IExportPriceMaterialRepository>();
                     var material = await materialRepository.GetById(quotationDetail.MaterialId);
                     var quotation = await quotationRepository.GetById(quotationDetail.QuotationId);
-
+                    var exportMaterialPrice = await exportMaterialPriceRepository.GetAllDataByExpression(filter: a=> a.MaterialId == quotationMap.MaterialId);
+                    exportMaterialPrice.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
                     if (material == null)
                     {
                         result = BuildAppActionResultError(result, $"The material with id {quotationDetail.MaterialId} is not existed");
@@ -48,8 +49,13 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationDetail.QuotationId} is not existed");
                     }
+                    if( exportMaterialPrice.Any()) {
+
+                        result = BuildAppActionResultError(result, $"The export price with material id {quotationDetail.MaterialId} is not existed");
+                    }
                     if (!BuildAppActionResultIsError(result))
                     {
+                        quotationMap.Total = exportMaterialPrice.FirstOrDefault().Price * quotationMap.Quantity;
                         result.Result.Data = await _quotationDetailRepository.Insert(quotationMap);
                         await _unitOfWork.SaveChangeAsync();
                     }
@@ -149,9 +155,14 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     var materialRepository = Resolve<IMaterialRepository>();
                     var quotationRepository = Resolve<IQuotationRepository>();
+                    var exportMaterialPriceRepository = Resolve<IExportPriceMaterialRepository>();
+
+
                     var quotationDetailDb = await _quotationDetailRepository.GetById(quotationDetail.Id);
                     var material = await materialRepository.GetById(quotationDetail.MaterialId);
                     var quotation = await quotationRepository.GetById(quotationDetail.QuotationId);
+                    var exportMaterialPrice = await exportMaterialPriceRepository.GetAllDataByExpression(filter: a => a.MaterialId == quotationMap.MaterialId);
+                    exportMaterialPrice.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
                     if (quotationDetailDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation detail with id {quotationDetail.Id} is not existed");
@@ -167,6 +178,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (!BuildAppActionResultIsError(result))
                     {
                         quotationDetailDb = quotationMap;
+                        quotationMap.Total = exportMaterialPrice.FirstOrDefault().Price * quotationMap.Quantity;
+
                         result.Result.Data = await _quotationDetailRepository.Update(quotationDetailDb);
                         await _unitOfWork.SaveChangeAsync();
                     }

@@ -13,7 +13,6 @@ namespace HCQS.BackEnd.Common.Validator
         public QuotationDetailValidator()
         {
             RuleFor(x => x.Quantity).NotNull().NotEmpty().WithMessage("The Quantity must be required!");
-            RuleFor(x => x.Total).NotNull().NotEmpty().WithMessage("The Total must be required!");
             RuleFor(x => x.QuotationId).NotNull().NotEmpty().WithMessage("The QuotationId must be required!");
             RuleFor(x => x.MaterialId).NotNull().NotEmpty().WithMessage("The MaterialId must be required!");
 

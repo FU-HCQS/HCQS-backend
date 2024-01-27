@@ -6,6 +6,7 @@ using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
+using Pipelines.Sockets.Unofficial.Arenas;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -162,7 +163,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                       
+
                         var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == quotationId);
 
                         if (!quotationDetails.Any())
@@ -215,7 +216,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             result.Result.Data = await contractRepository.Insert(contract);
                             await contractProgressPaymentRepository.Insert(contractProgressPayment);
                             await paymentRepository.Insert(payment);
-                      
+
                             if (account.ContractVerifyCode == null)
                             {
                                 account.ContractVerifyCode = code;
@@ -264,6 +265,70 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return result;
+        }
+
+        public async Task<AppActionResult> GetAllQuotationByProjectIdForCustomer(Guid projectId)
+        {
+            AppActionResult result = new AppActionResult();
+
+            try
+            {
+                result.Result.Data = await _quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == projectId && a.QuotationStatus != Quotation.Status.Pending);
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> PublicQuotationForCustomer(Guid quotationId)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                AppActionResult result = new AppActionResult();
+
+                try
+                {
+                    var quotationDb = await _quotationRepository.GetById(quotationId);
+                    if (quotationDb == null)
+                    {
+
+                        result = BuildAppActionResultError(result, $"The quotation with id {quotationId} is not existed");
+                    }
+                    else if (quotationDb.QuotationStatus != Quotation.Status.Pending)
+                    {
+                        result = BuildAppActionResultError(result, $"The quotation with id {quotationId} has been made public");
+
+                    }
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        if (quotationDb.QuotationStatus == Quotation.Status.Pending)
+                        {
+                            quotationDb.QuotationStatus = Quotation.Status.WaitingForCustomerResponse;
+                            await _quotationRepository.Update(quotationDb);
+                            await _unitOfWork.SaveChangeAsync();
+                        }
+                        else
+                        {
+                            result = BuildAppActionResultError(result, $"The api is support for quotation is not public");
+                        }
+                    }
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    result = BuildAppActionResultError(result, ex.Message);
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+            }
+
         }
     }
 }

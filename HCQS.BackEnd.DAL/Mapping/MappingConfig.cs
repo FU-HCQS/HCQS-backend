@@ -49,6 +49,11 @@ namespace HCQS.BackEnd.DAL.Mapping
               .ForMember(desc => desc.UnitMaterial, act => act.MapFrom(src => src.UnitMaterial))
               .ForMember(desc => desc.MaterialType, act => act.MapFrom(src => src.MaterialType))
               .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity));
+                config.CreateMap<QuotationDetailDto, QuotationDetail>()
+             .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+             .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
+             .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId));
+             
 
                 config.CreateMap<SupplierPriceQuotationRequest, SupplierPriceQuotation>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))

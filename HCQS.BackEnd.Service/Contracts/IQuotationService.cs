@@ -12,5 +12,7 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> DealQuotation(Guid quotationId, bool status);
 
         Task<AppActionResult> CreateQuotationDealingByStaff(CreateQuotationDeallingStaffRequest request);
+        Task<AppActionResult> PublicQuotationForCustomer(Guid quotationId);
+        Task<AppActionResult> GetAllQuotationByProjectIdForCustomer(Guid projectId);
     }
 }
