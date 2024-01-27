@@ -15,10 +15,10 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid? ExportPriceMaterialId { get; set; }
 
         [ForeignKey(nameof(ExportPriceMaterialId))]
-        public ExportPriceMaterial ExportPriceMaterial { get; set; }
+        public ExportPriceMaterial? ExportPriceMaterial { get; set; }
 
         public Guid? QuotationDetailId { get; set; }
-
+       
         [ForeignKey(nameof(QuotationDetailId))]
         public QuotationDetail? QuotationDetail { get; set; }
 

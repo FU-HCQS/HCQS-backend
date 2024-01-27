@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class addfieldsampleproject : Migration
+    public partial class changeDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,7 +16,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(Max)", nullable: true)
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -27,23 +28,24 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    FirstName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: true),
                     IsVerified = table.Column<bool>(type: "bit", nullable: true),
-                    VerifyCode = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    RefreshToken = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    VerifyCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ContractVerifyCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -60,7 +62,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UnitMaterial = table.Column<int>(type: "int", nullable: false),
                     MaterialType = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
@@ -76,7 +78,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PaymentStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -85,31 +87,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SampleProjects",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NumOfFloor = table.Column<int>(type: "int", nullable: false),
-                    ConstructionArea = table.Column<double>(type: "float", nullable: false),
-                    TotalArea = table.Column<double>(type: "float", nullable: false),
-                    ProjectType = table.Column<int>(type: "int", nullable: false),
-                    Function = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    Header = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    EstimatePrice = table.Column<double>(type: "float", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(Max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SampleProjects", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Suppliers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SupplierName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    SupplierName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -124,8 +106,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(Max)", nullable: true)
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -145,8 +127,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(Max)", nullable: true)
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -165,7 +147,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -210,7 +192,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(Max)", nullable: true)
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -228,9 +210,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Header = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -250,9 +232,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Header = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -276,7 +258,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                     SandMixingRatio = table.Column<int>(type: "int", nullable: false),
                     CementMixingRatio = table.Column<int>(type: "int", nullable: false),
                     StoneMixingRatio = table.Column<int>(type: "int", nullable: false),
+                    Area = table.Column<double>(type: "float", nullable: false),
                     TiledArea = table.Column<double>(type: "float", nullable: false),
+                    WallLength = table.Column<double>(type: "float", nullable: false),
+                    WallHeight = table.Column<double>(type: "float", nullable: false),
+                    LandDrawingFileUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProjectStatus = table.Column<int>(type: "int", nullable: false),
                     EstimatedTimeOfCompletion = table.Column<int>(type: "int", nullable: false),
                     NumberOfLabor = table.Column<int>(type: "int", nullable: false),
@@ -292,6 +278,32 @@ namespace HCQS.BackEnd.DAL.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SampleProjects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NumOfFloor = table.Column<int>(type: "int", nullable: false),
+                    ConstructionArea = table.Column<double>(type: "float", nullable: false),
+                    TotalArea = table.Column<double>(type: "float", nullable: false),
+                    ProjectType = table.Column<int>(type: "int", nullable: false),
+                    Function = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EstimatePrice = table.Column<double>(type: "float", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SampleProjects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SampleProjects_AspNetUsers_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -321,7 +333,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     PaymentTypeResponse = table.Column<int>(type: "int", nullable: false),
-                    OrderInfo = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsSuccess = table.Column<bool>(type: "bit", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -332,26 +344,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         name: "FK_PaymentResponses_Payments_PaymentId",
                         column: x => x.PaymentId,
                         principalTable: "Payments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StaticFiles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(Max)", nullable: false),
-                    StaticFileType = table.Column<int>(type: "int", nullable: false),
-                    SampleProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StaticFiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StaticFiles_SampleProjects_SampleProjectId",
-                        column: x => x.SampleProjectId,
-                        principalTable: "SampleProjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -382,11 +374,30 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SupplierPriceQuotations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SupplierPriceQuotations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SupplierPriceQuotations_Suppliers_SupplierId",
+                        column: x => x.SupplierId,
+                        principalTable: "Suppliers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Workers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PositionName = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    PositionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     LaborCost = table.Column<double>(type: "float", nullable: false),
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -410,11 +421,14 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Total = table.Column<double>(type: "float", nullable: false),
                     TotalCostsIncurred = table.Column<double>(type: "float", nullable: false),
                     Deposit = table.Column<double>(type: "float", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfContract = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpectedPrice = table.Column<double>(type: "float", nullable: false),
+                    MaterialPrice = table.Column<double>(type: "float", nullable: false),
+                    LaborPrice = table.Column<double>(type: "float", nullable: false),
+                    FurniturePrice = table.Column<double>(type: "float", nullable: false),
+                    ContractStatus = table.Column<int>(type: "int", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -434,8 +448,11 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RawMaterialPrice = table.Column<double>(type: "float", nullable: false),
+                    RawMaterialDiscount = table.Column<double>(type: "float", nullable: false),
                     FurniturePrice = table.Column<double>(type: "float", nullable: false),
-                    LabelPrice = table.Column<double>(type: "float", nullable: false),
+                    FurnitureDiscount = table.Column<double>(type: "float", nullable: false),
+                    LaborPrice = table.Column<double>(type: "float", nullable: false),
+                    LaborDiscount = table.Column<double>(type: "float", nullable: false),
                     Total = table.Column<double>(type: "float", nullable: false),
                     QuotationStatus = table.Column<int>(type: "int", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -452,23 +469,47 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MaterialHistories",
+                name: "StaticFiles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ImportPrice = table.Column<double>(type: "float", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MaterialSupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StaticFileType = table.Column<int>(type: "int", nullable: false),
+                    SampleProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MaterialHistories", x => x.Id);
+                    table.PrimaryKey("PK_StaticFiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MaterialHistories_MaterialSuppliers_MaterialSupplierId",
-                        column: x => x.MaterialSupplierId,
-                        principalTable: "MaterialSuppliers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_StaticFiles_SampleProjects_SampleProjectId",
+                        column: x => x.SampleProjectId,
+                        principalTable: "SampleProjects",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SupplierPriceDetails",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MOQ = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    MaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SupplierPriceQuotationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SupplierPriceDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SupplierPriceDetails_Materials_MaterialId",
+                        column: x => x.MaterialId,
+                        principalTable: "Materials",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SupplierPriceDetails_SupplierPriceQuotations_SupplierPriceQuotationId",
+                        column: x => x.SupplierPriceQuotationId,
+                        principalTable: "SupplierPriceQuotations",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -503,7 +544,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(Max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ContractId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -525,56 +566,23 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ConstructionMaterials",
+                name: "QuotationDealings",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Discount = table.Column<double>(type: "float", nullable: false),
-                    Total = table.Column<double>(type: "float", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ExportPriceMaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MaterialHistoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    MaterialDiscount = table.Column<double>(type: "float", nullable: false),
+                    FurnitureDiscount = table.Column<double>(type: "float", nullable: false),
+                    LaborDiscount = table.Column<double>(type: "float", nullable: false),
+                    QuotationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ConstructionMaterials", x => x.Id);
+                    table.PrimaryKey("PK_QuotationDealings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ConstructionMaterials_ExportPriceMaterials_ExportPriceMaterialId",
-                        column: x => x.ExportPriceMaterialId,
-                        principalTable: "ExportPriceMaterials",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ConstructionMaterials_MaterialHistories_MaterialHistoryId",
-                        column: x => x.MaterialHistoryId,
-                        principalTable: "MaterialHistories",
+                        name: "FK_QuotationDealings_Quotations_QuotationId",
+                        column: x => x.QuotationId,
+                        principalTable: "Quotations",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ConstructionMaterials_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ImportExportInventoryHistorys",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    MaterialHistoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ImportExportInventoryHistorys", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ImportExportInventoryHistorys_MaterialHistories_MaterialHistoryId",
-                        column: x => x.MaterialHistoryId,
-                        principalTable: "MaterialHistories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -584,16 +592,16 @@ namespace HCQS.BackEnd.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Total = table.Column<double>(type: "float", nullable: false),
-                    ConstructionMaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    QuotationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    QuotationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    MaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_QuotationDetails", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_QuotationDetails_ConstructionMaterials_ConstructionMaterialId",
-                        column: x => x.ConstructionMaterialId,
-                        principalTable: "ConstructionMaterials",
+                        name: "FK_QuotationDetails_Materials_MaterialId",
+                        column: x => x.MaterialId,
+                        principalTable: "Materials",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_QuotationDetails_Quotations_QuotationId",
@@ -602,20 +610,72 @@ namespace HCQS.BackEnd.DAL.Migrations
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "c9faf411-0d6f-40b5-818b-a75ea1ac9406", "9f70af7e-e982-4aa9-86b3-7e6cba34c559", "ADMIN", "admin" });
+            migrationBuilder.CreateTable(
+                name: "ProgressConstructionMaterials",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Discount = table.Column<double>(type: "float", nullable: false),
+                    Total = table.Column<double>(type: "float", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExportPriceMaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    QuotationDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProgressConstructionMaterials", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProgressConstructionMaterials_ExportPriceMaterials_ExportPriceMaterialId",
+                        column: x => x.ExportPriceMaterialId,
+                        principalTable: "ExportPriceMaterials",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ProgressConstructionMaterials_QuotationDetails_QuotationDetailId",
+                        column: x => x.QuotationDetailId,
+                        principalTable: "QuotationDetails",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImportExportInventoryHistorys",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SupplierPriceDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ProgressConstructionMaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportExportInventoryHistorys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ImportExportInventoryHistorys_ProgressConstructionMaterials_ProgressConstructionMaterialId",
+                        column: x => x.ProgressConstructionMaterialId,
+                        principalTable: "ProgressConstructionMaterials",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ImportExportInventoryHistorys_SupplierPriceDetails_SupplierPriceDetailId",
+                        column: x => x.SupplierPriceDetailId,
+                        principalTable: "SupplierPriceDetails",
+                        principalColumn: "Id");
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "cbc3e3d2-7866-4370-8853-066d732ee80a", "660459fc-837f-4372-8a58-48d3ed48a7c9", "STAFF", "staff" });
+                values: new object[] { "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21", "e747e9c5-3d39-4218-afb3-fe9d898702bb", "ADMIN", "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "e4be700b-16d1-499e-8ddc-f7b5da3261b0", "2af8e291-246e-42a3-8eb4-b269a17aa63c", "CUSTOMER", "customer" });
+                values: new object[] { "2f28c722-04c9-41fd-85e4-eaa506acda38", "3a5dd1f4-c758-4535-8ce6-128f3464a715", "STAFF", "staff" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f", "bc58f021-2309-4f42-8d1e-63475e1d365b", "CUSTOMER", "customer" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -662,23 +722,8 @@ namespace HCQS.BackEnd.DAL.Migrations
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConstructionMaterials_ExportPriceMaterialId",
-                table: "ConstructionMaterials",
-                column: "ExportPriceMaterialId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConstructionMaterials_MaterialHistoryId",
-                table: "ConstructionMaterials",
-                column: "MaterialHistoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConstructionMaterials_ProjectId",
-                table: "ConstructionMaterials",
-                column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ContractProgressPayment_ContractId",
-                table: "Contract  Payment",
+                table: "ContractProgressPayment",
                 column: "ContractId");
 
             migrationBuilder.CreateIndex(
@@ -699,14 +744,16 @@ namespace HCQS.BackEnd.DAL.Migrations
                 column: "MaterialId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ImportExportInventoryHistorys_MaterialHistoryId",
+                name: "IX_ImportExportInventoryHistorys_ProgressConstructionMaterialId",
                 table: "ImportExportInventoryHistorys",
-                column: "MaterialHistoryId");
+                column: "ProgressConstructionMaterialId",
+                unique: true,
+                filter: "[ProgressConstructionMaterialId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MaterialHistories_MaterialSupplierId",
-                table: "MaterialHistories",
-                column: "MaterialSupplierId");
+                name: "IX_ImportExportInventoryHistorys_SupplierPriceDetailId",
+                table: "ImportExportInventoryHistorys",
+                column: "SupplierPriceDetailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MaterialSuppliers_MaterialId",
@@ -729,14 +776,29 @@ namespace HCQS.BackEnd.DAL.Migrations
                 column: "PaymentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProgressConstructionMaterials_ExportPriceMaterialId",
+                table: "ProgressConstructionMaterials",
+                column: "ExportPriceMaterialId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProgressConstructionMaterials_QuotationDetailId",
+                table: "ProgressConstructionMaterials",
+                column: "QuotationDetailId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_AccountId",
                 table: "Projects",
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuotationDetails_ConstructionMaterialId",
+                name: "IX_QuotationDealings_QuotationId",
+                table: "QuotationDealings",
+                column: "QuotationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuotationDetails_MaterialId",
                 table: "QuotationDetails",
-                column: "ConstructionMaterialId");
+                column: "MaterialId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuotationDetails_QuotationId",
@@ -749,9 +811,29 @@ namespace HCQS.BackEnd.DAL.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SampleProjects_AccountId",
+                table: "SampleProjects",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StaticFiles_SampleProjectId",
                 table: "StaticFiles",
                 column: "SampleProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupplierPriceDetails_MaterialId",
+                table: "SupplierPriceDetails",
+                column: "MaterialId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupplierPriceDetails_SupplierPriceQuotationId",
+                table: "SupplierPriceDetails",
+                column: "SupplierPriceQuotationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupplierPriceQuotations_SupplierId",
+                table: "SupplierPriceQuotations",
+                column: "SupplierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkerForProjects_ProjectId",
@@ -796,13 +878,16 @@ namespace HCQS.BackEnd.DAL.Migrations
                 name: "ImportExportInventoryHistorys");
 
             migrationBuilder.DropTable(
+                name: "MaterialSuppliers");
+
+            migrationBuilder.DropTable(
                 name: "News");
 
             migrationBuilder.DropTable(
                 name: "PaymentResponses");
 
             migrationBuilder.DropTable(
-                name: "QuotationDetails");
+                name: "QuotationDealings");
 
             migrationBuilder.DropTable(
                 name: "StaticFiles");
@@ -817,13 +902,13 @@ namespace HCQS.BackEnd.DAL.Migrations
                 name: "Contracts");
 
             migrationBuilder.DropTable(
+                name: "ProgressConstructionMaterials");
+
+            migrationBuilder.DropTable(
+                name: "SupplierPriceDetails");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
-
-            migrationBuilder.DropTable(
-                name: "ConstructionMaterials");
-
-            migrationBuilder.DropTable(
-                name: "Quotations");
 
             migrationBuilder.DropTable(
                 name: "SampleProjects");
@@ -835,22 +920,25 @@ namespace HCQS.BackEnd.DAL.Migrations
                 name: "ExportPriceMaterials");
 
             migrationBuilder.DropTable(
-                name: "MaterialHistories");
+                name: "QuotationDetails");
 
             migrationBuilder.DropTable(
-                name: "Projects");
-
-            migrationBuilder.DropTable(
-                name: "MaterialSuppliers");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "SupplierPriceQuotations");
 
             migrationBuilder.DropTable(
                 name: "Materials");
 
             migrationBuilder.DropTable(
+                name: "Quotations");
+
+            migrationBuilder.DropTable(
                 name: "Suppliers");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

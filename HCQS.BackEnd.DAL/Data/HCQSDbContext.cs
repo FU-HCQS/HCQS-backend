@@ -47,6 +47,8 @@ namespace HCQS.BackEnd.DAL.Data
 
             builder.Entity<IdentityRole>().HasData(
                        new IdentityRole { Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f", Name = Permission.CUSTOMER, NormalizedName = Permission.CUSTOMER.ToLower() });
+
+
         }
     }
 }

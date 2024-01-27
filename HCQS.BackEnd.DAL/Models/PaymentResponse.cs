@@ -19,7 +19,6 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string OrderInfo { get; set; }
         public bool IsSuccess { get; set; }
-
         public Guid PaymentId { get; set; }
 
         [ForeignKey(nameof(PaymentId))]
