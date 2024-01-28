@@ -94,7 +94,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result,ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -115,8 +115,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Result.Data = await _sampleProjectRepository.DeleteById(id);
-                        await _unitOfWork.SaveChangeAsync();
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -130,9 +128,12 @@ namespace HCQS.BackEnd.Service.Implementations
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 await staticFileRepository.DeleteById(item.Id);
-                                await _unitOfWork.SaveChangeAsync();
+
                             }
                         }
+                        result.Result.Data = await _sampleProjectRepository.DeleteById(id);
+                        await _unitOfWork.SaveChangeAsync();
+
                         if (!BuildAppActionResultIsError(result))
                         {
                             scope.Complete();
@@ -141,7 +142,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -196,13 +197,13 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
         }
 
-        public async Task<AppActionResult> GetBlogById(Guid id)
+        public async Task<AppActionResult> GetSampleProjectById(Guid id)
         {
             AppActionResult result = new AppActionResult();
             try
@@ -224,7 +225,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;

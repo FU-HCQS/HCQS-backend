@@ -60,9 +60,9 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpGet("get-sample-project-by-id/{Id}")]
-        public async Task<AppActionResult> GetBlogById(Guid Id)
+        public async Task<AppActionResult> GetSampleProjectById(Guid Id)
         {
-            return await _sampleProjectService.GetBlogById(Id);
+            return await _sampleProjectService.GetSampleProjectById(Id);
         }
 
         [HttpPost("get-all")]

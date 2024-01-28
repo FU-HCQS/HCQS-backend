@@ -6,7 +6,7 @@ namespace HCQS.BackEnd.Service.Contracts
 {
     public interface ISampleProjectService
     {
-        public Task<AppActionResult> GetBlogById(Guid id);
+        public Task<AppActionResult> GetSampleProjectById(Guid id);
 
         public Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 
