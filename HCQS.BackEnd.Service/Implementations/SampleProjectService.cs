@@ -94,7 +94,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result,ex.Message);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -251,11 +251,14 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
                     }
-                    result.Result.Data = await _sampleProjectRepository.Update(project);
-                    await _unitOfWork.SaveChangeAsync();
+                   
 
                     if (!BuildAppActionResultIsError(result))
                     {
+                        _mapper.Map(sampleProjectRequest, projectDb);
+                        result.Result.Data = await _sampleProjectRepository.Update(projectDb);
+                        await _unitOfWork.SaveChangeAsync();
+
                         var fileService = Resolve<IFileService>();
                         var staticFileRepository = Resolve<IStaticFileRepository>();
                         var listStaticFile = await staticFileRepository.GetAllDataByExpression(f => f.SampleProjectId == sampleProjectRequest.Id);
