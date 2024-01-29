@@ -6,7 +6,7 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(p => p.AddPolicy(MyAllowSpecificOrigins, builder =>
 {
-    builder.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "https://hcqs.azurewebsites.net/")
+    builder.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "https://hcqs-backend.azurewebsites.net/", "https://love-house.vercel.app")
            .AllowAnyMethod()
            .AllowAnyHeader()
            .AllowCredentials(); // Add this line to allow credentials
