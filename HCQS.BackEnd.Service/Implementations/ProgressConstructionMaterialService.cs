@@ -2,27 +2,22 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
-    public class ProgressConstructionMaterialService:GenericBackendService, IProgressConstructionMaterialService
+    public class ProgressConstructionMaterialService : GenericBackendService, IProgressConstructionMaterialService
     {
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
         private IProgressConstructionMaterialRepository _progressConstructionMaterialRepository;
         private IMapper _mapper;
-        public ProgressConstructionMaterialService(BackEndLogger logger, IUnitOfWork unitOfWork, IProgressConstructionMaterialRepository progressConstructionMaterialRepository, IMapper mapper, IServiceProvider service):base(service)
+
+        public ProgressConstructionMaterialService(BackEndLogger logger, IUnitOfWork unitOfWork, IProgressConstructionMaterialRepository progressConstructionMaterialRepository, IMapper mapper, IServiceProvider service) : base(service)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -42,9 +37,9 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<ProgressConstructionMaterial> progressConstructionMaterials = new List<ProgressConstructionMaterial>();
                     foreach (var ProgressConstructionMaterialRequest in ProgressConstructionMaterialRequests)
                     {
-                        //get material => get latest price => 
+                        //get material => get latest price =>
                         var quotationDetailDb = await quotationDetailRepository.GetByExpression(q => q.Id == ProgressConstructionMaterialRequest.QuotationDetailId, q => q.Material);
-                        if(quotationDetailDb != null)
+                        if (quotationDetailDb != null)
                         {
                             var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId);
                             var latestMaterialPrice = exportMaterialPrices.OrderByDescending(e => e.Date).FirstOrDefault();
@@ -56,12 +51,13 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Date = ProgressConstructionMaterialRequest.Date,
                                 Quantity = ProgressConstructionMaterialRequest.Quantity,
                                 Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount) * latestMaterialPrice.Price,
-                                
+
                                 ExportPriceMaterialId = latestMaterialPrice.Id,
                                 QuotationDetailId = quotationDetailDb.Id
                             };
                             progressConstructionMaterials.Add(newProgressConstructionMaterial);
-                        } else
+                        }
+                        else
                         {
                             result = BuildAppActionResultError(result, $"The quotation detail with id {ProgressConstructionMaterialRequest.QuotationDetailId} does not exist!");
                         }
@@ -73,7 +69,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         await _unitOfWork.SaveChangeAsync();
                         var importExportInventoryRepository = Resolve<IImportExportInventoryHistoryRepository>();
                         List<ImportExportInventoryHistory> importExportInventoryHistories = new List<ImportExportInventoryHistory>();
-                        foreach(var progressConstructionMaterial in progressConstructionMaterials)
+                        foreach (var progressConstructionMaterial in progressConstructionMaterials)
                         {
                             importExportInventoryHistories.Add(new ImportExportInventoryHistory
                             {
@@ -288,7 +284,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> UpdateProgressConstructionMaterial(Guid Id,ProgressConstructionMaterialRequest ProgressConstructionMaterialRequest)
+        public async Task<AppActionResult> UpdateProgressConstructionMaterial(Guid Id, ProgressConstructionMaterialRequest ProgressConstructionMaterialRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -307,14 +303,15 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         result.Result.Data = await _progressConstructionMaterialRepository.Update(supplierDb);
                         await _unitOfWork.SaveChangeAsync();
-                        if(supplierDb.InventoryHistory != null)
+                        if (supplierDb.InventoryHistory != null)
                         {
                             var importExportInventoryRepository = Resolve<IImportExportInventoryHistoryRepository>();
                             var exportInventoryDb = await importExportInventoryRepository.GetById(supplierDb.InventoryHistory.Id);
                             exportInventoryDb.Quantity = ProgressConstructionMaterialRequest.Quantity;
                             exportInventoryDb.Date = ProgressConstructionMaterialRequest.Date;
                             await importExportInventoryRepository.Update(exportInventoryDb);
-                        } else
+                        }
+                        else
                         {
                             result = BuildAppActionResultError(result, $"Inventory History of progress construction material with {Id} not found");
                         }
@@ -343,10 +340,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (quotatioDetailDb != null)
                 {
                     if (quotatioDetailDb.Material != null && quotatioDetailDb.Quotation != null)
-                        {
-                            if(quotatioDetailDb.Material.MaterialType == 0) return quotatioDetailDb.Quotation.RawMaterialDiscount;
-                            return quotatioDetailDb.Quotation.FurnitureDiscount;
-                        }
+                    {
+                        if (quotatioDetailDb.Material.MaterialType == 0) return quotatioDetailDb.Quotation.RawMaterialDiscount;
+                        return quotatioDetailDb.Quotation.FurnitureDiscount;
+                    }
                 }
                 return -1.0;
             }
@@ -356,6 +353,5 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return -1.0;
         }
-
     }
 }

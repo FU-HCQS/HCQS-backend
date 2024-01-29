@@ -75,7 +75,10 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IQuotationDealingRepository, QuotationDealingRepository>();
             services.AddScoped<IQuotationService, QuotationService>();
 
-            services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));
+            services.AddScoped<IWorkerForProjectRepository, WorkerForProjectRepository>();
+            services.AddScoped<IWorkerPriceRepository, WorkerPriceRepository>();
+
+            services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:DB"]));
             services.AddHangfireServer();
         }
     }

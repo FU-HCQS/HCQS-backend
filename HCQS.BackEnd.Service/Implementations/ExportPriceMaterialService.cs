@@ -3,9 +3,9 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using OfficeOpenXml;
@@ -28,6 +28,7 @@ namespace HCQS.BackEnd.Service.Implementations
             _logger = logger;
             _unitOfWork = unitOfWork;
         }
+
         public async Task<AppActionResult> CreateExportPriceMaterial(ExportPriceMaterialRequest ExportPriceMaterialRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -306,7 +307,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     }
                                 }
 
-                                if(invalidRowInput.Count == 0)
+                                if (invalidRowInput.Count == 0)
                                 {
                                     var newPriceDetail = new ExportPriceMaterial()
                                     {

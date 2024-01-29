@@ -2,14 +2,11 @@
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
-namespace HCQS.BackEnd.DAL.Util
+namespace HCQS.BackEnd.Common.Util
 {
     public class ExcelExporter
     {
-         
-
-
-        public static void ExportToExcel(List<string> headers, List<List<string>> data, IEnumerable<int> rowsToColor,string filePath)
+        public static void ExportToExcel(List<string> headers, List<List<string>> data, IEnumerable<int> rowsToColor, string filePath)
         {
             if (headers == null || data == null || headers.Count == 0 || data.Count == 0)
             {
@@ -39,9 +36,9 @@ namespace HCQS.BackEnd.DAL.Util
                     }
                 }
 
-               if(rowsToColor != null)
+                if (rowsToColor != null)
                 {
-                    foreach(int i in rowsToColor)
+                    foreach (int i in rowsToColor)
                     {
                         worksheet.Rows[i].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Rows[i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
@@ -56,7 +53,7 @@ namespace HCQS.BackEnd.DAL.Util
             }
         }
 
-       public static string GetDownloadsPath(string fileName)
+        public static string GetDownloadsPath(string fileName)
         {
             string downloadsPath = null;
 

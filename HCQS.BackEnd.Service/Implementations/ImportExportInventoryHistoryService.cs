@@ -3,12 +3,10 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Dto;
 using Microsoft.AspNetCore.Http;
 using OfficeOpenXml;
 using System.Globalization;
@@ -255,7 +253,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         if (ImportExportInventoryRequest.SupplierPriceDetailId.HasValue)
                         {
-                            
                             var supplierPriceDetailDb = await supplierPriceDetailRepository.GetById(ImportExportInventoryRequest.SupplierPriceDetailId);
                             if (supplierPriceDetailDb == null)
                             {
@@ -295,7 +292,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                         }
                     }
-                    
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -362,7 +358,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     }
                                 }
 
-                                if(suppliers.ContainsKey(record.SupplierName)) supplierId = suppliers[record.SupplierName];
+                                if (suppliers.ContainsKey(record.SupplierName)) supplierId = suppliers[record.SupplierName];
                                 else
                                 {
                                     var supplier = await supplierRepository.GetByExpression(m => m.SupplierName.Equals(record.SupplierName));
@@ -390,7 +386,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                             SupplierPriceDetailId = supplierPriceDetailId
                                         };
                                         importInventoryList.Add(newImportInventory);
-                                    } else
+                                    }
+                                    else
                                     {
                                         invalidRowInput.Add(i);
                                     }
@@ -522,7 +519,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                 var supplierPriceDetails = await supplierPriceDetailRepository
                     .GetAllDataByExpression(s => s.MaterialId == materialId && s.SupplierPriceQuotation.SupplierId == supplierId, s => s.SupplierPriceQuotation);
-                if( supplierPriceDetails != null )
+                if (supplierPriceDetails != null)
                 {
                     var supplierPriceDetailWithLatestDate = supplierPriceDetails.OrderByDescending(s => s.SupplierPriceQuotation.Date).FirstOrDefault();
                     var res = supplierPriceDetails.Where(s => s.MOQ <= quantity && s.SupplierPriceQuotation.Date == supplierPriceDetailWithLatestDate.SupplierPriceQuotation.Date).OrderByDescending(s => s.MOQ).FirstOrDefault();

@@ -1,6 +1,6 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
-using HCQS.BackEnd.DAL.Util;
+using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

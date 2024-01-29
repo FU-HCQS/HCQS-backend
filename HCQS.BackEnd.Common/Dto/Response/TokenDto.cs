@@ -1,4 +1,4 @@
-﻿namespace HCQS.BackEnd.Service.Dto
+﻿namespace HCQS.BackEnd.Common.Dto.Response
 {
     public class TokenDto
     {

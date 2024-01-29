@@ -3,12 +3,11 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Dto;
 using Microsoft.AspNetCore.Http;
 using OfficeOpenXml;
 using System.Globalization;
@@ -153,7 +152,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         });
                 }
 
-                var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                var SD = Resolve<SD>();
 
                 if (supplierQuotations.Any())
                 {
@@ -207,7 +206,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         });
                 }
 
-                var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                var SD = Resolve<SD>();
 
                 if (supplierQuotations.Any())
                 {
@@ -311,7 +310,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         }
                                     }
 
-                                    if(invalidRowInput.Count == 0)
+                                    if (invalidRowInput.Count == 0)
                                     {
                                         var newPriceDetail = new SupplierPriceDetail()
                                         {
@@ -328,7 +327,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     i++;
                                 }
 
-                                if(invalidRowInput.Count > 0)
+                                if (invalidRowInput.Count > 0)
                                 {
                                     List<List<string>> recordDataString = new List<List<string>>();
                                     int j = 1;

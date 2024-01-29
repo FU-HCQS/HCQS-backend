@@ -2,9 +2,9 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using System.Transactions;
 
@@ -32,7 +32,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var utility = Resolve<HCQS.BackEnd.DAL.Util.Utility>();
+                    var utility = Resolve<Utility>();
                     var blog = _mapper.Map<Blog>(blogRequest);
                     blog.Id = Guid.NewGuid();
                     blog.Date = utility.GetCurrentDateTimeInTimeZone();
@@ -188,7 +188,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 var blogList = await _blogRepository.GetAllDataByExpression(null, b => b.Account);
                 var fileService = Resolve<IFileService>();
-                var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                var SD = Resolve<SD>();
 
                 if (blogList.Any())
                 {

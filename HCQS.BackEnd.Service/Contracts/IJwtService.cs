@@ -1,5 +1,5 @@
 ﻿using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.Service.Dto;
+using HCQS.BackEnd.Common.Dto.Response;
 
 namespace HCQS.BackEnd.Service.Contracts
 {

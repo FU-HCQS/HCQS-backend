@@ -3,7 +3,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.DAL.Models;
 
-namespace HCQS.BackEnd.DAL.Mapping
+namespace HCQS.BackEnd.Common.Mapping
 {
     public class MappingConfig
     {
@@ -53,7 +53,6 @@ namespace HCQS.BackEnd.DAL.Mapping
              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
              .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId))
              .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId));
-             
 
                 config.CreateMap<SupplierPriceQuotationRequest, SupplierPriceQuotation>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))

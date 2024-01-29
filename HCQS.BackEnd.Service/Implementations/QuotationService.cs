@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using Pipelines.Sockets.Unofficial.Arenas;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -34,11 +33,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var utility = Resolve<Utility>();
-                    var exportPriceMaterialRepository = Resolve<IExportPriceMaterialRepository>();
-                    foreach (var item in request.ExportPriceMaterialDtos)
-                    {
-                        item.Id = Guid.NewGuid();
-                    }
                     var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
                     var quotationDb = await _quotationRepository.GetById(request.QuotationId);
                     var quotationDetailsDb = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == request.QuotationId);
@@ -53,38 +47,32 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        double total = 0;
-                        List<ExportPriceMaterial> exportPriceMaterials = _mapper.Map<List<ExportPriceMaterial>>(request.ExportPriceMaterialDtos);
-                        foreach (var item in exportPriceMaterials)
-                        {
-                            item.Date = utility.GetCurrentDateTimeInTimeZone();
-                            item.Id = Guid.NewGuid();
-                        }
-
+                        double total = (quotationDb.RawMaterialPrice * (100 - request.MaterialDiscount) / 100) + (quotationDb.FurniturePrice * (100 - request.FurnitureDiscount) / 100) + (quotationDb.LaborPrice * (100 - request.LaborDiscount) / 100);
                         Quotation quotation = new Quotation
                         {
                             Id = Guid.NewGuid(),
                             FurnitureDiscount = request.FurnitureDiscount,
                             LaborDiscount = request.LaborDiscount,
                             RawMaterialDiscount = request.MaterialDiscount,
+                            FurniturePrice = quotationDb.FurniturePrice,
+                            LaborPrice = quotationDb.LaborPrice,
+                            RawMaterialPrice = quotationDb.RawMaterialPrice,
+                            Total = total,
                             ProjectId = quotationDb.ProjectId
                         };
                         List<QuotationDetail> quotationDetails = new List<QuotationDetail>();
-                        foreach (var quotationDetail in quotationDetailsDb)
+                        foreach (var item in quotationDetailsDb)
                         {
-                            var exportPriceMaterial = exportPriceMaterials.SingleOrDefault(s => s.MaterialId == quotationDetail.MaterialId);
-                            if (exportPriceMaterial != null)
+                            quotationDetails.Add(new QuotationDetail
                             {
-                                if (quotationDetail.MaterialId == exportPriceMaterial.MaterialId)
-                                {
-                                    total = total + (exportPriceMaterial.Price * quotationDetail.Quantity);
-                                    quotationDetails.Add(new QuotationDetail { Id = Guid.NewGuid(), MaterialId = quotationDetail.MaterialId, Quantity = quotationDetail.Quantity, Total = quotationDetail.Quantity * exportPriceMaterial.Price, QuotationId = quotation.Id });
-                                }
-                            }
+                                Id = Guid.NewGuid(),
+                                MaterialId = item.MaterialId,
+                                Quantity = item.Quantity,
+                                QuotationId = quotation.Id,
+                                Total = item.Total,
+                            });
                         }
                         await _quotationRepository.Insert(quotation);
-                        await exportPriceMaterialRepository.InsertRange(exportPriceMaterials);
-                        quotation.RawMaterialPrice = total;
                         quotation.QuotationStatus = Quotation.Status.Pending;
                         quotationDb.QuotationStatus = Quotation.Status.Cancel;
                         await quotationDetailRepository.InsertRange(quotationDetails);
@@ -163,7 +151,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-
                         var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == quotationId);
 
                         if (!quotationDetails.Any())
@@ -213,11 +200,11 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Price = (30 * total) / 100
                             };
 
-                            result.Result.Data = await contractRepository.Insert(contract);
+                            await contractRepository.Insert(contract);
                             await contractProgressPaymentRepository.Insert(contractProgressPayment);
                             await paymentRepository.Insert(payment);
 
-                            if (account.ContractVerifyCode == null)
+                            if (string.IsNullOrEmpty(account.ContractVerifyCode))
                             {
                                 account.ContractVerifyCode = code;
                                 await accountRepository.Update(account);
@@ -226,18 +213,16 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 result = BuildAppActionResultError(result, "The code to sign the contract has been sent via email!");
                             }
-
-                            await _unitOfWork.SaveChangeAsync();
                         }
                         else
                         {
                             quotationDb.QuotationStatus = Quotation.Status.Cancel;
                         }
-                        result.Result.Data = await _quotationRepository.Update(quotationDb);
-                        await _unitOfWork.SaveChangeAsync();
+                        await _quotationRepository.Update(quotationDb);
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
+                        await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
                         emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
                     }
@@ -251,29 +236,21 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> GetAllQuotationByProjectId(Guid projectId)
+        public async Task<AppActionResult> GetQuotationById(Guid id)
         {
             AppActionResult result = new AppActionResult();
-
             try
             {
-                result.Result.Data = await _quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == projectId);
-            }
-            catch (Exception ex)
-            {
-                result = BuildAppActionResultError(result, ex.Message);
-                _logger.LogError(ex.Message, this);
-            }
-            return result;
-        }
-
-        public async Task<AppActionResult> GetAllQuotationByProjectIdForCustomer(Guid projectId)
-        {
-            AppActionResult result = new AppActionResult();
-
-            try
-            {
-                result.Result.Data = await _quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == projectId && a.QuotationStatus != Quotation.Status.Pending);
+                var quotationDealingRepository = Resolve<IQuotationDealingRepository>();
+                var quotationDetailsRepository = Resolve<IQuotationDetailRepository>();
+                var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
+                result.Result.Data = new QuotationResponse
+                {
+                    Quotation = await _quotationRepository.GetById(id),
+                    QuotationDealings = await quotationDealingRepository.GetAllDataByExpression(q => q.QuotationId == id),
+                    QuotationDetails = await quotationDetailsRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.Material),
+                    WorkerForProjects = await workerForProjectRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.WorkerPrice),
+                };
             }
             catch (Exception ex)
             {
@@ -294,13 +271,11 @@ namespace HCQS.BackEnd.Service.Implementations
                     var quotationDb = await _quotationRepository.GetById(quotationId);
                     if (quotationDb == null)
                     {
-
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationId} is not existed");
                     }
                     else if (quotationDb.QuotationStatus != Quotation.Status.Pending)
                     {
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationId} has been made public");
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -319,7 +294,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         scope.Complete();
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -328,7 +302,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
-
         }
     }
 }

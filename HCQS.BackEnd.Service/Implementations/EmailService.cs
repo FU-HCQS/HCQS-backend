@@ -1,5 +1,5 @@
 ﻿using HCQS.BackEnd.Common.ConfigurationModel;
-using HCQS.BackEnd.DAL.Util;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.Service.Contracts;
 using MailKit.Security;
 using MimeKit;

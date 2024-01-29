@@ -2,7 +2,7 @@
 
 namespace HCQS.BackEnd.DAL.Contracts
 {
-    public interface IMaterialRepository : IRepository<Material>
+    public interface IWorkerPriceRepository : IRepository<WorkerPrice>
     {
     }
 }
