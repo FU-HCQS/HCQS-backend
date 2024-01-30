@@ -7,6 +7,7 @@ using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System.Reflection;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -122,7 +123,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
-                    FileDownloadName = sheetName
+                    FileDownloadName = sheetName + ".xlsx"
                 };
             }
         }
@@ -225,5 +226,53 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return _result;
         }
+
+        public IActionResult ReturnErrorColored<T>(List<string> headers, List<List<string>> data, IEnumerable<int> rowsToColor, string filename)
+        {
+            if (headers == null || data == null || headers.Count == 0 || data.Count == 0)
+            {
+                Console.WriteLine("Invalid input data.");
+                return null;
+            }
+
+            // Tạo một package Excel mới
+            using (ExcelPackage excelPackage = new ExcelPackage())
+            {
+                // Tạo một Sheet trong Excel
+                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("DataSheet");
+
+                // Ghi header vào sheet
+                for (int i = 0; i < headers.Count; i++)
+                {
+                    worksheet.Cells[1, i + 1].Value = headers[i];
+                }
+
+                // Ghi dữ liệu vào sheet
+                for (int i = 0; i < data.Count; i++)
+                {
+                    List<string> rowData = data[i];
+                    for (int j = 0; j < rowData.Count; j++)
+                    {
+                        worksheet.Cells[i + 2, j + 1].Value = rowData[j];
+                    }
+                }
+
+                if (rowsToColor != null)
+                {
+                    foreach (int i in rowsToColor)
+                    {
+                        worksheet.Rows[i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        worksheet.Rows[i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                    }
+                }
+                return new FileContentResult(excelPackage.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    FileDownloadName = $"(ErrorColor){filename}.xlsx"
+                };
+
+            }
+        }
+
+        
     }
 }

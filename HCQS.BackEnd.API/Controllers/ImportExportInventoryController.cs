@@ -70,9 +70,15 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("import-material-with-excel")]
-        public async Task<AppActionResult> ImportMaterialWithExcel(IFormFile file)
+        public async Task<IActionResult> ImportMaterialWithExcel(IFormFile file)
         {
             return await _importExportInventoryHistoryService.ImportMaterialWithExcel(file);
+        }
+
+        [HttpGet("get-import-material-template")]
+        public async Task<IActionResult> GetImportMaterialTemplate()
+        {
+            return await _importExportInventoryHistoryService.GetImportInventoryTempate();
         }
     }
 }

@@ -16,7 +16,6 @@ namespace HCQS.BackEnd.Service.Implementations
         private IUnitOfWork _unitOfWork;
         private IProgressConstructionMaterialRepository _progressConstructionMaterialRepository;
         private IMapper _mapper;
-
         public ProgressConstructionMaterialService(BackEndLogger logger, IUnitOfWork unitOfWork, IProgressConstructionMaterialRepository progressConstructionMaterialRepository, IMapper mapper, IServiceProvider service) : base(service)
         {
             _logger = logger;
@@ -37,7 +36,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<ProgressConstructionMaterial> progressConstructionMaterials = new List<ProgressConstructionMaterial>();
                     foreach (var ProgressConstructionMaterialRequest in ProgressConstructionMaterialRequests)
                     {
-                        //get material => get latest price =>
+                        //get material => get latest price => 
                         var quotationDetailDb = await quotationDetailRepository.GetByExpression(q => q.Id == ProgressConstructionMaterialRequest.QuotationDetailId, q => q.Material);
                         if (quotationDetailDb != null)
                         {
@@ -50,7 +49,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Discount = discount,
                                 Date = ProgressConstructionMaterialRequest.Date,
                                 Quantity = ProgressConstructionMaterialRequest.Quantity,
-                                Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount) * latestMaterialPrice.Price,
+                                Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount * 1.00) * latestMaterialPrice.Price,
 
                                 ExportPriceMaterialId = latestMaterialPrice.Id,
                                 QuotationDetailId = quotationDetailDb.Id
@@ -105,10 +104,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierDb = await _progressConstructionMaterialRepository.GetById(id);
-                    if (supplierDb == null)
+                    var progressConstructionDb = await _progressConstructionMaterialRepository.GetById(id);
+                    if (progressConstructionDb == null)
                     {
-                        result = BuildAppActionResultError(result, $"The supplier with {id} not found !");
+                        result = BuildAppActionResultError(result, $"The progress construction material with {id} not found !");
                     }
                     else
                     {
@@ -158,7 +157,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty progress construction material list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -203,7 +202,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty progress construction material list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -248,7 +247,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty progress construction material list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -270,10 +269,10 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var supplierDb = await _progressConstructionMaterialRepository.GetById(id);
-                if (supplierDb != null)
+                var progressConstructionDb = await _progressConstructionMaterialRepository.GetById(id);
+                if (progressConstructionDb != null)
                 {
-                    result.Result.Data = supplierDb;
+                    result.Result.Data = progressConstructionDb;
                 }
             }
             catch (Exception ex)
@@ -291,22 +290,22 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierDb = await _progressConstructionMaterialRepository.GetByExpression(p => p.Id == Id, p => p.InventoryHistory);
-                    if (supplierDb == null)
+                    var progressConstructionDb = await _progressConstructionMaterialRepository.GetByExpression(p => p.Id == Id, p => p.InventoryHistory);
+                    if (progressConstructionDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The progress construction material with {Id} not found !");
                     }
                     else
                     {
-                        supplierDb.Quantity = ProgressConstructionMaterialRequest.Quantity;
-                        supplierDb.Date = ProgressConstructionMaterialRequest.Date;
+                        progressConstructionDb.Quantity = ProgressConstructionMaterialRequest.Quantity;
+                        progressConstructionDb.Date = ProgressConstructionMaterialRequest.Date;
 
-                        result.Result.Data = await _progressConstructionMaterialRepository.Update(supplierDb);
+                        result.Result.Data = await _progressConstructionMaterialRepository.Update(progressConstructionDb);
                         await _unitOfWork.SaveChangeAsync();
-                        if (supplierDb.InventoryHistory != null)
+                        if (progressConstructionDb.InventoryHistory != null)
                         {
                             var importExportInventoryRepository = Resolve<IImportExportInventoryHistoryRepository>();
-                            var exportInventoryDb = await importExportInventoryRepository.GetById(supplierDb.InventoryHistory.Id);
+                            var exportInventoryDb = await importExportInventoryRepository.GetById(progressConstructionDb.InventoryHistory.Id);
                             exportInventoryDb.Quantity = ProgressConstructionMaterialRequest.Quantity;
                             exportInventoryDb.Date = ProgressConstructionMaterialRequest.Date;
                             await importExportInventoryRepository.Update(exportInventoryDb);
@@ -353,5 +352,6 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return -1.0;
         }
+
     }
 }

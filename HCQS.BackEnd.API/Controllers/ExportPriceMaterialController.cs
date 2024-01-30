@@ -49,7 +49,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("import-export-price-material-from-excelsheet")]
-        public async Task<AppActionResult> ImportExportPriceMaterialFromExcel(IFormFile file)
+        public async Task<IActionResult> ImportExportPriceMaterialFromExcel(IFormFile file)
         {
             return await _service.UploadExportPriceMaterialWithExcelFile(file);
         }
@@ -78,6 +78,12 @@ namespace HCQS.BackEnd.API.Controllers
         public async Task<AppActionResult> GetLatest(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _service.GetLatestPrice(pageIndex, pageSize, sortInfos);
+        }
+
+        [HttpGet("get-export-price-material-template")]
+        public async Task<IActionResult> GetExportPriceMaterialTemplate()
+        {
+            return await _service.GetExportPriceMaterialTemplate();
         }
     }
 }
