@@ -8,6 +8,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Transactions;
@@ -20,13 +21,15 @@ namespace HCQS.BackEnd.Service.Implementations
         private IMapper _mapper;
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
+        private IFileService _fileService;
 
-        public ExportPriceMaterialService(IExportPriceMaterialRepository exportPriceMaterialRepository, IMapper mapper, BackEndLogger logger, IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : base(serviceProvider)
+        public ExportPriceMaterialService(IExportPriceMaterialRepository exportPriceMaterialRepository, IMapper mapper, BackEndLogger logger, IUnitOfWork unitOfWork, IFileService fileService, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _exportPriceMaterialRepository = exportPriceMaterialRepository;
             _mapper = mapper;
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         public async Task<AppActionResult> CreateExportPriceMaterial(ExportPriceMaterialRequest ExportPriceMaterialRequest)
@@ -260,16 +263,16 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file)
+        public async Task<IActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file)
         {
-            AppActionResult result = new AppActionResult();
+            IActionResult result = null;
             if (file == null || file.Length == 0)
             {
-                result.Result.Data = null;
-                result.Messages.Add("Empty Excel file");
+                return result;
             }
             else
             {
+                bool isSuccessful = true;
                 using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     try
@@ -278,7 +281,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         string dateString = file.FileName.Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
-                            result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                            isSuccessful = false;
                             _logger.LogError($"{dateString} is not in format: ddMMyyyy", this);
                         }
                         else
@@ -334,24 +337,21 @@ namespace HCQS.BackEnd.Service.Implementations
                                             j++.ToString(), record.MaterialName, record.Price.ToString(), record.Date.ToString()
                                         });
                                 }
-                                ExcelExporter.ExportToExcel(SD.ExcelHeaders.EXPORT_PRICE_DETAIL, recordDataString, invalidRowInput, ExcelExporter.GetDownloadsPath(file.FileName));
-                                result = BuildAppActionResultError(result, $"Invalid rows are colored in the excel file!");
+                                result = _fileService.ReturnErrorColored<ExportPriceMaterialRecord>(SD.ExcelHeaders.EXPORT_PRICE_DETAIL, recordDataString, invalidRowInput, dateString);
+                                isSuccessful = false;
                             }
-
-                            if (!BuildAppActionResultIsError(result))
-                            {
+                            else { 
                                 await _unitOfWork.SaveChangeAsync();
-                                result.Result.Data = exportPriceMaterials;
+                                return new ObjectResult(exportPriceMaterials) { StatusCode = 200 };
                             }
                         }
-                        if (!BuildAppActionResultIsError(result))
+                        if (isSuccessful)
                         {
                             scope.Complete();
                         }
                     }
                     catch (Exception ex)
                     {
-                        result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                         _logger.LogError(ex.Message, this);
                     }
                 }
@@ -402,6 +402,31 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return null;
+        }
+
+        public async Task<IActionResult> GetExportPriceMaterialTemplate()
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                IActionResult result = null;
+                try
+                {
+                    List<ExportPriceMaterialRecord> sampleData = new List<ExportPriceMaterialRecord>();
+                    sampleData.Add(new ExportPriceMaterialRecord
+                    { MaterialName = "Brick", Price = 999, Date = DateTime.Parse("2024-01-24T14:30:00") });
+                    result = _fileService.GenerateExcelContent<ExportPriceMaterialRecord>(sampleData, "ExportPriceTemplate");
+                    if (result != null)
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+            }
+
         }
     }
 }

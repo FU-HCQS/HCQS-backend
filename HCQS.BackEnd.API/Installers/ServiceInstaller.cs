@@ -50,6 +50,8 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IImportExportInventoryHistoryService, ImportExportInventoryHistoryService>();
 
             services.AddScoped<IProgressConstructionMaterialRepository, ProgressConstructionMaterialRepository>();
+            services.AddScoped<IProgressConstructionMaterialService, ProgressConstructionMaterialService>();
+            
 
             services.AddScoped<IQuotationDetailRepository, QuotationDetailRepository>();
             services.AddScoped<IQuotationRepository, QuotationRepository>();

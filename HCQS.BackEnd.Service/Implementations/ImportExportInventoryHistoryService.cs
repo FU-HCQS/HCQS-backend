@@ -8,6 +8,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Transactions;
@@ -20,13 +21,15 @@ namespace HCQS.BackEnd.Service.Implementations
         private IMapper _mapper;
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
+        private IFileService _fileService;
 
-        public ImportExportInventoryHistoryService(IImportExportInventoryHistoryRepository importExportInventoryHistoryRepository, IMapper mapper, BackEndLogger logger, IUnitOfWork unitOfWork, IServiceProvider serviceProvider) : base(serviceProvider)
+        public ImportExportInventoryHistoryService(IImportExportInventoryHistoryRepository importExportInventoryHistoryRepository, IMapper mapper, BackEndLogger logger, IUnitOfWork unitOfWork, IFileService fileService, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _importExportInventoryHistoryRepository = importExportInventoryHistoryRepository;
             _mapper = mapper;
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         public Task<AppActionResult> FulfillMaterialWithExcel(IFormFile file)
@@ -136,7 +139,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty inventory history list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -180,7 +183,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty inventory history list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -224,7 +227,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty inventory history list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -307,16 +310,16 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> ImportMaterialWithExcel(IFormFile file)
+        public async Task<IActionResult> ImportMaterialWithExcel(IFormFile file)
         {
-            AppActionResult result = new AppActionResult();
+            IActionResult result = null;
             if (file == null || file.Length == 0)
             {
-                result.Result.Data = null;
-                result.Messages.Add("Empty Excel file");
+                return result;
             }
             else
             {
+                bool isSuccessful = true;
                 using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     try
@@ -325,7 +328,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         string dateString = file.FileName.Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
-                            result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                            isSuccessful = false;
                             _logger.LogError($"{dateString} is not in format: ddMMyyyy", this);
                         }
                         else
@@ -406,18 +409,19 @@ namespace HCQS.BackEnd.Service.Implementations
                                             j++.ToString(), record.MaterialName, record.SupplierName, record.Quantity.ToString()
                                         });
                                 }
-                                ExcelExporter.ExportToExcel(SD.ExcelHeaders.IMPORT_INVENTORY, recordDataString, invalidRowInput, ExcelExporter.GetDownloadsPath(file.FileName));
-                                result = BuildAppActionResultError(result, $"Invalid rows are colored in the excel file!");
+                                result = _fileService.ReturnErrorColored<ImportInventoryRecord>(SD.ExcelHeaders.IMPORT_INVENTORY, recordDataString, invalidRowInput, dateString);
+                                isSuccessful = false;
+
                             }
 
-                            if (!BuildAppActionResultIsError(result))
+                            if (isSuccessful)
                             {
                                 await _importExportInventoryHistoryRepository.InsertRange(importInventoryList);
                                 await _unitOfWork.SaveChangeAsync();
-                                result.Result.Data = importInventoryList;
+                                result = new ObjectResult(importInventoryList) { StatusCode = 200 };
                             }
 
-                            if (!BuildAppActionResultIsError(result))
+                            if (isSuccessful)
                             {
                                 scope.Complete();
                             }
@@ -425,7 +429,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     catch (Exception ex)
                     {
-                        result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                         _logger.LogError(ex.Message, this);
                     }
                 }
@@ -440,16 +443,16 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierDb = await _importExportInventoryHistoryRepository.GetByExpression(n => n.Id.Equals(Id));
-                    if (supplierDb == null)
+                    var inventoryDb = await _importExportInventoryHistoryRepository.GetByExpression(n => n.Id.Equals(Id));
+                    if (inventoryDb == null)
                     {
-                        result = BuildAppActionResultError(result, $"The supplier with {Id} not found !");
+                        result = BuildAppActionResultError(result, $"The inventory history with {Id} not found !");
                     }
                     else
                     {
-                        supplierDb.Quantity = ImportExportInventoryRequest.Quantity;
-                        supplierDb.Date = ImportExportInventoryRequest.Date;
-                        result.Result.Data = await _importExportInventoryHistoryRepository.Update(supplierDb);
+                        inventoryDb.Quantity = ImportExportInventoryRequest.Quantity;
+                        inventoryDb.Date = ImportExportInventoryRequest.Date;
+                        result.Result.Data = await _importExportInventoryHistoryRepository.Update(inventoryDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -466,6 +469,31 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
+        public async Task<IActionResult> GetImportInventoryTempate()
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                IActionResult result = null;
+                try
+                {
+                    List<ImportInventoryRecord> sampleData = new List<ImportInventoryRecord>();
+                    sampleData.Add(new ImportInventoryRecord { MaterialName = "Brick", SupplierName = "inventory history name", Quantity = 999 });
+                    result = _fileService.GenerateExcelContent<ImportInventoryRecord>(sampleData, "ImportMaterialTemplate.");
+
+                    if (result != null)
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+            }
+        }
+
 
         private async Task<List<ImportInventoryRecord>> GetImportListFromExcel(IFormFile file)
         {

@@ -2,6 +2,8 @@
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -15,10 +17,11 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<AppActionResult> CreateExportPriceMaterial(ExportPriceMaterialRequest ExportPriceMaterialRequest);
 
-        public Task<AppActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file);
+        public Task<IActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file);
 
         public Task<AppActionResult> UpdateExportPriceMaterial(Guid id, ExportPriceMaterialRequest ExportPriceMaterialRequest);
 
         public Task<AppActionResult> DeleteExportPriceMaterialById(Guid id);
+        public Task<IActionResult> GetExportPriceMaterialTemplate();
     }
 }
