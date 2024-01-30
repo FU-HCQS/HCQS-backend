@@ -5,15 +5,16 @@ using HCQS.BackEnd.Common.ConfigurationModel;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
+using HCQS.BackEnd.Common.Util;
+using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Dto;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using System.Transactions;
-using Utility = HCQS.BackEnd.DAL.Util.Utility;
+using Utility = HCQS.BackEnd.Common.Util.Utility;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -308,7 +309,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                
+
                 if (pageIndex > 0 && pageSize > 0)
                 {
                     accounts = DataPresentationHelper.ApplyPaging(accounts, pageIndex, pageSize);
@@ -408,7 +409,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result,ex.Message);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;

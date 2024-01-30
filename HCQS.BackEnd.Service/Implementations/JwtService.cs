@@ -1,10 +1,10 @@
 ﻿using HCQS.BackEnd.Common.ConfigurationModel;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,7 +49,7 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var accountRepository = Resolve<IAccountRepository>();
-                var utility = Resolve<DAL.Util.Utility>();
+                var utility = Resolve<Common.Util.Utility>();
                 var user = await accountRepository.GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower());
 
                 if (user != null)
@@ -92,7 +92,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var accountRepository = Resolve<IAccountRepository>();
-                    var utility = Resolve<DAL.Util.Utility>();
+                    var utility = Resolve<Common.Util.Utility>();
 
                     var user = await accountRepository.GetByExpression(u => u.Id.ToLower() == accountId);
 

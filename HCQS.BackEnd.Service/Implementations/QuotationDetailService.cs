@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using System.Transactions;
 
@@ -39,7 +39,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var exportMaterialPriceRepository = Resolve<IExportPriceMaterialRepository>();
                     var material = await materialRepository.GetById(quotationDetail.MaterialId);
                     var quotation = await quotationRepository.GetById(quotationDetail.QuotationId);
-                    var exportMaterialPrice = await exportMaterialPriceRepository.GetAllDataByExpression(filter: a=> a.MaterialId == quotationMap.MaterialId);
+                    var exportMaterialPrice = await exportMaterialPriceRepository.GetAllDataByExpression(filter: a => a.MaterialId == quotationMap.MaterialId);
                     exportMaterialPrice.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
                     if (material == null)
                     {
@@ -49,8 +49,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationDetail.QuotationId} is not existed");
                     }
-                    if( exportMaterialPrice.Any()) {
-
+                    if (exportMaterialPrice.Any())
+                    {
                         result = BuildAppActionResultError(result, $"The export price with material id {quotationDetail.MaterialId} is not existed");
                     }
                     if (!BuildAppActionResultIsError(result))
@@ -156,7 +156,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     var materialRepository = Resolve<IMaterialRepository>();
                     var quotationRepository = Resolve<IQuotationRepository>();
                     var exportMaterialPriceRepository = Resolve<IExportPriceMaterialRepository>();
-
 
                     var quotationDetailDb = await _quotationDetailRepository.GetById(quotationDetail.Id);
                     var material = await materialRepository.GetById(quotationDetail.MaterialId);

@@ -1,7 +1,7 @@
 ﻿using HCQS.BackEnd.DAL.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace HCQS.BackEnd.Service.Dto
+namespace HCQS.BackEnd.Common.Dto.Response
 {
     public class AccountResponse
     {

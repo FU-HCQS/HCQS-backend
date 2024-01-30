@@ -2,9 +2,9 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
 using System.Transactions;
 
@@ -34,8 +34,8 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var news = _mapper.Map<News>(NewsRequest);
                     news.Id = Guid.NewGuid();
-                    var utility = Resolve<HCQS.BackEnd.DAL.Util.Utility>();
-                    news.Date= utility.GetCurrentDateTimeInTimeZone();
+                    var utility = Resolve<Utility>();
+                    news.Date = utility.GetCurrentDateTimeInTimeZone();
                     news.ImageUrl = string.Empty;
                     var newsDb = await _newsRepository.GetByExpression(n => n.Header.ToLower().Equals(news.Header.ToLower()));
                     var accountRepository = Resolve<IAccountRepository>();
@@ -122,7 +122,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var newsList = await _newsRepository.GetAllDataByExpression(null, a => a.Account);
                     var fileService = Resolve<IFileService>();
-                    var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                    var SD = Resolve<SD>();
 
                     //    var news = Utility.ConvertIOrderQueryAbleToList(newsList);
 

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HCQS.BackEnd.DAL.Util
+namespace HCQS.BackEnd.Common.Util
 {
     public class Utility
     {

@@ -18,7 +18,7 @@ namespace HCQS.BackEnd.DAL.Models
         public ExportPriceMaterial? ExportPriceMaterial { get; set; }
 
         public Guid? QuotationDetailId { get; set; }
-       
+
         [ForeignKey(nameof(QuotationDetailId))]
         public QuotationDetail? QuotationDetail { get; set; }
 

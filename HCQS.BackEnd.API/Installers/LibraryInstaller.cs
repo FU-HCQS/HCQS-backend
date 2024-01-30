@@ -3,8 +3,8 @@ using DinkToPdf;
 using DinkToPdf.Contracts;
 using Firebase.Storage;
 using Hangfire;
-using HCQS.BackEnd.DAL.Mapping;
-using HCQS.BackEnd.DAL.Util;
+using HCQS.BackEnd.Common.Mapping;
+using HCQS.BackEnd.Common.Util;
 using OfficeOpenXml;
 
 namespace HCQS.BackEnd.API.Installers
@@ -20,9 +20,9 @@ namespace HCQS.BackEnd.API.Installers
             services.AddSingleton(_ => new FirebaseStorage(configuration["Firebase:Bucket"]));
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            services.AddSingleton<HCQS.BackEnd.DAL.Util.Utility>();
-            services.AddSingleton<HCQS.BackEnd.DAL.Util.SD>();
-            services.AddSingleton<HCQS.BackEnd.DAL.Util.TemplateMappingHelper>();
+            services.AddSingleton<Utility>();
+            services.AddSingleton<SD>();
+            services.AddSingleton<TemplateMappingHelper>();
             services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));
             services.AddHangfireServer();
         }

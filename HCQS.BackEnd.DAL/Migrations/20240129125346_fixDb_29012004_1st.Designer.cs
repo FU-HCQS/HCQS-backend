@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    [Migration("20240127041541_changeDb")]
-    partial class changeDb
+    [Migration("20240129125346_fixDb_29012004_1st")]
+    partial class fixDb_29012004_1st
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -723,7 +723,34 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.ToTable("SupplierPriceQuotations");
                 });
 
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.WorkerForProject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("ExportLaborCost")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("QuotationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WorkerPriceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuotationId");
+
+                    b.HasIndex("WorkerPriceId");
+
+                    b.ToTable("WorkerForProjects");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.WorkerPrice", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -736,41 +763,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("Workers");
-                });
-
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.WorkerForProject", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("ExportLaborCost")
-                        .HasColumnType("float");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("WorkerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("WorkerId");
-
-                    b.ToTable("WorkerForProjects");
+                    b.ToTable("WorkerPrices");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -803,21 +798,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "e747e9c5-3d39-4218-afb3-fe9d898702bb",
+                            ConcurrencyStamp = "24aa4ec5-b6aa-4270-b0ae-fde39fde1704",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "3a5dd1f4-c758-4535-8ce6-128f3464a715",
+                            ConcurrencyStamp = "4a5aa0a7-7e27-4f09-92bd-98cca7915c0c",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "bc58f021-2309-4f42-8d1e-63475e1d365b",
+                            ConcurrencyStamp = "4d616dd2-953d-48ab-bb30-b53dff5bdd97",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -1142,34 +1137,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Worker", b =>
-                {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.WorkerForProject", b =>
                 {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.Project", "Project")
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Quotation", "Quotation")
                         .WithMany()
-                        .HasForeignKey("ProjectId")
+                        .HasForeignKey("QuotationId");
+
+                    b.HasOne("HCQS.BackEnd.DAL.Models.WorkerPrice", "WorkerPrice")
+                        .WithMany()
+                        .HasForeignKey("WorkerPriceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HCQS.BackEnd.DAL.Models.Worker", "Worker")
-                        .WithMany()
-                        .HasForeignKey("WorkerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Quotation");
 
-                    b.Navigation("Project");
-
-                    b.Navigation("Worker");
+                    b.Navigation("WorkerPrice");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

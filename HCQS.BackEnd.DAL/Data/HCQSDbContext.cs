@@ -1,5 +1,5 @@
-﻿using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
+﻿using HCQS.BackEnd.DAL.Common;
+using HCQS.BackEnd.DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +31,7 @@ namespace HCQS.BackEnd.DAL.Data
         public DbSet<SampleProject> SampleProjects { get; set; }
         public DbSet<StaticFile> StaticFiles { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
-        public DbSet<Worker> Workers { get; set; }
+        public DbSet<WorkerPrice> WorkerPrices { get; set; }
         public DbSet<WorkerForProject> WorkerForProjects { get; set; }
         public DbSet<SupplierPriceDetail> SupplierPriceDetails { get; set; }
         public DbSet<QuotationDealing> QuotationDealings { get; set; }
@@ -47,8 +47,6 @@ namespace HCQS.BackEnd.DAL.Data
 
             builder.Entity<IdentityRole>().HasData(
                        new IdentityRole { Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f", Name = Permission.CUSTOMER, NormalizedName = Permission.CUSTOMER.ToLower() });
-
-
         }
     }
 }

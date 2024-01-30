@@ -11,6 +11,10 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<AppActionResult> GetAllProject();
 
+        public Task<AppActionResult> GetAllProjectByAccountId(string accountId);
+
         public Task<AppActionResult> GetProjectById(Guid id);
+
+        public Task<AppActionResult> GetProjectByIdForCustomer(Guid id);
     }
 }

@@ -2,7 +2,7 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
-using HCQS.BackEnd.DAL.Util;
+using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -28,32 +28,22 @@ namespace HCQS.BackEnd.API.Controllers
             _validator = validator;
         }
 
-        [HttpGet("get-all-quotation-by-projectId/{projectId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
-
-        public async Task<AppActionResult> GetAllQuotationByProjectId(Guid projectId)
-        {
-            return await _service.GetAllQuotationByProjectId(projectId);
-        }
-
-        [HttpGet("get-all-quotation-by-projectId-for-customer/{projectId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
-
-        public async Task<AppActionResult> GetAllQuotationByProjectIdForCustomer(Guid projectId)
-        {
-            return await _service.GetAllQuotationByProjectIdForCustomer(projectId);
-        }
         [HttpPut("public-quotation-for-customer/{quotationId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-
         public async Task<AppActionResult> PublicQuotationForCustomer(Guid quotationId)
         {
             return await _service.PublicQuotationForCustomer(quotationId);
         }
 
+        [HttpGet("get-quotation-by-id/{quotationId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+        public async Task<AppActionResult> GetQuotationById(Guid quotationId)
+        {
+            return await _service.GetQuotationById(quotationId);
+        }
+
         [HttpPost("create-quotation-dealing-request")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
-
         public async Task<AppActionResult> CreateQuotationDealingRequest(QuotationDealingDto quotationDealingDto)
         {
             var result = await _validatorConfig.ValidateAsync(quotationDealingDto);
@@ -64,10 +54,9 @@ namespace HCQS.BackEnd.API.Controllers
             return await _service.CreateQuotationDealingRequest(quotationDealingDto);
         }
 
-        [HttpPut("deal-quotation")]
+        [HttpPost("deal-quotation")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
-
-        public async Task<AppActionResult> DealQuotation(Guid quotationId, bool status)
+        public async Task<AppActionResult> DealQuotation([FromBody] Guid quotationId, bool status)
         {
             return await _service.DealQuotation(quotationId, status);
         }
@@ -76,7 +65,7 @@ namespace HCQS.BackEnd.API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateQuotationDealingByStaff(CreateQuotationDeallingStaffRequest request)
         {
-             var result = await _validator.ValidateAsync(request);
+            var result = await _validator.ValidateAsync(request);
             if (!result.IsValid)
             {
                 return _handleErrorValidator.HandleError(result);

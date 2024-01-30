@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace HCQS.BackEnd.DAL.Util
+namespace HCQS.BackEnd.Common.Util
 {
     public class EncryptionHelper
     {

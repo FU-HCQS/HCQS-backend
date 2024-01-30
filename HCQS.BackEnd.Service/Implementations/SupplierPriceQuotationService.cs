@@ -3,13 +3,13 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Transactions;
@@ -22,13 +22,15 @@ namespace HCQS.BackEnd.Service.Implementations
         private IUnitOfWork _unitOfWork;
         private ISupplierPriceQuotationRepository _supplierPriceQuotationRepository;
         private IMapper _mapper;
+        private IFileService _fileService;
 
-        public SupplierPriceQuotationService(BackEndLogger logger, IMapper mapper, IUnitOfWork unitOfWork, ISupplierPriceQuotationRepository supplierPriceQuotationRepository, IServiceProvider serviceProvider) : base(serviceProvider)
+        public SupplierPriceQuotationService(BackEndLogger logger, IMapper mapper, IUnitOfWork unitOfWork, ISupplierPriceQuotationRepository supplierPriceQuotationRepository,IFileService fileService ,IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _supplierPriceQuotationRepository = supplierPriceQuotationRepository;
             _logger = logger;
             _mapper = mapper;
+            _fileService = fileService;
         }
 
         public async Task<AppActionResult> CreateSupplierPriceQuotation(SupplierPriceQuotationRequest supplierPriceQuotationRequest)
@@ -153,7 +155,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         });
                 }
 
-                var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                var SD = Resolve<SD>();
 
                 if (supplierQuotations.Any())
                 {
@@ -207,7 +209,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         });
                 }
 
-                var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                var SD = Resolve<SD>();
 
                 if (supplierQuotations.Any())
                 {
@@ -244,16 +246,16 @@ namespace HCQS.BackEnd.Service.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<AppActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
+        public async Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
         {
-            AppActionResult result = new AppActionResult();
+            IActionResult result = null;
             if (file == null || file.Length == 0)
             {
-                result.Result.Data = null;
-                result.Messages.Add("Empty Excel file");
+                return result;
             }
             else
             {
+                bool isSuccessful = true;
                 using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     try
@@ -264,7 +266,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         string dateString = supplierInfo[1].Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
-                            result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                            isSuccessful = false;
                             _logger.LogError($"{dateString} is not in format: ddMMyyyy", this);
                         }
                         else
@@ -273,9 +275,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()));
                             if (supplier == null)
                             {
-                                result = BuildAppActionResultError(result, $"Supplier with name: {supplierName} does not exist!");
+                                _logger.LogError($"Supplier with name: {supplierName} does not exist!", this);
+                                isSuccessful = false;
                             }
-                            if (!BuildAppActionResultIsError(result))
+                            if (isSuccessful)
                             {
                                 SupplierPriceQuotation newSupplierPriceQuotation = new SupplierPriceQuotation()
                                 {
@@ -311,7 +314,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         }
                                     }
 
-                                    if(invalidRowInput.Count == 0)
+                                    if (invalidRowInput.Count == 0)
                                     {
                                         var newPriceDetail = new SupplierPriceDetail()
                                         {
@@ -328,7 +331,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     i++;
                                 }
 
-                                if(invalidRowInput.Count > 0)
+                                if (invalidRowInput.Count > 0)
                                 {
                                     List<List<string>> recordDataString = new List<List<string>>();
                                     int j = 1;
@@ -339,23 +342,25 @@ namespace HCQS.BackEnd.Service.Implementations
                                             j++.ToString(), record.MaterialName, record.Unit, record.MOQ.ToString(), record.Price.ToString()
                                         });
                                     }
-                                    ExcelExporter.ExportToExcel(SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL, recordDataString, invalidRowInput, ExcelExporter.GetDownloadsPath(file.FileName));
-                                    result = BuildAppActionResultError(result, $"Invalid rows are colored in the excel file!");
+                                    result = _fileService.ReturnErrorColored<SupplierMaterialQuotationRecord>(SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL, recordDataString, invalidRowInput, file.FileName);
+                                    isSuccessful = false;
+                                    _logger.LogError($"Invalid rows are colored in the excel file!", this);
                                 }
 
-                                if (!BuildAppActionResultIsError(result))
+                                if (isSuccessful)
                                 {
                                     await _unitOfWork.SaveChangeAsync();
-                                    result.Result.Data = new SupplierPriceQuotationResponse()
+                                    result = new ObjectResult(new SupplierPriceQuotationResponse()
                                     {
                                         SupplierPriceQuotation = newSupplierPriceQuotation,
                                         SupplierPriceDetails = supplierPriceDetails,
                                         Date = newSupplierPriceQuotation.Date
-                                    };
+                                    })
+                                    { StatusCode = 200 };
                                 }
                             }
 
-                            if (!BuildAppActionResultIsError(result))
+                            if (isSuccessful)
                             {
                                 scope.Complete();
                             }
@@ -363,7 +368,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     catch (Exception ex)
                     {
-                        result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
                         _logger.LogError(ex.Message, this);
                     }
                 }
@@ -451,6 +455,31 @@ namespace HCQS.BackEnd.Service.Implementations
                 supplierPriceDetails.Add(newPriceDetail);
             }
             return supplierPriceDetails;
+        }
+
+
+        public async Task<IActionResult> GetPriceQuotationTemplate()
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                IActionResult result = null;
+                try
+                {
+                    List<SupplierMaterialQuotationRecord> sampleData = new List<SupplierMaterialQuotationRecord>();
+                    sampleData.Add(new SupplierMaterialQuotationRecord
+                    { MaterialName = "Brick", Unit = "Bar", MOQ = 1000, Price = 9 });
+                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecord>(sampleData, "SupplierPriceQuotationTemplate");
+                    if (result != null)
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+            }
         }
     }
 }

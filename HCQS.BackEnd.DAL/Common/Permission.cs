@@ -1,4 +1,4 @@
-﻿namespace HCQS.BackEnd.DAL.Util
+﻿namespace HCQS.BackEnd.DAL.Common
 {
     public class Permission
     {

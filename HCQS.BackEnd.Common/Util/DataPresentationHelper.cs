@@ -1,7 +1,7 @@
 ﻿using HCQS.BackEnd.Common.Dto.BaseRequest;
 using System.Linq.Expressions;
 
-namespace HCQS.BackEnd.DAL.Util
+namespace HCQS.BackEnd.Common.Util
 {
     public class DataPresentationHelper
     {
@@ -106,10 +106,10 @@ namespace HCQS.BackEnd.DAL.Util
 
             return orderedQuery.ToList();
         }
+
         public static int CalculateTotalPageSize(int totalRecord, int pageSize)
         {
             return (int)Math.Ceiling(totalRecord * 1.00 / pageSize);
         }
-     
     }
 }

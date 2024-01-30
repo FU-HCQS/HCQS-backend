@@ -2,6 +2,7 @@
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -14,12 +15,14 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> GetAllExport(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 
         public Task<AppActionResult> ImportMaterial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
+
         public Task<AppActionResult> UpdateInventory(Guid Id, ImportExportInventoryRequest ImportExportInventoryRequests);
 
         public Task<AppActionResult> FulfillSingleMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
 
-        public Task<AppActionResult> ImportMaterialWithExcel(IFormFile file);
+        public Task<IActionResult> ImportMaterialWithExcel(IFormFile file);
 
         public Task<AppActionResult> FulfillMaterialWithExcel(IFormFile file);
+        public Task<IActionResult> GetImportInventoryTempate();
     }
 }

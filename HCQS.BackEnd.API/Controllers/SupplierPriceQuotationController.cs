@@ -20,8 +20,10 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+
         [HttpPost("Upload-supplier-quotation-with-excel-file")]
-        public async Task<AppActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
+        public async Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
+
         {
             return await _supplierPriceQuotationService.UploadSupplierQuotationWithExcelFile(file);
         }
@@ -43,6 +45,12 @@ namespace HCQS.BackEnd.API.Controllers
         public async Task<AppActionResult> GetAllByMonth(int month, int year, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _supplierPriceQuotationService.GetQuotationByMonth(month, year, pageIndex, pageSize, sortInfos);
+        }
+
+        [HttpGet("get-supplier-price-quotation-template")]
+        public async Task<IActionResult> GetSupplierPriceQuotationTemplate()
+        {
+            return await _supplierPriceQuotationService.GetPriceQuotationTemplate();
         }
     }
 }

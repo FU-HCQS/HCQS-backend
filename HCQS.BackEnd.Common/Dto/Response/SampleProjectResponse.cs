@@ -1,7 +1,6 @@
-﻿using HCQS.BackEnd.Common.Dto.Response;
-using HCQS.BackEnd.DAL.Models;
+﻿using HCQS.BackEnd.DAL.Models;
 
-namespace HCQS.BackEnd.Service.Dto
+namespace HCQS.BackEnd.Common.Dto.Response
 {
     public class SampleProjectResponse
     {

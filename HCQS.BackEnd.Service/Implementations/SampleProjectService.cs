@@ -3,13 +3,12 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
+using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
-using HCQS.BackEnd.DAL.Util;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Dto;
 using System.Transactions;
-using static HCQS.BackEnd.DAL.Util.Utility;
+using static HCQS.BackEnd.Common.Util.Utility;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -128,7 +127,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 await staticFileRepository.DeleteById(item.Id);
-
                             }
                         }
                         result.Result.Data = await _sampleProjectRepository.DeleteById(id);
@@ -171,7 +169,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         });
                 }
 
-                var SD = Resolve<HCQS.BackEnd.DAL.Util.SD>();
+                var SD = Resolve<SD>();
 
                 if (sampleProjects.Any())
                 {
@@ -251,7 +249,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The account with id {sampleProjectRequest.AccountId} doesn't existed!");
                     }
-                   
 
                     if (!BuildAppActionResultIsError(result))
                     {

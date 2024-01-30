@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace HCQS.BackEnd.DAL.Migrations
 {
-    public partial class changeDb : Migration
+    public partial class fixDb_29012004_1st : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -97,6 +96,19 @@ namespace HCQS.BackEnd.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Suppliers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkerPrices",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PositionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LaborCost = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkerPrices", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -393,27 +405,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Workers",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PositionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    LaborCost = table.Column<double>(type: "float", nullable: false),
-                    SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Workers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Workers_Suppliers_SupplierId",
-                        column: x => x.SupplierId,
-                        principalTable: "Suppliers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Contracts",
                 columns: table => new
                 {
@@ -513,32 +504,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "WorkerForProjects",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ExportLaborCost = table.Column<double>(type: "float", nullable: false),
-                    WorkerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WorkerForProjects", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_WorkerForProjects_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_WorkerForProjects_Workers_WorkerId",
-                        column: x => x.WorkerId,
-                        principalTable: "Workers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ContractProgressPayment",
                 columns: table => new
                 {
@@ -611,6 +576,32 @@ namespace HCQS.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WorkerForProjects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ExportLaborCost = table.Column<double>(type: "float", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    WorkerPriceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuotationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkerForProjects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkerForProjects_Quotations_QuotationId",
+                        column: x => x.QuotationId,
+                        principalTable: "Quotations",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_WorkerForProjects_WorkerPrices_WorkerPriceId",
+                        column: x => x.WorkerPriceId,
+                        principalTable: "WorkerPrices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProgressConstructionMaterials",
                 columns: table => new
                 {
@@ -665,17 +656,17 @@ namespace HCQS.BackEnd.DAL.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21", "e747e9c5-3d39-4218-afb3-fe9d898702bb", "ADMIN", "admin" });
+                values: new object[] { "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21", "24aa4ec5-b6aa-4270-b0ae-fde39fde1704", "ADMIN", "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "2f28c722-04c9-41fd-85e4-eaa506acda38", "3a5dd1f4-c758-4535-8ce6-128f3464a715", "STAFF", "staff" });
+                values: new object[] { "2f28c722-04c9-41fd-85e4-eaa506acda38", "4a5aa0a7-7e27-4f09-92bd-98cca7915c0c", "STAFF", "staff" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f", "bc58f021-2309-4f42-8d1e-63475e1d365b", "CUSTOMER", "customer" });
+                values: new object[] { "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f", "4d616dd2-953d-48ab-bb30-b53dff5bdd97", "CUSTOMER", "customer" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -836,19 +827,14 @@ namespace HCQS.BackEnd.DAL.Migrations
                 column: "SupplierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerForProjects_ProjectId",
+                name: "IX_WorkerForProjects_QuotationId",
                 table: "WorkerForProjects",
-                column: "ProjectId");
+                column: "QuotationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerForProjects_WorkerId",
+                name: "IX_WorkerForProjects_WorkerPriceId",
                 table: "WorkerForProjects",
-                column: "WorkerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Workers_SupplierId",
-                table: "Workers",
-                column: "SupplierId");
+                column: "WorkerPriceId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -914,7 +900,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 name: "SampleProjects");
 
             migrationBuilder.DropTable(
-                name: "Workers");
+                name: "WorkerPrices");
 
             migrationBuilder.DropTable(
                 name: "ExportPriceMaterials");

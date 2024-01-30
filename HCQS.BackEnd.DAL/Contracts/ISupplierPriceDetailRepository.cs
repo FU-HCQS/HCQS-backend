@@ -1,7 +1,6 @@
-﻿using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Models;
+﻿using HCQS.BackEnd.DAL.Models;
 
-namespace HCQS.BackEnd.DAL.Implementations
+namespace HCQS.BackEnd.DAL.Contracts
 {
     public interface ISupplierPriceDetailRepository : IRepository<SupplierPriceDetail>
     {

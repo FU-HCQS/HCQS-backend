@@ -4,7 +4,6 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -54,10 +53,22 @@ namespace HCQS.BackEnd.API.Controllers
             return await _projectService.GetAllProject();
         }
 
+        [HttpGet("get-all-project-by-accountId/{accountId}")]
+        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId)
+        {
+            return await _projectService.GetAllProjectByAccountId(accountId);
+        }
+
         [HttpGet("get-project-by-id/{id}")]
         public async Task<AppActionResult> GetProjectById(Guid id)
         {
             return await _projectService.GetProjectById(id);
+        }
+
+        [HttpGet("get-project-by-id-for-customer/{id}")]
+        public async Task<AppActionResult> GetProjectByIdForCustomer(Guid id)
+        {
+            return await _projectService.GetProjectByIdForCustomer(id);
         }
     }
 }

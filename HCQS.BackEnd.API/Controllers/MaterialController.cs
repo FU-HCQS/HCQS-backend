@@ -3,7 +3,7 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
-using HCQS.BackEnd.DAL.Util;
+using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -28,8 +28,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("create-material")]
-        [Consumes("multipart/form-data")]
-        public async Task<AppActionResult> CreateMaterial([FromForm] MaterialRequest request)
+        public async Task<AppActionResult> CreateMaterial(MaterialRequest request)
         {
             var result = await _validator.ValidateAsync(request);
             if (!result.IsValid)
@@ -40,9 +39,8 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-material")]
-        [Consumes("multipart/form-data")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        public async Task<AppActionResult> UpdateMaterial([FromForm] MaterialRequest request)
+        public async Task<AppActionResult> UpdateMaterial(MaterialRequest request)
         {
             var result = await _validator.ValidateAsync(request);
             if (!result.IsValid)
@@ -53,7 +51,6 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("update-material-quantity")]
-        [Consumes("multipart/form-data")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> UpdateMaterialQuantity(Guid Id, int addQuantity)
         {
@@ -74,9 +71,9 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpGet("get-material-by-name/{name}")]
-        public async Task<AppActionResult> GetMaterialByName(String Name)
+        public async Task<AppActionResult> GetMaterialByName(string name)
         {
-            return await _materialService.GetMaterialByName(Name);
+            return await _materialService.GetMaterialByName(name);
         }
 
         [HttpPost("get-all")]
