@@ -16,7 +16,7 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<AppActionResult> ImportMaterial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
 
-        public Task<AppActionResult> UpdateInventory(Guid Id, ImportExportInventoryRequest ImportExportInventoryRequests);
+        public Task<AppActionResult> UpdateInventory(ImportExportInventoryRequest ImportExportInventoryRequests);
 
         public Task<AppActionResult> FulfillSingleMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
 

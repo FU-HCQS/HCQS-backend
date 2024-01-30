@@ -19,7 +19,7 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<IActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file);
 
-        public Task<AppActionResult> UpdateExportPriceMaterial(Guid id, ExportPriceMaterialRequest ExportPriceMaterialRequest);
+        public Task<AppActionResult> UpdateExportPriceMaterial(ExportPriceMaterialRequest ExportPriceMaterialRequest);
 
         public Task<AppActionResult> DeleteExportPriceMaterialById(Guid id);
         public Task<IActionResult> GetExportPriceMaterialTemplate();

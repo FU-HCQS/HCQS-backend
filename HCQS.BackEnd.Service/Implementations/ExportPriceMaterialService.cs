@@ -5,6 +5,7 @@ using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -138,7 +139,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty export price list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -204,7 +205,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        result.Messages.Add("Empty supplier list");
+                        result.Messages.Add("Empty export price list");
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -221,7 +222,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> UpdateExportPriceMaterial(Guid id, ExportPriceMaterialRequest ExportPriceMaterialRequest)
+        public async Task<AppActionResult> UpdateExportPriceMaterial(ExportPriceMaterialRequest ExportPriceMaterialRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -234,10 +235,10 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        var exportPriceMaterialDb = await _exportPriceMaterialRepository.GetById(id);
+                        var exportPriceMaterialDb = await _exportPriceMaterialRepository.GetById(ExportPriceMaterialRequest.Id);
                         if (exportPriceMaterialDb == null)
                         {
-                            result = BuildAppActionResultError(result, $"The export price material with {id} not found !");
+                            result = BuildAppActionResultError(result, $"The export price material with {ExportPriceMaterialRequest.Id} not found !");
                         }
                         else
                         {
@@ -319,7 +320,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                         Date = record.Date,
                                         Price = record.Price
                                     };
-
                                     await _exportPriceMaterialRepository.Insert(newPriceDetail);
                                     exportPriceMaterials.Add(newPriceDetail);
                                 }
@@ -338,11 +338,14 @@ namespace HCQS.BackEnd.Service.Implementations
                                         });
                                 }
                                 result = _fileService.ReturnErrorColored<ExportPriceMaterialRecord>(SD.ExcelHeaders.EXPORT_PRICE_DETAIL, recordDataString, invalidRowInput, dateString);
+                                _logger.LogError($"Invalid rows are colored in the excel file!", this);
                                 isSuccessful = false;
                             }
-                            else { 
+
+                            if (isSuccessful)
+                            {
                                 await _unitOfWork.SaveChangeAsync();
-                                return new ObjectResult(exportPriceMaterials) { StatusCode = 200 };
+                                result = new ObjectResult(exportPriceMaterials) { StatusCode = 200 };
                             }
                         }
                         if (isSuccessful)
