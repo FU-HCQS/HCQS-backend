@@ -9,5 +9,6 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string PositionName { get; set; }
         public double LaborCost { get; set; }
+        public bool IsDeleted { get; set; }= false;
     }
 }

@@ -91,6 +91,12 @@ namespace HCQS.BackEnd.Common.Mapping
                .ForMember(desc => desc.Area, act => act.MapFrom(src => src.Area))
                .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                ;
+
+                config.CreateMap<WorkerPriceRequest, WorkerPrice>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.LaborCost, act => act.MapFrom(src => src.LaborCost))
+              .ForMember(desc => desc.PositionName, act => act.MapFrom(src => src.PositionName))
+              ;
             });
             return mappingConfig;
         }
