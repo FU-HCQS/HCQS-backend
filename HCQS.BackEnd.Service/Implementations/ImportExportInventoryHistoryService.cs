@@ -5,6 +5,7 @@ using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -436,17 +437,17 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> UpdateInventory(Guid Id, ImportExportInventoryRequest ImportExportInventoryRequest)
+        public async Task<AppActionResult> UpdateInventory(ImportExportInventoryRequest ImportExportInventoryRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var inventoryDb = await _importExportInventoryHistoryRepository.GetByExpression(n => n.Id.Equals(Id));
+                    var inventoryDb = await _importExportInventoryHistoryRepository.GetByExpression(n => n.Id.Equals(ImportExportInventoryRequest.Id));
                     if (inventoryDb == null)
                     {
-                        result = BuildAppActionResultError(result, $"The inventory history with {Id} not found !");
+                        result = BuildAppActionResultError(result, $"The inventory history with {ImportExportInventoryRequest.Id} not found !");
                     }
                     else
                     {
