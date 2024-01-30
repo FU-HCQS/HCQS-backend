@@ -33,21 +33,21 @@ namespace HCQS.BackEnd.API.Controllers
             return await _supplierPriceDetailService.GetQuotationPricesBySupplierId(Id, pageIndex, pageSize, sortInfos);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-quotation-price-by-material-name/{name}")]
         public async Task<AppActionResult> GetQuotationPriceByMaterialId(String name, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _supplierPriceDetailService.GetQuotationPricesByMaterialName(name, pageIndex, pageSize, sortInfos);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-quotation-price-by-supplier-name/{name}")]
         public async Task<AppActionResult> GetQuotationPriceBySupplierId(String name, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _supplierPriceDetailService.GetQuotationPricesBySupplierName(name, pageIndex, pageSize, sortInfos);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {

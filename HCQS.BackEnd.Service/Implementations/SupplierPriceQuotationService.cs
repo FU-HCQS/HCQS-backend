@@ -6,6 +6,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private IMapper _mapper;
         private IFileService _fileService;
 
-        public SupplierPriceQuotationService(BackEndLogger logger, IMapper mapper, IUnitOfWork unitOfWork, ISupplierPriceQuotationRepository supplierPriceQuotationRepository,IFileService fileService ,IServiceProvider serviceProvider) : base(serviceProvider)
+        public SupplierPriceQuotationService(BackEndLogger logger, IMapper mapper, IUnitOfWork unitOfWork, ISupplierPriceQuotationRepository supplierPriceQuotationRepository, IFileService fileService, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _supplierPriceQuotationRepository = supplierPriceQuotationRepository;
@@ -107,11 +108,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                         var supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.SupplierPriceQuotationId == id);
-                        await _supplierPriceQuotationRepository.DeleteById(id);
+
                         if (supplierPriceDetails != null)
                         {
                             await supplierPriceDetailRepository.DeleteRange(supplierPriceDetails);
                         }
+                        await _supplierPriceQuotationRepository.DeleteById(id);
                         await _unitOfWork.SaveChangeAsync();
                     }
                     else

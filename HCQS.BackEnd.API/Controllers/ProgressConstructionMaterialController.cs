@@ -34,14 +34,14 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPut("update-progress-construction-material")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        public async Task<AppActionResult> UpdateProgressConstructionMaterial(Guid Id, ProgressConstructionMaterialRequest request)
+        public async Task<AppActionResult> UpdateProgressConstructionMaterial(ProgressConstructionMaterialRequest request)
         {
             var result = await _validator.ValidateAsync(request);
             if (!result.IsValid)
             {
                 return _handleErrorValidator.HandleError(result);
             }
-            return await _progressConstructionMaterialService.UpdateProgressConstructionMaterial(Id, request);
+            return await _progressConstructionMaterialService.UpdateProgressConstructionMaterial(request);
         }
 
         [HttpPost("get-all")]
@@ -80,9 +80,8 @@ namespace HCQS.BackEnd.API.Controllers
             return await _progressConstructionMaterialService.CreateProgressConstructionMaterial(ProgressConstructionMaterialRequests);
         }
 
-
-        [HttpDelete("delete-progress-construction-material-by-id/{Id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpDelete("delete-progress-construction-material-by-id/{Id}")]
         public async Task<AppActionResult> DeleteProgressConstructionMaterialById(Guid Id)
         {
             return await _progressConstructionMaterialService.DeleteProgressConstructionMaterialById(Id);
