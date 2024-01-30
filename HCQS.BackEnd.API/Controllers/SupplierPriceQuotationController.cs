@@ -20,8 +20,10 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+
         [HttpPost("Upload-supplier-quotation-with-excel-file")]
         public async Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
+
         {
             return await _supplierPriceQuotationService.UploadSupplierQuotationWithExcelFile(file);
         }
