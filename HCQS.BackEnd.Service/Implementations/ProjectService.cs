@@ -198,7 +198,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         if (!BuildAppActionResultIsError(result))
                         {
-                            await quotationRepository.Insert(quotation);
+                            result.Result.Data = await quotationRepository.Insert(quotation);
                             projectDb.ProjectStatus = Project.Status.Processing;
                             projectDb.SandMixingRatio = (int)buildingInputModel.SandRatio;
                             projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
