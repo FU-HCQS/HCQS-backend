@@ -86,16 +86,32 @@ namespace HCQS.BackEnd.Service.Implementations
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add(sheetName);
 
                 PropertyInfo[] properties = typeof(T).GetProperties();
-
+                bool isRecordTemplate = false;
                 for (int i = 0; i < properties.Length; i++)
                 {
-                    worksheet.Cells[1, i + 1].Value = properties[i].Name;
+                    if (sheetName.Contains("Template") && properties[i].Name.Equals("Id"))
+                    {
+                        worksheet.Cells[1, i + 1].Value = "No";
+                        isRecordTemplate = true;
+                    }
+                    else worksheet.Cells[1, i + 1].Value = properties[i].Name;
                 }
 
                 int row = 2;
+
+                if (isRecordTemplate)
+                {
+                    for (int i = row; i <= dataList.Count() + 1; i++)
+                    {
+                        worksheet.Cells[i, 1].Value = i - 1;
+                    }
+                }
+
+                int j = isRecordTemplate ? 1 : 0;
+
                 foreach (T item in dataList)
                 {
-                    for (int j = 0; j < properties.Length; j++)
+                    for (; j < properties.Length; j++)
                     {
                         worksheet.Cells[row, j + 1].Value = properties[j].GetValue(item);
                     }
@@ -106,7 +122,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
-                    FileDownloadName = "template.xlsx"
+                    FileDownloadName = sheetName
                 };
             }
         }
