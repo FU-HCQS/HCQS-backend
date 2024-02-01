@@ -72,7 +72,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -104,7 +104,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -149,7 +149,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -169,7 +169,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -215,7 +215,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -257,7 +257,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -317,7 +317,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     {
                                         Id = Guid.NewGuid(),
                                         MaterialId = materialId,
-                                        Date = record.Date,
+                                        Date = date,
                                         Price = record.Price
                                     };
                                     await _exportPriceMaterialRepository.Insert(newPriceDetail);
@@ -334,7 +334,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 {
                                     recordDataString.Add(new List<string>
                                         {
-                                            j++.ToString(), record.MaterialName, record.Price.ToString(), record.Date.ToString()
+                                            j++.ToString(), record.MaterialName, record.Price.ToString()
                                         });
                                 }
                                 result = _fileService.ReturnErrorColored<ExportPriceMaterialRecord>(SD.ExcelHeaders.EXPORT_PRICE_DETAIL, recordDataString, invalidRowInput, dateString);
@@ -391,8 +391,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 Id = Guid.NewGuid(),
                                 MaterialName = worksheet.Cells[row, 2].Value.ToString().ToString(),
-                                Price = double.Parse(worksheet.Cells[row, 3].Value.ToString().ToString()),
-                                Date = DateTime.Parse(worksheet.Cells[row, 4].Value.ToString().ToString())
+                                Price = double.Parse(worksheet.Cells[row, 3].Value.ToString().ToString())
                             };
                             records.Add(record);
                         }
@@ -416,8 +415,8 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     List<ExportPriceMaterialRecord> sampleData = new List<ExportPriceMaterialRecord>();
                     sampleData.Add(new ExportPriceMaterialRecord
-                    { MaterialName = "Brick", Price = 999, Date = DateTime.Parse("2024-01-24T14:30:00") });
-                    result = _fileService.GenerateExcelContent<ExportPriceMaterialRecord>(sampleData, "ExportPriceTemplate");
+                    { MaterialName = "Brick", Price = 999 });
+                    result = _fileService.GenerateExcelContent<ExportPriceMaterialRecord>(sampleData, "ExportPriceTemplate_Format_ddMMyyyy");
                     if (result != null)
                     {
                         scope.Complete();

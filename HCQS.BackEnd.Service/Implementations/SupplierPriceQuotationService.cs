@@ -89,7 +89,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -128,7 +128,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 catch (Exception ex)
                 {
-                    result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                    result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
@@ -183,7 +183,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -237,7 +237,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             catch (Exception ex)
             {
-                result = BuildAppActionResultError(result, SD.ResponseMessage.INTERNAL_SERVER_ERROR, true);
+                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
@@ -470,7 +470,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<SupplierMaterialQuotationRecord> sampleData = new List<SupplierMaterialQuotationRecord>();
                     sampleData.Add(new SupplierMaterialQuotationRecord
                     { MaterialName = "Brick", Unit = "Bar", MOQ = 1000, Price = 9 });
-                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecord>(sampleData, "SupplierPriceQuotationTemplate");
+                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecord>(sampleData, "SupplierPriceQuotationTemplate_Format_SupplierName_ddMMyyyy");
                     if (result != null)
                     {
                         scope.Complete();
