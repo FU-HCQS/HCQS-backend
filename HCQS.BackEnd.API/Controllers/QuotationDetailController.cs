@@ -39,16 +39,30 @@ namespace HCQS.BackEnd.API.Controllers
             return await _service.GetAllQuotationDetailByQuotationId(id);
         }
 
-        [HttpPost("create-quotation-detail")]
+        //[HttpPost("create-quotation-detail")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        //public async Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail)
+        //{
+        //    var result = await _validator.ValidateAsync(quotationDetail);
+        //    if (!result.IsValid)
+        //    {
+        //        return _handleErrorValidator.HandleError(result);
+        //    }
+        //    return await _service.CreateQuotationDetail(quotationDetail);
+        //}
+        [HttpPost("create-list-quotation-detail")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        public async Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail)
+        public async Task<AppActionResult> CreateListQuotationDetail(List<QuotationDetailDto> quotationDetails)
         {
-            var result = await _validator.ValidateAsync(quotationDetail);
-            if (!result.IsValid)
+           foreach (var quotationDetail in quotationDetails)
             {
-                return _handleErrorValidator.HandleError(result);
+                var result = await _validator.ValidateAsync(quotationDetail);
+                if (!result.IsValid)
+                {
+                    return _handleErrorValidator.HandleError(result);
+                }
             }
-            return await _service.CreateQuotationDetail(quotationDetail);
+            return await _service.CreateListQuotationDetail(quotationDetails);
         }
 
         [HttpPut("update-quotation-detail")]
