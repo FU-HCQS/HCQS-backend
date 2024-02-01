@@ -15,7 +15,6 @@ namespace HCQS.BackEnd.Common.Util
             public static string UPDATE_FAILED = "UPDATE_FAILED";
             public static string DELETE_FAILED = "DELETE_FAILED";
             public static string LOGIN_FAILED = "LOGIN_FAILED";
-            public static string INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
         }
 
         public static string FormatDateTime(DateTime dateTime)
