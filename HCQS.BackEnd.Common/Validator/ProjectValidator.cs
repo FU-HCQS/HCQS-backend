@@ -11,6 +11,8 @@ namespace HCQS.BackEnd.Common.Validator
             RuleFor(x => x.LandDrawingFile).NotNull().NotEmpty().WithMessage("The LandDrawingFile must be required!");
             RuleFor(x => x.NumOfFloor).NotNull().NotEmpty().WithMessage("The NumOfFloor must be required!");
             RuleFor(x => x.Area).NotNull().NotEmpty().WithMessage("The Area must be required!");
+            RuleFor(x => x.Type).NotNull().WithMessage("The ConstructionType must be required!");
+
         }
     }
 }
