@@ -20,6 +20,8 @@ namespace HCQS.BackEnd.DAL.Models
         public string? LandDrawingFileUrl { get; set; }
         public Status ProjectStatus { get; set; }
 
+        public ProjectConstructionType ConstructionType { get; set; }
+
         public enum Status
         {
             Pending,
@@ -28,14 +30,20 @@ namespace HCQS.BackEnd.DAL.Models
             Closed
         }
 
+        public enum ProjectConstructionType
+        {
+            RoughConstruction,
+            CompleteConstruction
+        }
+
         public int EstimatedTimeOfCompletion { get; set; }
         public int NumberOfLabor { get; set; }
         public DateTime CreateDate { get; set; }
 
-        public string AccountId { get; set; }
+        public string? AccountId { get; set; }
 
         [ForeignKey("AccountId")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
         public Contract? Contract { get; set; }
     }

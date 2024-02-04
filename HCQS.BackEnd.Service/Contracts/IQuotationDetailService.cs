@@ -11,6 +11,8 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail);
 
+        Task<AppActionResult> CreateListQuotationDetail(List<QuotationDetailDto> quotationDetail);
+
         Task<AppActionResult> UpdateQuotationDetail(QuotationDetailDto quotationDetail);
 
         Task<AppActionResult> DeleteQuotationDetail(Guid id);

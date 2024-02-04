@@ -265,15 +265,37 @@ namespace HCQS.BackEnd.Service.Implementations
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 AppActionResult result = new AppActionResult();
-
+                var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
                 try
                 {
-                    var quotationDb = await _quotationRepository.GetById(quotationId);
+                    var quotationDb = await _quotationRepository.GetByExpression(q => q.Id == quotationId, q => q.Project);
+                    var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == quotationId, includes: a => a.Material);
+                    bool isValid = false;
                     if (quotationDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationId} is not existed");
                     }
-                    else if (quotationDb.QuotationStatus != Quotation.Status.Pending)
+                    else if (quotationDb.Project.ConstructionType == Project.ProjectConstructionType.CompleteConstruction)
+                    {
+                        foreach (var item in quotationDetails)
+                        {
+                            if (item.Material.MaterialType == Material.Type.Furniture)
+                            {
+                                isValid = true;
+                            }
+                        }
+                        if (!isValid)
+                        {
+                            result = BuildAppActionResultError(result, $"This is a completed project, please add interior materials");
+                        }
+                    }
+
+                    if (quotationDetails == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The quotation details is empty");
+                    }
+
+                    if (quotationDb.QuotationStatus != Quotation.Status.Pending)
                     {
                         result = BuildAppActionResultError(result, $"The quotation with id {quotationId} has been made public");
                     }

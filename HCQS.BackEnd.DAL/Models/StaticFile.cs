@@ -8,7 +8,7 @@ namespace HCQS.BackEnd.DAL.Models
         [Key]
         public Guid Id { get; set; }
 
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
         public Type StaticFileType { get; set; }
 

@@ -269,10 +269,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     FileDownloadName = $"(ErrorColor){filename}.xlsx"
                 };
-
             }
         }
-
-        
     }
 }

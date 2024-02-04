@@ -9,15 +9,15 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid Id { get; set; }
 
         public DateTime Date { get; set; }
-        public string Name { get; set; }
-        public Guid ContractId { get; set; }
+        public string? Name { get; set; }
+        public Guid? ContractId { get; set; }
 
         [ForeignKey(nameof(ContractId))]
-        public Contract Contract { get; set; }
+        public Contract? Contract { get; set; }
 
-        public Guid PaymentId { get; set; }
+        public Guid? PaymentId { get; set; }
 
         [ForeignKey(nameof(PaymentId))]
-        public Payment Payment { get; set; }
+        public Payment? Payment { get; set; }
     }
 }

@@ -17,11 +17,11 @@ namespace HCQS.BackEnd.DAL.Models
             MOMO
         }
 
-        public string OrderInfo { get; set; }
+        public string? OrderInfo { get; set; }
         public bool IsSuccess { get; set; }
-        public Guid PaymentId { get; set; }
+        public Guid? PaymentId { get; set; }
 
         [ForeignKey(nameof(PaymentId))]
-        public Payment Payment { get; set; }
+        public Payment? Payment { get; set; }
     }
 }

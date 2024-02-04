@@ -70,18 +70,21 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _service.GetExportPriceMaterialById(id);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all-export-price-material")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _service.GetAll(pageIndex, pageSize, sortInfos);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-latest-export-price-material")]
         public async Task<AppActionResult> GetLatest(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _service.GetLatestPrice(pageIndex, pageSize, sortInfos);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpGet("get-export-price-material-template")]
         public async Task<IActionResult> GetExportPriceMaterialTemplate()
