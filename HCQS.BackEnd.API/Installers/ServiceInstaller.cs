@@ -51,7 +51,6 @@ namespace HCQS.BackEnd.API.Installers
 
             services.AddScoped<IProgressConstructionMaterialRepository, ProgressConstructionMaterialRepository>();
             services.AddScoped<IProgressConstructionMaterialService, ProgressConstructionMaterialService>();
-            
 
             services.AddScoped<IQuotationDetailRepository, QuotationDetailRepository>();
             services.AddScoped<IQuotationRepository, QuotationRepository>();
@@ -67,6 +66,7 @@ namespace HCQS.BackEnd.API.Installers
 
             services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IContractProgressPaymentRepository, ContractProgressPaymentRepository>();
+            services.AddScoped<IContractProgressPaymentService, ContractProgressPaymentService>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IPaymentService, PaymentService>();
 
@@ -80,7 +80,6 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IWorkerForProjectRepository, WorkerForProjectRepository>();
             services.AddScoped<IWorkerPriceRepository, WorkerPriceRepository>();
             services.AddScoped<IWorkerPriceService, WorkerPriceService>();
-
 
             services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:DB"]));
             services.AddHangfireServer();

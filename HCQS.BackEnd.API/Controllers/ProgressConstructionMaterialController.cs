@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto;
+using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Common;
@@ -18,6 +18,7 @@ namespace HCQS.BackEnd.API.Controllers
         private readonly IValidator<ProgressConstructionMaterialRequest> _validator;
         private readonly HandleErrorValidator _handleErrorValidator;
         private IProgressConstructionMaterialService _progressConstructionMaterialService;
+
         public ProgressConstructionMaterialController(IValidator<ProgressConstructionMaterialRequest> validator, HandleErrorValidator handleErrorValidator, IProgressConstructionMaterialService progressConstructionMaterialService)
         {
             _validator = validator;
@@ -86,6 +87,5 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _progressConstructionMaterialService.DeleteProgressConstructionMaterialById(Id);
         }
-
     }
 }

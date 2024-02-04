@@ -23,7 +23,6 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-
         [HttpPost("Upload-supplier-quotation-with-excel-file")]
         public async Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
 
@@ -37,12 +36,14 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _supplierPriceQuotationService.DeleteSupplierPriceQuotationById(Id);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _supplierPriceQuotationService.GetAll(pageIndex, pageSize, sortInfos);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all-by-month")]
         public async Task<AppActionResult> GetAllByMonth(int month, int year, int pageIndex, int pageSize, IList<SortInfo> sortInfos)

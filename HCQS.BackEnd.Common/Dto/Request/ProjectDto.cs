@@ -10,11 +10,13 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public double Area { get; set; }
         public IFormFile LandDrawingFile { get; set; }
         public ConstructionType Type { get; set; }
+
         public enum ConstructionType
         {
             RoughConstruction,
             CompleteConstruction
         }
+
         public string AccountId { get; set; }
     }
 }

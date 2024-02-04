@@ -10,8 +10,8 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> GetAllQuotationDetailByQuotationId(Guid id);
 
         Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail);
-        Task<AppActionResult> CreateListQuotationDetail(List<QuotationDetailDto> quotationDetail);
 
+        Task<AppActionResult> CreateListQuotationDetail(List<QuotationDetailDto> quotationDetail);
 
         Task<AppActionResult> UpdateQuotationDetail(QuotationDetailDto quotationDetail);
 

@@ -7,7 +7,7 @@ namespace HCQS.BackEnd.DAL.Models
         [Key]
         public Guid Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public Unit UnitMaterial { get; set; }
 
         public enum Unit
