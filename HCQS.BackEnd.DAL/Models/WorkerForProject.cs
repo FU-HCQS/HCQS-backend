@@ -10,7 +10,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         public double ExportLaborCost { get; set; }
         public int Quantity { get; set; }
-        public Guid WorkerPriceId { get; set; }
+        public Guid? WorkerPriceId { get; set; }
 
         [ForeignKey(nameof(WorkerPriceId))]
         public WorkerPrice? WorkerPrice { get; set; }

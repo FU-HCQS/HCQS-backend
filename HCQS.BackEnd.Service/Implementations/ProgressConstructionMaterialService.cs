@@ -4,7 +4,6 @@ using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using System.Transactions;
@@ -17,6 +16,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private IUnitOfWork _unitOfWork;
         private IProgressConstructionMaterialRepository _progressConstructionMaterialRepository;
         private IMapper _mapper;
+
         public ProgressConstructionMaterialService(BackEndLogger logger, IUnitOfWork unitOfWork, IProgressConstructionMaterialRepository progressConstructionMaterialRepository, IMapper mapper, IServiceProvider service) : base(service)
         {
             _logger = logger;
@@ -37,7 +37,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<ProgressConstructionMaterial> progressConstructionMaterials = new List<ProgressConstructionMaterial>();
                     foreach (var ProgressConstructionMaterialRequest in ProgressConstructionMaterialRequests)
                     {
-                        //get material => get latest price => 
+                        //get material => get latest price =>
                         var quotationDetailDb = await quotationDetailRepository.GetByExpression(q => q.Id == ProgressConstructionMaterialRequest.QuotationDetailId, q => q.Material);
                         if (quotationDetailDb != null)
                         {
@@ -366,6 +366,5 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return -1.0;
         }
-
     }
 }

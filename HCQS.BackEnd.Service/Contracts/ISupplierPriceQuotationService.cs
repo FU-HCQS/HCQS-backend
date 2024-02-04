@@ -19,6 +19,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> UpdateSupplierPriceQuotation(SupplierPriceQuotationRequest supplierPriceQuotationRequest);
 
         public Task<AppActionResult> DeleteSupplierPriceQuotationById(Guid id);
+
         public Task<IActionResult> GetPriceQuotationTemplate();
     }
 }

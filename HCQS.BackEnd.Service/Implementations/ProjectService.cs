@@ -107,32 +107,47 @@ namespace HCQS.BackEnd.Service.Implementations
                             Id = Guid.NewGuid(),
                             ProjectId = (Guid)project.Id,
                             QuotationStatus = Quotation.Status.Pending,
-                            FurnitureDiscount = (double)project.FurnitureDiscount,
-                            LaborDiscount = (double)project.LaborDiscount,
-                            RawMaterialDiscount = (double)project.LaborDiscount
+                            FurnitureDiscount =project.FurnitureDiscount,
+                            LaborDiscount = project.LaborDiscount,
+                            RawMaterialDiscount = project.LaborDiscount
                         };
                         double totalLaborPrice = 0;
                         List<WorkerForProject> workers = new List<WorkerForProject>();
                         foreach (var worker in project.LaborRequests)
                         {
-                            totalLaborPrice = totalLaborPrice + (worker.Quantity * worker.ExportLaborCost);
-                            workers.Add(new WorkerForProject
+                            var workerDb = await workerPriceRepository.GetById(worker.WorkerPriceId);
+                            if (workerDb == null)
                             {
-                                Id = Guid.NewGuid(),
-                                ExportLaborCost = worker.ExportLaborCost,
-                                WorkerPriceId = worker.WorkerPriceId,
-                                Quantity = worker.Quantity,
-                                QuotationId = quotation.Id
-                            });
+                                result = BuildAppActionResultError(result, $"The worker with id  {worker.WorkerPriceId} is not existed");
+                            }
+                            else
+                            {
+                                if (worker.ExportLaborCost < workerDb.LaborCost)
+                                {
+                                    result = BuildAppActionResultError(result, $"The ExportLaborCost with  workerid  must greater than original price");
+                                }
+                                else
+                                {
+                                    totalLaborPrice = totalLaborPrice + (worker.Quantity * worker.ExportLaborCost);
+                                    workers.Add(new WorkerForProject
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        ExportLaborCost = worker.ExportLaborCost,
+                                        WorkerPriceId = worker.WorkerPriceId,
+                                        Quantity = worker.Quantity,
+                                        QuotationId = quotation.Id
+                                    });
+                                }
+                            }
                         }
 
                         BuildingInputModel buildingInputModel = new BuildingInputModel()
                         {
-                            CementRatio = (double)project.CementMixingRatio,
-                            SandRatio = (double)project.SandMixingRatio,
-                            StoneRatio = (double)project.StoneMixingRatio,
-                            WallHeight = (double)project.WallHeight,
-                            WallLength = (double)project.WallLength
+                            CementRatio = project.CementMixingRatio,
+                            SandRatio = project.SandMixingRatio,
+                            StoneRatio = project.StoneMixingRatio,
+                            WallHeight = project.WallHeight,
+                            WallLength = project.WallLength
                         };
                         int birckCount = BuildingUtility.CalculateBrickCount(wallLength: buildingInputModel.WallLength, wallHeight: buildingInputModel.WallHeight);
                         var buildingMaterial = BuildingUtility.CalculateMaterials(buildingInputModel);
@@ -143,24 +158,24 @@ namespace HCQS.BackEnd.Service.Implementations
                         var stoneDb = await materialRepository.GetByExpression(b => b.Name.ToLower() == "Stone".ToLower());
                         var cementDb = await materialRepository.GetByExpression(b => b.Name.ToLower() == "Cement".ToLower());
                         double total = 0;
-                        var brickHistoryExport = await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == brickDb.Id);
-                        brickHistoryExport.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
+                        var brickHistoryExport = brickDb != null ? await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == brickDb.Id) : null;
+                        brickHistoryExport?.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
 
-                        var sandHistoryExport = await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == sandDb.Id);
-                        sandHistoryExport.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
+                        var sandHistoryExport = sandDb != null ? await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == sandDb.Id) : null;
+                        sandHistoryExport?.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
 
-                        var cementHistoryExport = await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == cementDb.Id);
-                        cementHistoryExport.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
+                        var cementHistoryExport = cementDb != null ? await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == cementDb.Id) : null;
+                        cementHistoryExport?.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
 
-                        var stoneHistoryExport = await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == stoneDb.Id);
-                        stoneHistoryExport.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
+                        var stoneHistoryExport = stoneDb != null ? await exportPriceMaterialRepository.GetAllDataByExpression(a => a.MaterialId == stoneDb.Id) : null; ;
+                        stoneHistoryExport?.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
                         if (brickDb == null)
                         {
                             result = BuildAppActionResultError(result, "The brick is not existed in the system");
                         }
                         else
                         {
-                            var price = brickHistoryExport.First();
+                            var price = brickHistoryExport?.First();
                             quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = birckCount, MaterialId = brickDb.Id, QuotationId = quotation.Id, Total = birckCount * price.Price });
                         }
                         if (sandDb == null)
@@ -169,7 +184,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = sandHistoryExport.First();
+                            var price = sandHistoryExport?.First();
                             total = total + (buildingMaterial.SandVolume * price.Price);
                             quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.SandVolume, MaterialId = sandDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.SandVolume * price.Price });
                         }
@@ -180,7 +195,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = stoneHistoryExport.First();
+                            var price = stoneHistoryExport?.First();
                             total = total + (buildingMaterial.StoneVolume * price.Price);
 
                             quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.StoneVolume, MaterialId = stoneDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.StoneVolume * price.Price });
@@ -191,7 +206,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = cementHistoryExport.First();
+                            var price = cementHistoryExport?.First();
                             total = total + (buildingMaterial.CementVolume * price.Price);
 
                             quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.CementVolume, MaterialId = cementDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.CementVolume * price.Price });

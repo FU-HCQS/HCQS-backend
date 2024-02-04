@@ -1,16 +1,10 @@
 ﻿using AutoMapper;
-using Hangfire.Server;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -37,10 +31,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-
                     worker.Id = Guid.NewGuid();
                     WorkerPrice workerMapper = _mapper.Map<WorkerPrice>(worker);
-                    var workerDb = await _workerPriceRepository.GetByExpression(a => a.PositionName.ToLower() == worker.PositionName.ToLower() && a.IsDeleted==false);
+                    var workerDb = await _workerPriceRepository.GetByExpression(a => a.PositionName.ToLower() == worker.PositionName.ToLower() && a.IsDeleted == false);
                     if (workerDb != null)
                     {
                         result = BuildAppActionResultError(result, $"The labor with position name is existed");
@@ -61,7 +54,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
-
             }
         }
 
@@ -72,7 +64,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-
                     var workerDb = await _workerPriceRepository.GetById(id);
                     if (workerDb == null)
                     {
@@ -95,7 +86,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
-
             }
         }
 
@@ -104,7 +94,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                result.Result.Data = await _workerPriceRepository.GetAllDataByExpression( a=> a.IsDeleted == false, null);
+                result.Result.Data = await _workerPriceRepository.GetAllDataByExpression(a => a.IsDeleted == false, null);
             }
             catch (Exception ex)
             {
@@ -173,7 +163,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
-
             }
         }
     }

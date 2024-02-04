@@ -11,7 +11,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double Total { get; set; }
         public double TotalCostsIncurred { get; set; }
         public double Deposit { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
         public DateTime DateOfContract { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -26,9 +26,9 @@ namespace HCQS.BackEnd.DAL.Models
             ACTIVE
         }
 
-        public Guid ProjectId { get; set; }
+        public Guid? ProjectId { get; set; }
 
         [ForeignKey(nameof(ProjectId))]
-        public Project Project { get; set; }
+        public Project? Project { get; set; }
     }
 }

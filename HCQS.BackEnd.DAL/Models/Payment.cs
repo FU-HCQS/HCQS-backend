@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace HCQS.BackEnd.DAL.Models
 {
@@ -8,7 +9,7 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid Id { get; set; }
 
         public double Price { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
         public Status PaymentStatus { get; set; }
 
         public enum Status
@@ -17,7 +18,7 @@ namespace HCQS.BackEnd.DAL.Models
             Success
         }
 
-        [Required]
-        public ContractProgressPayment ContractProgressPayment { get; set; }
+        [JsonIgnore]
+        public ContractProgressPayment? ContractProgressPayment { get; set; } = null!;
     }
 }

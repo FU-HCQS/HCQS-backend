@@ -1,8 +1,6 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml.Style;
-using OfficeOpenXml;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -15,12 +13,11 @@ namespace HCQS.BackEnd.Service.Contracts
         public IActionResult GenerateExcelContent<T>(IEnumerable<T> dataList, string sheetName);
 
         public IActionResult GenerateTemplateExcel<T>(T dataList);
+
         public IActionResult ReturnErrorColored<T>(List<string> headers, List<List<string>> data, IEnumerable<int> rowsToColor, string filename);
 
         public Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName);
 
         public Task<AppActionResult> DeleteImageFromFirebase(string pathFileName);
-
-        
     }
 }
