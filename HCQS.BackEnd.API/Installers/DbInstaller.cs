@@ -11,7 +11,7 @@ namespace HCQS.BackEnd.API.Installers
         {
             services.AddDbContext<HCQSDbContext>(option =>
             {
-                option.UseSqlServer(configuration["ConnectionStrings:Host"]);
+                option.UseSqlServer(configuration["ConnectionStrings:DB"]);
             });
 
             services.AddIdentity<Account, IdentityRole>().AddEntityFrameworkStores<HCQSDbContext>().AddDefaultTokenProviders();

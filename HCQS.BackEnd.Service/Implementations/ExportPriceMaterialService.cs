@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Globalization;
+using System.Text;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -266,7 +267,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<IActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file)
         {
-            IActionResult result = null;
+            IActionResult result = new ObjectResult(null) { StatusCode = 200 };
             if (file == null || file.Length == 0)
             {
                 return result;
@@ -278,8 +279,11 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     try
                     {
-                        //Format: Name_ddmmyyy
-                        string dateString = file.FileName.Substring(0, 8);
+                        //Format: ddmmyyy
+                        string dateString = file.FileName;
+                        if (file.FileName.Contains("(ErrorColor)"))
+                            dateString = dateString.Substring("(ErrorColor)".Length);
+                        dateString = dateString.Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
                             isSuccessful = false;
@@ -287,66 +291,89 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
-                            List<ExportPriceMaterialRecord> records = await GetListFromExcel(file);
-                            List<ExportPriceMaterial> exportPriceMaterials = new List<ExportPriceMaterial>();
-                            var materialRepository = Resolve<IMaterialRepository>();
-                            List<int> invalidRowInput = new List<int>();
-                            int i = 2;
-                            foreach (ExportPriceMaterialRecord record in records)
+                            if(!(await CheckHeader(file, SD.ExcelHeaders.EXPORT_PRICE_DETAIL)))
                             {
-                                Guid materialId = Guid.Empty;
-                                if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
-                                else
+                                isSuccessful = false;
+                                _logger.LogError($"Incompatible header to sell price template", this);
+                            } else
+                            {
+                                Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                                List<ExportPriceMaterialRecord> records = await GetListFromExcel(file);
+                                List<ExportPriceMaterial> exportPriceMaterials = new List<ExportPriceMaterial>();
+                                var materialRepository = Resolve<IMaterialRepository>();
+                                Dictionary<int, string> invalidRowInput = new Dictionary<int, string>();
+                                int errorRecordCount = 0;
+                                int i = 2;
+                                foreach (ExportPriceMaterialRecord record in records)
                                 {
-                                    var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
-                                    if (material == null)
+                                    Guid materialId = Guid.Empty;
+                                    errorRecordCount = 0;
+                                    StringBuilder error = new StringBuilder(); 
+                                    if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
+                                    else
                                     {
-                                        invalidRowInput.Add(i);
+                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
+                                        if (material == null)
+                                        {
+                                            error.Append($"- Material with name {record.MaterialName} does not exist.\n");
+                                            errorRecordCount++;
+                                        }
+                                        else
+                                        {
+                                            materialId = material.Id;
+                                            materials.Add(record.MaterialName, materialId);
+                                        }
+                                    }
+
+                                    if(record.Price <= 0)
+                                    {
+                                        error.Append($"- Material's price must be higher than 0.\n");
+                                        errorRecordCount++;
+                                    }
+
+                                    if (errorRecordCount == 0)
+                                    {
+                                        var newPriceDetail = new ExportPriceMaterial()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            MaterialId = materialId,
+                                            Date = date,
+                                            Price = record.Price
+                                        };
+                                        await _exportPriceMaterialRepository.Insert(newPriceDetail);
+                                        exportPriceMaterials.Add(newPriceDetail);
                                     }
                                     else
                                     {
-                                        materialId = material.Id;
-                                        materials.Add(record.MaterialName, materialId);
+                                        error.Append("(Please delete this error message cell before re-uploading!)");
+                                        invalidRowInput.Add(i, error.ToString());
                                     }
+                                    i++;
                                 }
 
-                                if (invalidRowInput.Count == 0)
+                                if (invalidRowInput.Count > 0)
                                 {
-                                    var newPriceDetail = new ExportPriceMaterial()
+                                    List<List<string>> recordDataString = new List<List<string>>();
+                                    int j = 1;
+                                    foreach (var record in records)
                                     {
-                                        Id = Guid.NewGuid(),
-                                        MaterialId = materialId,
-                                        Date = date,
-                                        Price = record.Price
-                                    };
-                                    await _exportPriceMaterialRepository.Insert(newPriceDetail);
-                                    exportPriceMaterials.Add(newPriceDetail);
-                                }
-                                i++;
-                            }
-
-                            if (invalidRowInput.Count > 0)
-                            {
-                                List<List<string>> recordDataString = new List<List<string>>();
-                                int j = 1;
-                                foreach (var record in records)
-                                {
-                                    recordDataString.Add(new List<string>
+                                        recordDataString.Add(new List<string>
                                         {
                                             j++.ToString(), record.MaterialName, record.Price.ToString()
                                         });
+                                    }
+                                    result = _fileService.ReturnErrorColored<ExportPriceMaterialRecord>(SD.ExcelHeaders.EXPORT_PRICE_DETAIL, recordDataString, invalidRowInput, dateString);
+                                    _logger.LogError($"Invalid rows are colored in the excel file!", this);
+                                    isSuccessful = false;
                                 }
-                                result = _fileService.ReturnErrorColored<ExportPriceMaterialRecord>(SD.ExcelHeaders.EXPORT_PRICE_DETAIL, recordDataString, invalidRowInput, dateString);
-                                _logger.LogError($"Invalid rows are colored in the excel file!", this);
-                                isSuccessful = false;
-                            }
 
-                            if (isSuccessful)
-                            {
-                                await _unitOfWork.SaveChangeAsync();
-                                result = new ObjectResult(exportPriceMaterials) { StatusCode = 200 };
+                                if (isSuccessful)
+                                {
+                                    await _unitOfWork.SaveChangeAsync();
+                                    result = new ObjectResult(exportPriceMaterials) { StatusCode = 200 };
+                                }
                             }
+                            
                         }
                         if (isSuccessful)
                         {
@@ -404,6 +431,43 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return null;
+        }
+
+        private async Task<bool> CheckHeader(IFormFile file, List<string> headerTemplate)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    stream.Position = 0;
+
+                    using (ExcelPackage package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
+
+                        int colCount = worksheet.Dimension.Columns;
+                        if (colCount != headerTemplate.Count) return false;
+
+                        for (int col = 1; col <= colCount; col++) // Assuming header is in the first row
+                        {
+                            if (!worksheet.Cells[1, col].Value.Equals(headerTemplate[col - 1]))
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+            }
+            return false;
         }
 
         public async Task<IActionResult> GetExportPriceMaterialTemplate()

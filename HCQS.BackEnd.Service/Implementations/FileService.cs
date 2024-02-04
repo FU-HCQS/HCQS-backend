@@ -227,7 +227,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return _result;
         }
 
-        public IActionResult ReturnErrorColored<T>(List<string> headers, List<List<string>> data, IEnumerable<int> rowsToColor, string filename)
+        public IActionResult ReturnErrorColored<T>(List<string> headers, List<List<string>> data, Dictionary<int, string> rowsToColor, string filename)
         {
             if (headers == null || data == null || headers.Count == 0 || data.Count == 0)
             {
@@ -251,15 +251,20 @@ namespace HCQS.BackEnd.Service.Implementations
                 for (int i = 0; i < data.Count; i++)
                 {
                     List<string> rowData = data[i];
-                    for (int j = 0; j < rowData.Count; j++)
+                    int j = 0;
+                    for (; j < rowData.Count; j++)
                     {
                         worksheet.Cells[i + 2, j + 1].Value = rowData[j];
+                    }
+                    if(rowsToColor.ContainsKey(i + 2))
+                    {
+                        worksheet.Cells[i + 2, j + 1].Value = rowsToColor[i+2];
                     }
                 }
 
                 if (rowsToColor != null)
                 {
-                    foreach (int i in rowsToColor)
+                    foreach (int i in rowsToColor.Keys)
                     {
                         worksheet.Rows[i].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Rows[i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
