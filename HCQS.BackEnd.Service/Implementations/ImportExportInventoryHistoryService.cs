@@ -460,11 +460,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                     isSuccessful = false;
                                 }
 
-                                result = _fileService.ReturnErrorColored<ImportInventoryRecord>(SD.ExcelHeaders.IMPORT_INVENTORY, recordDataString, invalidRowInput, dateString);
-                                isSuccessful = false;
-                            }
-
-
                                 if (isSuccessful)
                                 {
                                     await _importExportInventoryHistoryRepository.InsertRange(importInventoryList);
