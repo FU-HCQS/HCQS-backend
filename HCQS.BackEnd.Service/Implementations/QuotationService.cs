@@ -290,6 +290,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                     }
 
+
                     if (quotationDetails == null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation details is empty");

@@ -67,6 +67,231 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
+        public async Task<AppActionResult> GetLatestQuotationPricesByMaterialId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var supplierPriceQuotationRepository = Resolve<ISupplierPriceQuotationRepository>();
+                //find latest supplier quotation
+                var supplierQuotation = await supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Id != Guid.Empty);
+                var latestQuotationIds = supplierQuotation.GroupBy(q => q.SupplierId)
+                                                            .Select(group => group.OrderByDescending(q => q.Date).First().Id)
+                                                            .ToList();
+                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == Id && latestQuotationIds.Contains((Guid)s.SupplierPriceQuotationId));
+                if (supplierPriceDetailDb != null)
+                {
+                    if (supplierPriceDetailDb.Any())
+                    {
+                        if (pageIndex <= 0) pageIndex = 1;
+                        if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
+                        int totalPage = DataPresentationHelper.CalculateTotalPageSize(supplierPriceDetailDb.Count(), pageSize);
+
+                        if (sortInfos != null)
+                        {
+                            supplierPriceDetailDb = DataPresentationHelper.ApplySorting(supplierPriceDetailDb, sortInfos);
+                        }
+                        if (pageIndex > 0 && pageSize > 0)
+                        {
+                            supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
+                        }
+                        result.Result.Data = supplierPriceDetailDb;
+                        result.Result.TotalPage = totalPage;
+                    }
+                    else
+                    {
+                        result.Messages.Add("Empty sample supplier price detail list");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> GetLatestQuotationPricesByMaterialName(string name, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var materialRepository = Resolve<IMaterialRepository>();
+                var materialDb = await materialRepository.GetByExpression(m => m.Name.ToLower().Equals(name.ToLower()));
+                if (materialDb == null)
+                {
+                    result = BuildAppActionResultError(result, $"Material with name:{name} does not exist");
+                }
+                if (!BuildAppActionResultIsError(result))
+                {
+                    var supplierPriceQuotationRepository = Resolve<ISupplierPriceQuotationRepository>();
+                    //find latest supplier quotation
+                    var supplierQuotation = await supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Id != Guid.Empty);
+                    var latestQuotationIds = supplierQuotation.GroupBy(q => q.SupplierId)
+                                                                .Select(group => group.OrderByDescending(q => q.Date).First().Id)
+                                                                .ToList();
+                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == materialDb.Id && latestQuotationIds.Contains((Guid)(s.SupplierPriceQuotationId)), s => s.SupplierPriceQuotation.Supplier);
+
+                    if (supplierPriceDetailDb != null)
+                    {
+                        if (supplierPriceDetailDb.Any())
+                        {
+                            if (pageIndex <= 0) pageIndex = 1;
+                            if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
+                            int totalPage = DataPresentationHelper.CalculateTotalPageSize(supplierPriceDetailDb.Count(), pageSize);
+
+                            if (sortInfos != null)
+                            {
+                                supplierPriceDetailDb = DataPresentationHelper.ApplySorting(supplierPriceDetailDb, sortInfos);
+                            }
+                            if (pageIndex > 0 && pageSize > 0)
+                            {
+                                supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
+                            }
+                            result.Result.Data = supplierPriceDetailDb;
+                            result.Result.TotalPage = totalPage;
+                        }
+                        else
+                        {
+                            result.Messages.Add("Empty sample supplier price detail list");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> GetLatestQuotationPricesBySupplierId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var supplierRepository = Resolve<ISupplierRepository>();
+                var supplierDb = await supplierRepository.GetById(Id);
+                if (supplierDb == null)
+                {
+                    result = BuildAppActionResultError(result, $"Supplier with Id:{Id} does not exist");
+                }
+
+                if (!BuildAppActionResultIsError(result))
+                {
+                    var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == Id, null);
+                    var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
+                    var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.SupplierPriceQuotation);
+                    var latestSupplierPriceQuotationOfEachMaterial = allSupplierPriceDetailDb.GroupBy(s => s.MaterialId)
+                                                    .ToDictionary(
+                                                        group => group.Key,
+                                                        group => group.Max(s => s.SupplierPriceQuotation.Date)
+                                                    );
+
+                    var supplierPriceDetailDb = allSupplierPriceDetailDb
+                                                    .Where(detail => latestSupplierPriceQuotationOfEachMaterial.ContainsKey(detail.MaterialId) &&
+                                                                     latestSupplierPriceQuotationOfEachMaterial[detail.MaterialId] == detail.SupplierPriceQuotation.Date)
+                                                    .ToList();
+
+                    if (supplierPriceDetailDb != null)
+                    {
+                        if (supplierPriceDetailDb.Any())
+                        {
+                            if (pageIndex <= 0) pageIndex = 1;
+                            if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
+                            int totalPage = DataPresentationHelper.CalculateTotalPageSize(supplierPriceDetailDb.Count(), pageSize);
+
+                            if (sortInfos != null)
+                            {
+                                supplierPriceDetailDb = DataPresentationHelper.ApplySorting(supplierPriceDetailDb, sortInfos);
+                            }
+                            if (pageIndex > 0 && pageSize > 0)
+                            {
+                                supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
+                            }
+                            result.Result.Data = supplierPriceDetailDb;
+                            result.Result.TotalPage = totalPage;
+                        }
+                        else
+                        {
+                            result.Messages.Add("Empty sample supplier price detail list");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> GetLatestQuotationPricesBySupplierName(string name, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var supplierRepository = Resolve<ISupplierRepository>();
+                var supplierDb = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(name.ToLower()));
+                if (supplierDb == null)
+                {
+                    result = BuildAppActionResultError(result, $"Supplier with name:{name} does not exist");
+                }
+
+                if (!BuildAppActionResultIsError(result))
+                {
+                    var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id, null);
+                    var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
+                    var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.SupplierPriceQuotation);
+                    var latestSupplierPriceQuotationOfEachMaterial = allSupplierPriceDetailDb.GroupBy(s => s.MaterialId)
+                                                    .ToDictionary(
+                                                        group => group.Key,
+                                                        group => group.Max(s => s.SupplierPriceQuotation.Date)
+                                                    );
+
+                    var supplierPriceDetailDb = allSupplierPriceDetailDb
+                                                    .Where(detail => latestSupplierPriceQuotationOfEachMaterial.ContainsKey(detail.MaterialId) &&
+                                                                     latestSupplierPriceQuotationOfEachMaterial[detail.MaterialId] == detail.SupplierPriceQuotation.Date)
+                                                    .ToList();
+                    if (supplierPriceDetailDb != null)
+                    {
+                        if (supplierPriceDetailDb.Any())
+                        {
+                            if (pageIndex <= 0) pageIndex = 1;
+                            if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
+                            int totalPage = DataPresentationHelper.CalculateTotalPageSize(supplierPriceDetailDb.Count(), pageSize);
+
+                            if (sortInfos != null)
+                            {
+                                supplierPriceDetailDb = DataPresentationHelper.ApplySorting(supplierPriceDetailDb, sortInfos);
+                            }
+                            if (pageIndex > 0 && pageSize > 0)
+                            {
+                                supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
+                            }
+                            result.Result.Data = supplierPriceDetailDb;
+                            result.Result.TotalPage = totalPage;
+                        }
+                        else
+                        {
+                            result.Messages.Add("Empty sample supplier price detail list");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
         public async Task<AppActionResult> GetQuotationPriceById(Guid Id)
         {
             AppActionResult result = new AppActionResult();

@@ -71,7 +71,7 @@ namespace HCQS.BackEnd.API.Controllers
                     return _handleErrorValidator.HandleError(result);
                 }
             }
-            return await _importExportInventoryHistoryService.FulfillSingleMatertial(ImportExportInventoryRequests);
+            return await _importExportInventoryHistoryService.FulfillMatertial(ImportExportInventoryRequests);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]

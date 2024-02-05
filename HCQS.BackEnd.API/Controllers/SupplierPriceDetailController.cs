@@ -48,6 +48,34 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("get-latest-quotation-price-by-material-id/{Id}")]
+        public async Task<AppActionResult> GetLatestQuotationPriceByMaterialId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            return await _supplierPriceDetailService.GetLatestQuotationPricesByMaterialId(Id, pageIndex, pageSize, sortInfos);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("get-latest-quotation-price-by-supplier-id/{Id}")]
+        public async Task<AppActionResult> GetLatestQuotationPriceBySupplierId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            return await _supplierPriceDetailService.GetLatestQuotationPricesBySupplierId(Id, pageIndex, pageSize, sortInfos);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("get-latest-quotation-price-by-material-name/{name}")]
+        public async Task<AppActionResult> GetLatestQuotationPriceByMaterialName(String name, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            return await _supplierPriceDetailService.GetLatestQuotationPricesByMaterialName(name, pageIndex, pageSize, sortInfos);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("get-latest-quotation-price-by-supplier-name/{name}")]
+        public async Task<AppActionResult> GetLatestQuotationPriceBySupplierName(String name, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            return await _supplierPriceDetailService.GetLatestQuotationPricesBySupplierName(name, pageIndex, pageSize, sortInfos);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Globalization;
+using System.Text;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -262,7 +263,11 @@ namespace HCQS.BackEnd.Service.Implementations
                     try
                     {
                         //Format: Name_ddmmyyy
-                        string[] supplierInfo = file.FileName.Split('_');
+                        //Format: ddMMyyyy
+                        string nameDateString = file.FileName;
+                        if (file.FileName.Contains("(ErrorColor)"))
+                            nameDateString = nameDateString.Substring("(ErrorColor)".Length);
+                        string[] supplierInfo = nameDateString.Split('_');
                         string supplierName = supplierInfo[0];
                         string dateString = supplierInfo[1].Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
@@ -272,92 +277,129 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var supplierRepository = Resolve<ISupplierRepository>();
-                            var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()));
-                            if (supplier == null)
+                            if (!(await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL)))
                             {
-                                _logger.LogError($"Supplier with name: {supplierName} does not exist!", this);
                                 isSuccessful = false;
+                                _logger.LogError($"Incompatible header to sell price template", this);
                             }
-                            if (isSuccessful)
+                            else
                             {
-                                SupplierPriceQuotation newSupplierPriceQuotation = new SupplierPriceQuotation()
+                                var supplierRepository = Resolve<ISupplierRepository>();
+                                var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()));
+                                if (supplier == null)
                                 {
-                                    Id = Guid.NewGuid(),
-                                    Date = date,
-                                    SupplierId = supplier.Id
-                                };
-                                await _supplierPriceQuotationRepository.Insert(newSupplierPriceQuotation);
-                                await _unitOfWork.SaveChangeAsync();
-                                Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
-                                List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
-                                List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
-                                var materialRepository = Resolve<IMaterialRepository>();
-                                var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
-                                List<int> invalidRowInput = new List<int>();
-                                int i = 2;
-                                foreach (SupplierMaterialQuotationRecord record in records)
+                                    _logger.LogError($"Supplier with name: {supplierName} does not exist!", this);
+                                    isSuccessful = false;
+                                }
+                                if (isSuccessful)
                                 {
-                                    Guid materialId = Guid.Empty;
-                                    if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
-                                    else
+                                    SupplierPriceQuotation newSupplierPriceQuotation = new SupplierPriceQuotation()
                                     {
-                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
-                                        if (material == null)
+                                        Id = Guid.NewGuid(),
+                                        Date = date,
+                                        SupplierId = supplier.Id
+                                    };
+                                    await _supplierPriceQuotationRepository.Insert(newSupplierPriceQuotation);
+                                    await _unitOfWork.SaveChangeAsync();
+                                    Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                                    List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
+                                    List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
+                                    var materialRepository = Resolve<IMaterialRepository>();
+                                    var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
+                                    Dictionary<int, string> invalidRowInput = new Dictionary<int, string>();
+                                    int errorRecordCount = 0;
+                                    int i = 2;
+                                    foreach (SupplierMaterialQuotationRecord record in records)
+                                    {
+                                        Guid materialId = Guid.Empty;
+                                        errorRecordCount = 0;
+                                        StringBuilder error = new StringBuilder();
+                                        if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
+                                        else
                                         {
-                                            // Color red the cell :vv
-                                            invalidRowInput.Add(i);
+                                            bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
+                                            if (containsUnit)
+                                            {
+                                                var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
+                                                if (material == null)
+                                                {
+                                                    error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
+                                                    errorRecordCount++;
+                                                }
+                                                else
+                                                {
+                                                    materialId = material.Id;
+                                                    materials.Add(record.MaterialName, materialId);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
+                                                errorRecordCount++;
+                                            }
+                                        }
+
+                                        if (record.MOQ <= 0)
+                                        {
+                                            error.Append($"{errorRecordCount + 1}. MOQ(Minimum Order Quantity) must be higher than 0.\n");
+                                            errorRecordCount++;
+                                        }
+
+                                        if (record.Price <= 0)
+                                        {
+                                            error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
+                                            errorRecordCount++;
+                                        }
+
+                                        if (errorRecordCount == 0)
+                                        {
+                                            var newPriceDetail = new SupplierPriceDetail()
+                                            {
+                                                Id = Guid.NewGuid(),
+                                                MaterialId = materialId,
+                                                MOQ = int.Parse(record.MOQ.ToString()),
+                                                Price = record.Price,
+                                                SupplierPriceQuotationId = newSupplierPriceQuotation.Id
+                                            };
+
+                                            await supplierPriceDetailRepository.Insert(newPriceDetail);
+                                            supplierPriceDetails.Add(newPriceDetail);
                                         }
                                         else
                                         {
-                                            materialId = material.Id;
-                                            materials.Add(record.MaterialName, materialId);
+                                            error.Append("(Please delete this error message cell before re-uploading!)");
+                                            invalidRowInput.Add(i, error.ToString());
                                         }
+                                        i++;
                                     }
 
-                                    if (invalidRowInput.Count == 0)
+                                    if (invalidRowInput.Count > 0)
                                     {
-                                        var newPriceDetail = new SupplierPriceDetail()
+                                        List<List<string>> recordDataString = new List<List<string>>();
+                                        int j = 1;
+                                        foreach (var record in records)
                                         {
-                                            Id = Guid.NewGuid(),
-                                            MaterialId = materialId,
-                                            MOQ = int.Parse(record.MOQ.ToString()),
-                                            Price = record.Price,
-                                            SupplierPriceQuotationId = newSupplierPriceQuotation.Id
-                                        };
-
-                                        await supplierPriceDetailRepository.Insert(newPriceDetail);
-                                        supplierPriceDetails.Add(newPriceDetail);
-                                    }
-                                    i++;
-                                }
-
-                                if (invalidRowInput.Count > 0)
-                                {
-                                    List<List<string>> recordDataString = new List<List<string>>();
-                                    int j = 1;
-                                    foreach (var record in records)
-                                    {
-                                        recordDataString.Add(new List<string>
+                                            recordDataString.Add(new List<string>
                                         {
                                             j++.ToString(), record.MaterialName, record.Unit, record.MOQ.ToString(), record.Price.ToString()
                                         });
+                                        }
+                                        result = _fileService.ReturnErrorColored<SupplierMaterialQuotationRecord>(SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL, recordDataString, invalidRowInput, file.FileName);
+                                        isSuccessful = false;
+                                        _logger.LogError($"Invalid rows are colored in the excel file!", this);
                                     }
-                                    result = _fileService.ReturnErrorColored<SupplierMaterialQuotationRecord>(SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL, recordDataString, invalidRowInput, file.FileName);
-                                    isSuccessful = false;
-                                    _logger.LogError($"Invalid rows are colored in the excel file!", this);
-                                }
 
-                                if (isSuccessful)
-                                {
-                                    await _unitOfWork.SaveChangeAsync();
-                                    result = new ObjectResult(new SupplierPriceQuotationResponse()
+                                    if (isSuccessful)
                                     {
-                                        SupplierPriceQuotation = newSupplierPriceQuotation,
-                                        SupplierPriceDetails = supplierPriceDetails,
-                                        Date = newSupplierPriceQuotation.Date
-                                    })
-                                    { StatusCode = 200 };
+                                        await _unitOfWork.SaveChangeAsync();
+                                        result = new ObjectResult(new SupplierPriceQuotationResponse()
+                                        {
+                                            SupplierPriceQuotation = newSupplierPriceQuotation,
+                                            SupplierPriceDetails = supplierPriceDetails,
+                                            Date = newSupplierPriceQuotation.Date
+                                        })
+                                        { StatusCode = 200 };
+                                    }
                                 }
                             }
 
@@ -420,6 +462,43 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return null;
+        }
+
+        private async Task<bool> CheckHeader(IFormFile file, List<string> headerTemplate)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    stream.Position = 0;
+
+                    using (ExcelPackage package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
+
+                        int colCount = worksheet.Dimension.Columns;
+                        if (colCount != headerTemplate.Count) return false;
+
+                        for (int col = 1; col <= colCount; col++) // Assuming header is in the first row
+                        {
+                            if (!worksheet.Cells[1, col].Value.Equals(headerTemplate[col - 1]))
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+            }
+            return false;
         }
 
         private async Task<List<SupplierPriceDetail>> GetSupplierPriceDetailFromRecords(Guid supplierPriceQuotationId, List<SupplierMaterialQuotationRecord> records, Dictionary<String, Guid> materials, IMaterialRepository materialRepository)
