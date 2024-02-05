@@ -14,6 +14,6 @@ namespace HCQS.BackEnd.DAL.Models
         public Guid? MaterialId { get; set; }
 
         [ForeignKey(nameof(MaterialId))]
-        public Material Material { get; set; }
+        public Material? Material { get; set; }
     }
 }

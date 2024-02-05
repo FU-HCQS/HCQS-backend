@@ -8,14 +8,14 @@ namespace HCQS.BackEnd.DAL.Models
         [Key]
         public Guid Id { get; set; }
 
-        public Guid MaterialId { get; set; }
+        public Guid? MaterialId { get; set; }
 
         [ForeignKey(nameof(MaterialId))]
-        public Material Material { get; set; }
+        public Material? Material { get; set; }
 
-        public Guid SupplierId { get; set; }
+        public Guid? SupplierId { get; set; }
 
         [ForeignKey(nameof(SupplierId))]
-        public Supplier Supplier { get; set; }
+        public Supplier? Supplier { get; set; }
     }
 }

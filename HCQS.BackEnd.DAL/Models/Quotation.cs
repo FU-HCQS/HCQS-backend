@@ -25,9 +25,9 @@ namespace HCQS.BackEnd.DAL.Models
             Approved,
         }
 
-        public Guid ProjectId { get; set; }
+        public Guid? ProjectId { get; set; }
 
         [ForeignKey(nameof(ProjectId))]
-        public Project Project { get; set; }
+        public Project? Project { get; set; }
     }
 }

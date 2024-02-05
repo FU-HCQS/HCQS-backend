@@ -4,6 +4,7 @@ using HCQS.BackEnd.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    partial class HCQSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240204112042_change foreignkey")]
+    partial class changeforeignkey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -781,21 +783,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "0fba4d00-1b1d-4898-8d50-59754c538fde",
+                            ConcurrencyStamp = "d28520f1-481d-4ced-bd30-4f159618be88",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "6743f43f-8af1-493a-ba05-df347345d50f",
+                            ConcurrencyStamp = "435eb3c1-54f9-46af-ba38-2da926ec588b",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "72a124bf-2e39-4ef8-92ca-2c3d9d13b226",
+                            ConcurrencyStamp = "a48994b6-8ba0-4483-82bc-b4b19d4839c3",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -1164,7 +1166,8 @@ namespace HCQS.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Payment", b =>
                 {
-                    b.Navigation("ContractProgressPayment");
+                    b.Navigation("ContractProgressPayment")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ProgressConstructionMaterial", b =>

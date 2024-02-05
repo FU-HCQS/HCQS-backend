@@ -66,6 +66,7 @@ namespace HCQS.BackEnd.API.Installers
 
             services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IContractProgressPaymentRepository, ContractProgressPaymentRepository>();
+            services.AddScoped<IContractProgressPaymentService, ContractProgressPaymentService>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IPaymentService, PaymentService>();
 

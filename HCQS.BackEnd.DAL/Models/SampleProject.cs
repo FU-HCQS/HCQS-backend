@@ -19,11 +19,11 @@ namespace HCQS.BackEnd.DAL.Models
             House_With_Multiple_Floors
         }
 
-        public string Function { get; set; }
-        public string Header { get; set; }
-        public string Content { get; set; }
+        public string? Function { get; set; }
+        public string? Header { get; set; }
+        public string? Content { get; set; }
         public double EstimatePrice { get; set; }
-        public string Location { get; set; }
+        public string? Location { get; set; }
 
         public string? AccountId { get; set; }
 

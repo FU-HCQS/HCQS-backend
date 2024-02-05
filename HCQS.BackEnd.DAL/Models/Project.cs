@@ -40,10 +40,10 @@ namespace HCQS.BackEnd.DAL.Models
         public int NumberOfLabor { get; set; }
         public DateTime CreateDate { get; set; }
 
-        public string AccountId { get; set; }
+        public string? AccountId { get; set; }
 
         [ForeignKey("AccountId")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
         public Contract? Contract { get; set; }
     }
