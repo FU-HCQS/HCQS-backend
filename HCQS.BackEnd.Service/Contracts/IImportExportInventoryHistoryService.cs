@@ -18,11 +18,12 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<AppActionResult> UpdateInventory(ImportExportInventoryRequest ImportExportInventoryRequests);
 
-        public Task<AppActionResult> FulfillSingleMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
+        public Task<AppActionResult> FulfillMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
 
         public Task<IActionResult> ImportMaterialWithExcel(IFormFile file);
 
         public Task<AppActionResult> FulfillMaterialWithExcel(IFormFile file);
+
         public Task<IActionResult> GetImportInventoryTempate();
     }
 }

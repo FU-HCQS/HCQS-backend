@@ -54,7 +54,7 @@ namespace HCQS.BackEnd.API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> CreateListQuotationDetail(List<QuotationDetailDto> quotationDetails)
         {
-           foreach (var quotationDetail in quotationDetails)
+            foreach (var quotationDetail in quotationDetails)
             {
                 var result = await _validator.ValidateAsync(quotationDetail);
                 if (!result.IsValid)

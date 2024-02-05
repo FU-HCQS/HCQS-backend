@@ -289,7 +289,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"This is a completed project, please add interior materials");
                         }
                     }
-                   
+
                     if (quotationDetails != null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation details is empty");

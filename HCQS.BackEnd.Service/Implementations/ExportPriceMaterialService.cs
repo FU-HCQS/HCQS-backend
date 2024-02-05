@@ -5,7 +5,6 @@ using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -291,11 +290,12 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            if(!(await CheckHeader(file, SD.ExcelHeaders.EXPORT_PRICE_DETAIL)))
+                            if (!(await CheckHeader(file, SD.ExcelHeaders.EXPORT_PRICE_DETAIL)))
                             {
                                 isSuccessful = false;
                                 _logger.LogError($"Incompatible header to sell price template", this);
-                            } else
+                            }
+                            else
                             {
                                 Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
                                 List<ExportPriceMaterialRecord> records = await GetListFromExcel(file);
@@ -308,14 +308,14 @@ namespace HCQS.BackEnd.Service.Implementations
                                 {
                                     Guid materialId = Guid.Empty;
                                     errorRecordCount = 0;
-                                    StringBuilder error = new StringBuilder(); 
+                                    StringBuilder error = new StringBuilder();
                                     if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
                                     else
                                     {
                                         var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
                                         if (material == null)
                                         {
-                                            error.Append($"- Material with name {record.MaterialName} does not exist.\n");
+                                            error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
                                             errorRecordCount++;
                                         }
                                         else
@@ -325,9 +325,9 @@ namespace HCQS.BackEnd.Service.Implementations
                                         }
                                     }
 
-                                    if(record.Price <= 0)
+                                    if (record.Price <= 0)
                                     {
-                                        error.Append($"- Material's price must be higher than 0.\n");
+                                        error.Append($"{errorRecordCount + 1}. Material's price must be higher than 0.\n");
                                         errorRecordCount++;
                                     }
 
@@ -373,7 +373,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                     result = new ObjectResult(exportPriceMaterials) { StatusCode = 200 };
                                 }
                             }
-                            
                         }
                         if (isSuccessful)
                         {
@@ -492,7 +491,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
-
         }
     }
 }

@@ -43,6 +43,7 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _importExportInventoryHistoryService.GetAllExport(pageIndex, pageSize, sortInfos);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("import-material")]
         public async Task<AppActionResult> ImportMaterial(List<ImportExportInventoryRequest> ImportExportInventoryRequests)
@@ -57,6 +58,7 @@ namespace HCQS.BackEnd.API.Controllers
             }
             return await _importExportInventoryHistoryService.ImportMaterial(ImportExportInventoryRequests);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("fulfill-material")]
         public async Task<AppActionResult> FulfillMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests)
@@ -69,13 +71,13 @@ namespace HCQS.BackEnd.API.Controllers
                     return _handleErrorValidator.HandleError(result);
                 }
             }
-            return await _importExportInventoryHistoryService.FulfillSingleMatertial(ImportExportInventoryRequests);
+            return await _importExportInventoryHistoryService.FulfillMatertial(ImportExportInventoryRequests);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("update-inventory")]
         public async Task<AppActionResult> FulfillMatertial(ImportExportInventoryRequest request)
         {
-
             var result = await _validator.ValidateAsync(request);
             if (!result.IsValid)
             {
@@ -83,12 +85,14 @@ namespace HCQS.BackEnd.API.Controllers
             }
             return await _importExportInventoryHistoryService.UpdateInventory(request);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("import-material-with-excel")]
         public async Task<IActionResult> ImportMaterialWithExcel(IFormFile file)
         {
             return await _importExportInventoryHistoryService.ImportMaterialWithExcel(file);
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpGet("get-import-material-template")]
         public async Task<IActionResult> GetImportMaterialTemplate()

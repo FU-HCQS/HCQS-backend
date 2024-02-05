@@ -35,6 +35,7 @@ namespace HCQS.BackEnd.DAL.Models
             RoughConstruction,
             CompleteConstruction
         }
+
         public int EstimatedTimeOfCompletion { get; set; }
         public int NumberOfLabor { get; set; }
         public DateTime CreateDate { get; set; }

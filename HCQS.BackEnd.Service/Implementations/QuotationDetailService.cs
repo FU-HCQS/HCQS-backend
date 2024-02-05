@@ -31,7 +31,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-
                     var materialRepository = Resolve<IMaterialRepository>();
                     var quotationRepository = Resolve<IQuotationRepository>();
                     var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
@@ -54,7 +53,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             else if (quotationDetail.Material.MaterialType == Material.Type.Furniture)
                             {
                                 furnitureMaterialTotal = furnitureMaterialTotal + quotationDetail.Total;
-
                             }
                         }
                     }
@@ -87,7 +85,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 rawMaterialTotal += quotationDetail.Total;
                             }
-
                         }
                     }
 
@@ -108,6 +105,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

@@ -6,7 +6,6 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -278,11 +277,12 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            if (!(await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY)))
+                            if (!(await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL)))
                             {
                                 isSuccessful = false;
                                 _logger.LogError($"Incompatible header to sell price template", this);
-                            } else
+                            }
+                            else
                             {
                                 var supplierRepository = Resolve<ISupplierRepository>();
                                 var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()));
@@ -317,28 +317,37 @@ namespace HCQS.BackEnd.Service.Implementations
                                         if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
                                         else
                                         {
-                                            var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && m.UnitMaterial.Equals(record.Unit));
-                                            if (material == null)
+                                            bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
+                                            if (containsUnit)
                                             {
-                                                error.Append($"- Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
-                                                errorRecordCount++;
+                                                var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
+                                                if (material == null)
+                                                {
+                                                    error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
+                                                    errorRecordCount++;
+                                                }
+                                                else
+                                                {
+                                                    materialId = material.Id;
+                                                    materials.Add(record.MaterialName, materialId);
+                                                }
                                             }
                                             else
                                             {
-                                                materialId = material.Id;
-                                                materials.Add(record.MaterialName, materialId);
+                                                error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
+                                                errorRecordCount++;
                                             }
                                         }
 
                                         if (record.MOQ <= 0)
                                         {
-                                            error.Append($"- MOQ(Minimum Order Quantity) must be higher than 0.\n");
+                                            error.Append($"{errorRecordCount + 1}. MOQ(Minimum Order Quantity) must be higher than 0.\n");
                                             errorRecordCount++;
                                         }
 
                                         if (record.Price <= 0)
                                         {
-                                            error.Append($"- Price must be higher than 0.\n");
+                                            error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
                                             errorRecordCount++;
                                         }
 
@@ -491,6 +500,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return false;
         }
+
         private async Task<List<SupplierPriceDetail>> GetSupplierPriceDetailFromRecords(Guid supplierPriceQuotationId, List<SupplierMaterialQuotationRecord> records, Dictionary<String, Guid> materials, IMaterialRepository materialRepository)
         {
             if (records == null || records.Count < 1) return null;
@@ -526,7 +536,6 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return supplierPriceDetails;
         }
-
 
         public async Task<IActionResult> GetPriceQuotationTemplate()
         {

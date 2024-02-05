@@ -256,9 +256,9 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         worksheet.Cells[i + 2, j + 1].Value = rowData[j];
                     }
-                    if(rowsToColor.ContainsKey(i + 2))
+                    if (rowsToColor.ContainsKey(i + 2))
                     {
-                        worksheet.Cells[i + 2, j + 1].Value = rowsToColor[i+2];
+                        worksheet.Cells[i + 2, j + 1].Value = rowsToColor[i + 2];
                     }
                 }
 
@@ -270,14 +270,16 @@ namespace HCQS.BackEnd.Service.Implementations
                         worksheet.Rows[i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
                     }
                 }
+                if(filename.Contains("(ErrorColor)"))
+                    return new FileContentResult(excelPackage.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    {
+                        FileDownloadName = filename
+                    };
                 return new FileContentResult(excelPackage.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
                     FileDownloadName = $"(ErrorColor){filename}.xlsx"
                 };
-
             }
         }
-
-        
     }
 }

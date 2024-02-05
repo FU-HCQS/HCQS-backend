@@ -5,7 +5,6 @@ using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +38,7 @@ namespace HCQS.BackEnd.Service.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<AppActionResult> FulfillSingleMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests)
+        public async Task<AppActionResult> FulfillMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -258,37 +257,58 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         if (ImportExportInventoryRequest.SupplierPriceDetailId.HasValue)
                         {
-                            var supplierPriceDetailDb = await supplierPriceDetailRepository.GetById(ImportExportInventoryRequest.SupplierPriceDetailId);
-                            if (supplierPriceDetailDb == null)
+                            //Check valid supplier price detail
+
+                            var supplierPriceDetailDb = await supplierPriceDetailRepository.GetByExpression(s => s.Id == ImportExportInventoryRequest.SupplierPriceDetailId, s => s.SupplierPriceQuotation);
+                            if (supplierPriceDetailDb == null || supplierPriceDetailDb.SupplierPriceQuotation == null)
                             {
                                 result = BuildAppActionResultError(result, $"The supplier price detail with id: {ImportExportInventoryRequest.SupplierPriceDetailId} does not exist!");
                             }
                             else
                             {
-                                if (ImportExportInventoryRequest.Quantity >= supplierPriceDetailDb.MOQ)
+                                var allMaterialSupplierPriceDetailFromSameSupplierDb = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == supplierPriceDetailDb.MaterialId && s.SupplierPriceQuotation.SupplierId == s.SupplierPriceQuotation.SupplierId, s => s.SupplierPriceQuotation);
+                                var latestSupplierPriceDetail = allMaterialSupplierPriceDetailFromSameSupplierDb.OrderByDescending(s => s.SupplierPriceQuotation.Date).FirstOrDefault();
+                                if (latestSupplierPriceDetail != null && latestSupplierPriceDetail.SupplierPriceQuotation != null && latestSupplierPriceDetail.SupplierPriceQuotation.Date == supplierPriceDetailDb.SupplierPriceQuotation.Date)
                                 {
-                                    var importInventory = _mapper.Map<ImportExportInventoryHistory>(ImportExportInventoryRequest);
-                                    importInventory.Id = Guid.NewGuid();
-                                    result.Result.Data = await _importExportInventoryHistoryRepository.Insert(importInventory);
-                                    if (result.Result.Data != null)
+                                    if (ImportExportInventoryRequest.Quantity >= supplierPriceDetailDb.MOQ)
                                     {
-                                        var materialRepository = Resolve<IMaterialRepository>();
-                                        var materialDb = await materialRepository.GetByExpression(m => m.Id == supplierPriceDetailDb.MaterialId);
-                                        if (materialDb != null)
+                                        //Maybe there better price :>>
+                                        var betterPriceSupplierQuotation = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == latestSupplierPriceDetail.MaterialId && s.SupplierPriceQuotationId == latestSupplierPriceDetail.SupplierPriceQuotationId && s.MOQ < ImportExportInventoryRequest.Quantity);
+                                        var bestPrice = betterPriceSupplierQuotation.OrderBy(s => s.Price).FirstOrDefault();
+                                        if (bestPrice.Id != ImportExportInventoryRequest.SupplierPriceDetailId)
                                         {
-                                            materialDb.Quantity += ImportExportInventoryRequest.Quantity;
-                                            await materialRepository.Update(materialDb);
-                                            await _unitOfWork.SaveChangeAsync();
+                                            result = BuildAppActionResultError(result, $"Please choose supplier price detail: {bestPrice.Id} rather than {ImportExportInventoryRequest.SupplierPriceDetailId} for better price as import quantity is higher than its MOQ!");
                                         }
                                         else
                                         {
-                                            result = BuildAppActionResultError(result, $"The material queried from supplier price detail with id: {materialDb.Id} does not exist!");
+                                            var importInventory = _mapper.Map<ImportExportInventoryHistory>(ImportExportInventoryRequest);
+                                            importInventory.Id = Guid.NewGuid();
+                                            result.Result.Data = await _importExportInventoryHistoryRepository.Insert(importInventory);
+                                            if (result.Result.Data != null)
+                                            {
+                                                var materialRepository = Resolve<IMaterialRepository>();
+                                                var materialDb = await materialRepository.GetByExpression(m => m.Id == supplierPriceDetailDb.MaterialId);
+                                                if (materialDb != null)
+                                                {
+                                                    materialDb.Quantity += ImportExportInventoryRequest.Quantity;
+                                                    await materialRepository.Update(materialDb);
+                                                    await _unitOfWork.SaveChangeAsync();
+                                                }
+                                                else
+                                                {
+                                                    result = BuildAppActionResultError(result, $"The material queried from supplier price detail with id: {materialDb.Id} does not exist!");
+                                                }
+                                            }
                                         }
+                                    }
+                                    else
+                                    {
+                                        result = BuildAppActionResultError(result, $"Import quantity: {ImportExportInventoryRequest.Quantity} is less than MOQ:{supplierPriceDetailDb.MOQ}");
                                     }
                                 }
                                 else
                                 {
-                                    result = BuildAppActionResultError(result, $"Import quantity: {ImportExportInventoryRequest.Quantity} is less than MOQ:{supplierPriceDetailDb.MOQ}");
+                                    result = BuildAppActionResultError(result, $"Supplier price quotation detail with id: {ImportExportInventoryRequest.SupplierPriceDetailId} is out of date");
                                 }
                             }
                         }
@@ -338,11 +358,12 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            if(!(await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY)))
+                            if (!(await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY)))
                             {
                                 isSuccessful = false;
                                 _logger.LogError($"Incompatible header to sell price template", this);
-                            } else
+                            }
+                            else
                             {
                                 Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
                                 Dictionary<String, Guid> suppliers = new Dictionary<String, Guid>();
@@ -367,7 +388,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
                                         if (material == null)
                                         {
-                                            error.Append($"- Material with name {record.MaterialName} does not exist.\n");
+                                            error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
                                             errorRecordCount++;
                                         }
                                         else
@@ -383,7 +404,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         var supplier = await supplierRepository.GetByExpression(m => m.SupplierName.Equals(record.SupplierName));
                                         if (supplier == null)
                                         {
-                                            error.Append($"- Supplier with name {record.SupplierName} does not exist.\n");
+                                            error.Append($"{errorRecordCount + 1}. Supplier with name {record.SupplierName} does not exist.\n");
                                             errorRecordCount++;
                                         }
                                         else
@@ -395,14 +416,14 @@ namespace HCQS.BackEnd.Service.Implementations
 
                                     if (record.Quantity <= 0)
                                     {
-                                        error.Append($"- Quantity must be higher than 0.\n");
+                                        error.Append($"{errorRecordCount + 1}. Quantity must be higher than 0.\n");
                                         errorRecordCount++;
                                     }
 
                                     var supplierPriceDetailId = await GetSupplierQuationDetail(materialId, supplierId, record.Quantity);
                                     if (supplierPriceDetailId == Guid.Empty)
                                     {
-                                        error.Append($"- Unable to find compatible supplier price quotation detail.\n");
+                                        error.Append($"{errorRecordCount + 1}. Unable to find compatible supplier price quotation detail.\n");
                                         errorRecordCount++;
                                     }
                                     if (errorRecordCount == 0)
@@ -437,7 +458,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                     }
                                     result = _fileService.ReturnErrorColored<ImportInventoryRecord>(SD.ExcelHeaders.IMPORT_INVENTORY, recordDataString, invalidRowInput, dateString);
                                     isSuccessful = false;
-
                                 }
 
                                 if (isSuccessful)
@@ -520,7 +540,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
-
 
         private async Task<List<ImportInventoryRecord>> GetImportListFromExcel(IFormFile file)
         {
@@ -615,7 +634,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var supplierPriceDetailWithLatestDate = supplierPriceDetails.OrderByDescending(s => s.SupplierPriceQuotation.Date).FirstOrDefault();
                     var res = supplierPriceDetails.Where(s => s.MOQ <= quantity && s.SupplierPriceQuotation.Date == supplierPriceDetailWithLatestDate.SupplierPriceQuotation.Date).OrderByDescending(s => s.MOQ).FirstOrDefault();
-                    if(res != null)
+                    if (res != null)
                         return res.Id;
                 }
                 return Guid.Empty;
