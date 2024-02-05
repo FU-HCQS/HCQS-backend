@@ -57,7 +57,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _service.UploadExportPriceMaterialWithExcelFile(file);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpDelete("delete-export-price-material-by-id/{id}")]
         public async Task<AppActionResult> DeleteExportPriceMaterialById(Guid id)
         {
