@@ -22,6 +22,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         public enum Status
         {
+            NEW,
             IN_ACTIVE,
             ACTIVE
         }

@@ -31,10 +31,15 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 var utility = Resolve<Utility>();
                 var paymentRepository = Resolve<IPaymentRepository>();
+                var contractRepository = Resolve<IContractRepository>();
                 try
                 {
                     List<ContractProgressPayment> listCPP = new List<ContractProgressPayment>();
                     List<Payment> listPM = new List<Payment>();
+                    var contractDb = await contractRepository.GetById(list?.First()?.ContractId);
+                    if(contractDb == null) {
+                        result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is existed");
+                    }
                     foreach (var item in list)
                     {
                         var contractProgressPaymentDb = await _repository.GetByExpression(a => a.Name == item.Name && a.ContractId == item.ContractId);
@@ -66,12 +71,14 @@ namespace HCQS.BackEnd.Service.Implementations
                                 ContractProgressPayment = cpm
                             });
                         }
+                        contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
                     }
 
                     if (!BuildAppActionResultIsError(result))
                     {
                         await _repository.InsertRange(listCPP);
                         await paymentRepository.InsertRange(listPM);
+                        await contractRepository.Update(contractDb);
                         await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
                     }
