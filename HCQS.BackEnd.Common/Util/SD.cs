@@ -81,7 +81,7 @@ namespace HCQS.BackEnd.Common.Util
 
         public class EnumType
         {
-            public static Dictionary<string, int> MaterialUnit = new Dictionary<string, int> { { "KG", 0 }, { "M3", 1 }, { "BAR", 2 } };
+            public static Dictionary<string, int> MaterialUnit = new Dictionary<string, int> { { "KG", 0 }, { "M3", 1 }, { "BAR", 2 }, { "Kg", 0 }, { "m3", 1 }, { "Bar", 2 }, { "kg", 0 }, { "bar", 2} };
         }
     }
 }
