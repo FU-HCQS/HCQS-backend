@@ -7,5 +7,6 @@ namespace HCQS.BackEnd.Common.Dto.Response
         public Project Project { get; set; }
         public List<Quotation> Quotations { get; set; }
         public List<QuotationDealing> QuotationDealings { get; set; }
+        public Contract Contract { get; set; }
     }
 }

@@ -107,7 +107,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             Id = Guid.NewGuid(),
                             ProjectId = (Guid)project.Id,
                             QuotationStatus = Quotation.Status.Pending,
-                            FurnitureDiscount =project.FurnitureDiscount,
+                            FurnitureDiscount = project.FurnitureDiscount,
                             LaborDiscount = project.LaborDiscount,
                             RawMaterialDiscount = project.LaborDiscount
                         };
@@ -298,12 +298,14 @@ namespace HCQS.BackEnd.Service.Implementations
             var quotationDealingRepository = Resolve<IQuotationDealingRepository>();
             var quotationRepository = Resolve<IQuotationRepository>();
             var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
+            var contractRepository = Resolve<IContractRepository>();
             Project project = await _projectRepository.GetByExpression(filter: a => a.Id == id, a => a.Account, a => a.Contract);
             var result = new ProjectResponse
             {
                 Project = project,
                 QuotationDealings = project != null ? await quotationDealingRepository.GetAllDataByExpression(filter: a => a.Quotation.ProjectId == id) : null,
-                Quotations = isCustomer == true ? await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending) : await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id)
+                Quotations = isCustomer == true ? await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending) : await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id),
+                Contract = isCustomer == true ? await contractRepository.GetByExpression(c => c.ProjectId == id && c.ContractStatus != Contract.Status.NEW) : await contractRepository.GetByExpression(c => c.ProjectId == id)
             };
 
             return result;

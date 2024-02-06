@@ -179,7 +179,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 StartDate = utility.GetCurrentDateTimeInTimeZone(),
                                 LaborPrice = quotationDb.LaborPrice,
                                 FurniturePrice = quotationDb.FurniturePrice,
-                                ContractStatus = Contract.Status.IN_ACTIVE
+                                ContractStatus = Contract.Status.NEW
                             };
 
                             var paymentId = Guid.NewGuid();
@@ -244,6 +244,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var quotationDealingRepository = Resolve<IQuotationDealingRepository>();
                 var quotationDetailsRepository = Resolve<IQuotationDetailRepository>();
                 var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
+                var contractRepository = Resolve<IContractRepository>();    
                 result.Result.Data = new QuotationResponse
                 {
                     Quotation = await _quotationRepository.GetById(id),
