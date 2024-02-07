@@ -74,7 +74,7 @@ namespace HCQS.BackEnd.Common.Util
 
         public class ExcelHeaders
         {
-            public static List<string> SUPPLIER_QUOTATION_DETAIL = new List<string> { "No", "MaterialName", "Unit", "MQO", "Price" };
+            public static List<string> SUPPLIER_QUOTATION_DETAIL = new List<string> { "No", "MaterialName", "Unit", "MOQ", "Price" };
             public static List<string> EXPORT_PRICE_DETAIL = new List<string> { "No", "MaterialName", "Price" };
             public static List<string> IMPORT_INVENTORY = new List<string> { "No", "MaterialName", "SupplierName", "Quantity" };
         }

@@ -267,6 +267,7 @@ namespace HCQS.BackEnd.Service.Implementations
         public async Task<IActionResult> UploadExportPriceMaterialWithExcelFile(IFormFile file)
         {
             IActionResult result = new ObjectResult(null) { StatusCode = 200 };
+            string message = "";
             if (file == null || file.Length == 0)
             {
                 return result;
@@ -280,13 +281,22 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         //Format: ddmmyyy
                         string dateString = file.FileName;
+                        if (dateString.Contains('_'))
+                        {
+                            return new ObjectResult("Invalid file name. Please follow format: ddMMyyyy") { StatusCode = 200 };
+                        }
                         if (file.FileName.Contains("(ErrorColor)"))
                             dateString = dateString.Substring("(ErrorColor)".Length);
+                        if(dateString.Length < 8)
+                        {
+                            return new ObjectResult("Invalid date. Please follow date format: ddMMyyyy") { StatusCode = 200 };
+                        }
                         dateString = dateString.Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
                             isSuccessful = false;
                             _logger.LogError($"{dateString} is not in format: ddMMyyyy", this);
+                            message = $"{dateString} is not in format: ddMMyyyy";
                         }
                         else
                         {
@@ -294,6 +304,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 isSuccessful = false;
                                 _logger.LogError($"Incompatible header to sell price template", this);
+                                message = $"Incompatible header to sell price template";
                             }
                             else
                             {
@@ -385,6 +396,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                 }
             }
+            if (!string.IsNullOrEmpty(message)) return new ObjectResult(message) { StatusCode = 200 };
             return result;
         }
 
