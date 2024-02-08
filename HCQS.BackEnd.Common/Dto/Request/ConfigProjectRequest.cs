@@ -7,8 +7,8 @@
         public int SandMixingRatio { get; set; }
         public int CementMixingRatio { get; set; }
         public int StoneMixingRatio { get; set; }
+        public double RawMaterialDiscount { get; set; }
         public double FurnitureDiscount { get; set; }
-        public double LaborPrice { get; set; }
         public double LaborDiscount { get; set; }
         public double TiledArea { get; set; }
         public double WallLength { get; set; }

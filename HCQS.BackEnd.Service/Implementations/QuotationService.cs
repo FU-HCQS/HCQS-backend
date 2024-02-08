@@ -6,6 +6,7 @@ using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using HCQS.BackEnd.Service.UtilityService;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -244,7 +245,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var quotationDealingRepository = Resolve<IQuotationDealingRepository>();
                 var quotationDetailsRepository = Resolve<IQuotationDetailRepository>();
                 var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
-                var contractRepository = Resolve<IContractRepository>();    
+                var contractRepository = Resolve<IContractRepository>();
                 result.Result.Data = new QuotationResponse
                 {
                     Quotation = await _quotationRepository.GetById(id),
@@ -267,6 +268,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 AppActionResult result = new AppActionResult();
                 var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
+                var utility = Resolve<Utility>();
                 try
                 {
                     var quotationDb = await _quotationRepository.GetByExpression(q => q.Id == quotationId, q => q.Project);
@@ -306,6 +308,10 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (quotationDb.QuotationStatus == Quotation.Status.Pending)
                         {
                             quotationDb.QuotationStatus = Quotation.Status.WaitingForCustomerResponse;
+                            var price = await GetTotalPriceByQuotationId(quotationId);
+                            quotationDb.RawMaterialPrice = utility.CaculateDiscount(price.RawPrice, quotationDb.RawMaterialDiscount) ;
+                            quotationDb.FurniturePrice = utility.CaculateDiscount(price.FurniturePrice, quotationDb.FurnitureDiscount);
+                            quotationDb.LaborPrice = utility.CaculateDiscount(price.LaborPrice, quotationDb.LaborDiscount);
                             await _quotationRepository.Update(quotationDb);
                             await _unitOfWork.SaveChangeAsync();
                         }
@@ -327,5 +333,44 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
+        private async Task<QuotationPriceDto> GetTotalPriceByQuotationId(Guid id)
+        {
+            QuotationPriceDto dto = new QuotationPriceDto();
+            var quotationDb = await _quotationRepository.GetById(id);
+            var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
+            var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
+            if (quotationDb != null)
+            {
+                var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.Material);
+                var workerForProjects = await workerForProjectRepository.GetAllDataByExpression(q => q.QuotationId == id);
+                double rawMaterialPrice = 0;
+                double furniturePrice = 0;
+                double laborPrice = 0;
+                foreach (var quotationDetail in quotationDetails)
+                {
+                    if (quotationDetail.Material.MaterialType == Material.Type.RawMaterials)
+                    {
+                        rawMaterialPrice = rawMaterialPrice + quotationDetail.Total;
+                    }
+                    else if (quotationDetail.Material.MaterialType == Material.Type.Furniture)
+                    {
+                        furniturePrice = furniturePrice + quotationDetail.Total;
+
+                    }
+                }
+
+                foreach (var workerForProject in workerForProjects)
+                {
+                    laborPrice = laborPrice + workerForProject.ExportLaborCost;
+                }
+
+                dto.FurniturePrice = furniturePrice;
+                dto.RawPrice = rawMaterialPrice;
+                dto.LaborPrice = laborPrice;
+            }
+            return dto;
+        }
+
     }
 }
