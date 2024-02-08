@@ -250,7 +250,8 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
         {
-            IActionResult result = null;
+            IActionResult result = new ObjectResult(null) { StatusCode = 200};
+            string message = "";
             if (file == null || file.Length == 0)
             {
                 return result;
@@ -268,12 +269,19 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (file.FileName.Contains("(ErrorColor)"))
                             nameDateString = nameDateString.Substring("(ErrorColor)".Length);
                         string[] supplierInfo = nameDateString.Split('_');
+                        if(supplierInfo.Length != 2)
+                        {
+                            return new ObjectResult("Invalid file name. Please follow format: SupplierName_ddMMyyyy") { StatusCode = 200 };
+                        }
                         string supplierName = supplierInfo[0];
+                        if (supplierInfo[1].Length < 8)
+                            return new ObjectResult("Invalid date. Please follow date format: ddMMyyyy") { StatusCode = 200 };
                         string dateString = supplierInfo[1].Substring(0, 8);
                         if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
                             isSuccessful = false;
                             _logger.LogError($"{dateString} is not in format: ddMMyyyy", this);
+                            message = $"{dateString} is not in format: ddMMyyyy";
                         }
                         else
                         {
@@ -281,6 +289,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 isSuccessful = false;
                                 _logger.LogError($"Incompatible header to sell price template", this);
+                                message = $"Incompatible header to sell price template";
                             }
                             else
                             {
@@ -289,6 +298,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (supplier == null)
                                 {
                                     _logger.LogError($"Supplier with name: {supplierName} does not exist!", this);
+                                    message = $"Supplier with name: {supplierName} does not exist!";
                                     isSuccessful = false;
                                 }
                                 if (isSuccessful)
@@ -415,6 +425,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                 }
             }
+            if(!string.IsNullOrEmpty(message)) return new ObjectResult(message) { StatusCode= 200 };    
             return result;
         }
 
