@@ -109,7 +109,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             QuotationStatus = Quotation.Status.Pending,
                             FurnitureDiscount = project.FurnitureDiscount,
                             LaborDiscount = project.LaborDiscount,
-                            RawMaterialDiscount = project.LaborDiscount
+                            RawMaterialDiscount = project.RawMaterialDiscount
                         };
                         double totalLaborPrice = 0;
                         List<WorkerForProject> workers = new List<WorkerForProject>();
@@ -219,11 +219,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
                             projectDb.StoneMixingRatio = (int)buildingInputModel.StoneRatio;
                             quotation.QuotationStatus = Quotation.Status.Pending;
-                            quotation.RawMaterialPrice = (total * (100 - quotation.RawMaterialDiscount)) / 100;
                             quotation.RawMaterialDiscount = quotation.RawMaterialDiscount;
-                            quotation.LaborPrice = (double)(((totalLaborPrice * (100 - quotation.LaborDiscount)) / 100) * project.EstimatedTimeOfCompletion);
                             quotation.LaborDiscount = quotation.LaborDiscount;
-                            quotation.Total = quotation.LaborPrice + quotation.RawMaterialPrice + quotation.FurniturePrice;
+                            quotation.FurnitureDiscount = quotation.FurnitureDiscount;
+
                             await quotationDetailRepository.InsertRange(quotationDetailList);
                             await workerForProjectRepository.InsertRange(workers);
                             await _unitOfWork.SaveChangeAsync();
