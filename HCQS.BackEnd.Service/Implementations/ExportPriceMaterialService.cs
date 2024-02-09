@@ -229,7 +229,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    if (ExportPriceMaterialRequest.Price <= 0)
+                    if (ExportPriceMaterialRequest.Price <= 0) 
                     {
                         result = BuildAppActionResultError(result, $"Inputted price must be greater than 0");
                     }
@@ -242,9 +242,9 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
+                            var utility = Resolve<Utility>();
                             exportPriceMaterialDb.Price = ExportPriceMaterialRequest.Price;
-                            if (ExportPriceMaterialRequest.Date != null)
-                                exportPriceMaterialDb.Date = (DateTime)ExportPriceMaterialRequest.Date;
+                            exportPriceMaterialDb.Date = utility.GetCurrentDateTimeInTimeZone();
                             result.Result.Data = await _exportPriceMaterialRepository.Update(exportPriceMaterialDb);
                             await _unitOfWork.SaveChangeAsync();
                         }
@@ -287,7 +287,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         if (file.FileName.Contains("(ErrorColor)"))
                             dateString = dateString.Substring("(ErrorColor)".Length);
-                        if(dateString.Length < 8)
+                        if (dateString.Length < 8)
                         {
                             return new ObjectResult("Invalid date. Please follow date format: ddMMyyyy") { StatusCode = 200 };
                         }

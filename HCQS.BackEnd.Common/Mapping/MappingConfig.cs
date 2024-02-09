@@ -61,7 +61,6 @@ namespace HCQS.BackEnd.Common.Mapping
 
                 config.CreateMap<ExportPriceMaterialRequest, ExportPriceMaterial>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
-              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
               .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
               .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId));
 
