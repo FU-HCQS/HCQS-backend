@@ -3,6 +3,7 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.Service.Contracts;
+using Microsoft.IdentityModel.Tokens;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -31,8 +32,12 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var accountRepository = Resolve<IAccountRepository>();
                     var projectRepository = Resolve<IProjectRepository>();
+                    var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                    var utility = Resolve<Common.Util.Utility>();
+
                     var contractDb = await _contractRepository.GetById(contractId);
                     var accountDb = await accountRepository.GetById(accountId);
+                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId);
                     if (contractDb == null || accountDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The account with id{accountId} or contract with id {contractId} is not existed");
@@ -41,10 +46,17 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The verification code is wrong");
                     }
+                    if (!listCPP.Any())
+                    {
+                        result = BuildAppActionResultError(result, $"The list contract progress payment is empty");
+
+                    }
                     if (!BuildAppActionResultIsError(result))
                     {
                         accountDb.ContractVerifyCode = null;
                         contractDb.ContractStatus = DAL.Models.Contract.Status.ACTIVE;
+                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, listCPP, true);
+
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
                         await _contractRepository.Update(contractDb);

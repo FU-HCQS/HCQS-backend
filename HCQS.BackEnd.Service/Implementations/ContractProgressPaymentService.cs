@@ -5,6 +5,7 @@ using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -32,15 +33,22 @@ namespace HCQS.BackEnd.Service.Implementations
                 var utility = Resolve<Utility>();
                 var paymentRepository = Resolve<IPaymentRepository>();
                 var contractRepository = Resolve<IContractRepository>();
+                var accountRepository = Resolve<IAccountRepository>();
+                var fileService = Resolve<IFileService>();
+                var emailService = Resolve<IEmailService>();
+                string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+
                 try
                 {
                     List<ContractProgressPayment> listCPP = new List<ContractProgressPayment>();
                     List<Payment> listPM = new List<Payment>();
-                    var contractDb = await contractRepository.GetById(list?.First()?.ContractId);
+                    var contractId = list?.First()?.ContractId;
+                    var contractDb = await contractRepository.GetByExpression(a => a.Id == contractId, a => a.Project.Account);
                     if (contractDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is existed");
                     }
+                    double total = 0;
                     foreach (var item in list)
                     {
                         var contractProgressPaymentDb = await _repository.GetByExpression(a => a.Name == item.Name && a.ContractId == item.ContractId);
@@ -48,7 +56,16 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"The contract progress payment with name {item.Name} and contractId {item.ContractId} is existed");
                         }
+                        total = (double)(total + item.Price);
                     }
+                    if (contractDb.Total != total)
+                    {
+
+                        result = BuildAppActionResultError(result, $"The total price for all progress contract payment don't match total in contract");
+
+                    }
+                    var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
+
                     if (!BuildAppActionResultIsError(result))
                     {
                         foreach (var item in list)
@@ -72,15 +89,22 @@ namespace HCQS.BackEnd.Service.Implementations
                                 ContractProgressPayment = cpm
                             });
                         }
-                        contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
                     }
 
                     if (!BuildAppActionResultIsError(result))
                     {
-                        await _repository.InsertRange(listCPP);
+                        var a = await _repository.InsertRange(listCPP);
                         await paymentRepository.InsertRange(listPM);
                         await contractRepository.Update(contractDb);
                         await _unitOfWork.SaveChangeAsync();
+                        var content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, a.ToList(), false);
+                        contractDb.Content = content;
+                        contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
+                        var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
+                        contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
+                        await _unitOfWork.SaveChangeAsync();
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
+
                         scope.Complete();
                     }
                 }

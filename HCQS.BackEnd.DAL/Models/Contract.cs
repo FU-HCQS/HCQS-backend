@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HCQS.BackEnd.DAL.Models
 {
@@ -12,6 +13,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double TotalCostsIncurred { get; set; }
         public double Deposit { get; set; }
         public string? Content { get; set; }
+        public string? ContractUrl { get; set; }
         public DateTime DateOfContract { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -29,6 +31,7 @@ namespace HCQS.BackEnd.DAL.Models
 
         public Guid? ProjectId { get; set; }
 
+        [JsonIgnore]
         [ForeignKey(nameof(ProjectId))]
         public Project? Project { get; set; }
     }

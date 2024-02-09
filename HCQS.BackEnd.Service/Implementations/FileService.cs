@@ -1,4 +1,5 @@
-﻿using DinkToPdf.Contracts;
+﻿using DinkToPdf;
+using DinkToPdf.Contracts;
 using Firebase.Auth;
 using Firebase.Storage;
 using HCQS.BackEnd.Common.ConfigurationModel;
@@ -79,7 +80,36 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return null;
         }
+        private IFormFile CreateFormFileFromBytes(byte[] content, string fileName)
+        {
+            var ms = new MemoryStream(content);
+            return new FormFile(ms, 0, content.Length, fileName, fileName);
+        }
+        public IFormFile ConvertHtmlToPdf(string content,string fileName)
+        {
+            var doc = new HtmlToPdfDocument()
+            {
+                GlobalSettings =
+            {
+                PaperSize = PaperKind.A4,
+                Orientation = Orientation.Portrait,
+            },
+                Objects =
+            {
+                new ObjectSettings()
+                {
+                    PagesCount = true,
+                    HtmlContent = content,
+                    WebSettings = { DefaultEncoding = "utf-8" },
+                }
+            }
+            };
 
+            byte[] pdfBytes = _pdfConverter.Convert(doc);
+
+
+            return CreateFormFileFromBytes(pdfBytes, fileName);
+        }
         public IActionResult GenerateExcelContent<T>(IEnumerable<T> dataList, string sheetName)
         {
             using (ExcelPackage package = new ExcelPackage())
