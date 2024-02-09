@@ -46,11 +46,12 @@ namespace HCQS.BackEnd.Service.Implementations
                             if (latestMaterialPrice != null)
                             {
                                 var discount = await GetDiscountByQuotationDetailId(quotationDetailDb.Id);
+                                var utility = Resolve<Utility>();
                                 var newProgressConstructionMaterial = new ProgressConstructionMaterial
                                 {
                                     Id = Guid.NewGuid(),
                                     Discount = discount,
-                                    Date = ProgressConstructionMaterialRequest.Date,
+                                    Date = utility.GetCurrentDateTimeInTimeZone(),
                                     Quantity = ProgressConstructionMaterialRequest.Quantity,
                                     Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount * 1.00) * latestMaterialPrice.Price,
 
@@ -312,7 +313,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     else
                     {
                         progressConstructionDb.Quantity = ProgressConstructionMaterialRequest.Quantity;
-                        progressConstructionDb.Date = ProgressConstructionMaterialRequest.Date;
+                        var utility = Resolve<Utility>();
+                        progressConstructionDb.Date = utility.GetCurrentDateTimeInTimeZone();
 
                         result.Result.Data = await _progressConstructionMaterialRepository.Update(progressConstructionDb);
                         await _unitOfWork.SaveChangeAsync();
@@ -321,7 +323,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             var importExportInventoryRepository = Resolve<IImportExportInventoryHistoryRepository>();
                             var exportInventoryDb = await importExportInventoryRepository.GetById(progressConstructionDb.InventoryHistory.Id);
                             exportInventoryDb.Quantity = ProgressConstructionMaterialRequest.Quantity;
-                            exportInventoryDb.Date = ProgressConstructionMaterialRequest.Date;
+                            exportInventoryDb.Date = utility.GetCurrentDateTimeInTimeZone();
                             await importExportInventoryRepository.Update(exportInventoryDb);
                         }
                         else

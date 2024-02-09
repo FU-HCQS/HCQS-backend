@@ -510,7 +510,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     else
                     {
                         inventoryDb.Quantity = ImportExportInventoryRequest.Quantity;
-                        inventoryDb.Date = ImportExportInventoryRequest.Date;
+                        var utility = Resolve<Utility>();
+                        inventoryDb.Date = utility.GetCurrentDateTimeInTimeZone();
                         result.Result.Data = await _importExportInventoryHistoryRepository.Update(inventoryDb);
                         await _unitOfWork.SaveChangeAsync();
                     }

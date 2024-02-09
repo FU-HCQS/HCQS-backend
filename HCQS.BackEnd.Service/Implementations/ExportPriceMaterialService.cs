@@ -229,7 +229,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    if (ExportPriceMaterialRequest.Price <= 0) 
+                    if (ExportPriceMaterialRequest.Price <= 0)
                     {
                         result = BuildAppActionResultError(result, $"Inputted price must be greater than 0");
                     }

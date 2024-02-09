@@ -37,7 +37,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<ContractProgressPayment> listCPP = new List<ContractProgressPayment>();
                     List<Payment> listPM = new List<Payment>();
                     var contractDb = await contractRepository.GetById(list?.First()?.ContractId);
-                    if(contractDb == null) {
+                    if (contractDb == null)
+                    {
                         result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is existed");
                     }
                     foreach (var item in list)

@@ -293,7 +293,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                     }
 
-
                     if (quotationDetails == null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation details is empty");
@@ -309,7 +308,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             quotationDb.QuotationStatus = Quotation.Status.WaitingForCustomerResponse;
                             var price = await GetTotalPriceByQuotationId(quotationId);
-                            quotationDb.RawMaterialPrice = utility.CaculateDiscount(price.RawPrice, quotationDb.RawMaterialDiscount) ;
+                            quotationDb.RawMaterialPrice = utility.CaculateDiscount(price.RawPrice, quotationDb.RawMaterialDiscount);
                             quotationDb.FurniturePrice = utility.CaculateDiscount(price.FurniturePrice, quotationDb.FurnitureDiscount);
                             quotationDb.LaborPrice = utility.CaculateDiscount(price.LaborPrice, quotationDb.LaborDiscount);
                             await _quotationRepository.Update(quotationDb);
@@ -356,7 +355,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     else if (quotationDetail.Material.MaterialType == Material.Type.Furniture)
                     {
                         furniturePrice = furniturePrice + quotationDetail.Total;
-
                     }
                 }
 
@@ -371,6 +369,5 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return dto;
         }
-
     }
 }
