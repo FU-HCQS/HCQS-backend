@@ -7,9 +7,7 @@ namespace HCQS.BackEnd.Service.Contracts
     {
         Task<AppActionResult> CreateContractProgressPayment(List<ContractProgressPaymentDto> list);
 
-        Task<AppActionResult> UpdateContractProgressPayment(ContractProgressPaymentDto dto);
-
-        Task<AppActionResult> DeleteContractProgressPaymentById(Guid id);
+        Task<AppActionResult> DeleteContractProgressPaymentByContractId(Guid id);
 
         Task<AppActionResult> GetContractProgressPaymentByContractId(Guid contractId);
     }
