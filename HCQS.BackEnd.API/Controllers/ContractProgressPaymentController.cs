@@ -48,23 +48,11 @@ namespace HCQS.BackEnd.API.Controllers
             return await _service.CreateContractProgressPayment(list);
         }
 
-        [HttpPut("update-contract-progress-payment")]
+        [HttpDelete("delete-contract-progress-payment-by-contract-id/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        public async Task<AppActionResult> CreateContractProgressPayment(ContractProgressPaymentDto dto)
+        public async Task<AppActionResult> DeleteContractProgressPaymentByContractId(Guid id)
         {
-            var result = await _validator.ValidateAsync(dto);
-            if (!result.IsValid)
-            {
-                return _handleErrorValidator.HandleError(result);
-            }
-            return await _service.UpdateContractProgressPayment(dto);
-        }
-
-        [HttpDelete("delete-contract-progress-payment-by-id/{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        public async Task<AppActionResult> DeleteContractProgressPaymentById(Guid id)
-        {
-            return await _service.DeleteContractProgressPaymentById(id);
+            return await _service.DeleteContractProgressPaymentByContractId(id);
         }
     }
 }
