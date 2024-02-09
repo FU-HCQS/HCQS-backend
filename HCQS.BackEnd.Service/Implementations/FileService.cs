@@ -270,7 +270,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         worksheet.Rows[i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
                     }
                 }
-                if(filename.Contains("(ErrorColor)"))
+                if (filename.Contains("(ErrorColor)"))
                     return new FileContentResult(excelPackage.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                     {
                         FileDownloadName = filename

@@ -56,24 +56,20 @@ namespace HCQS.BackEnd.Common.Mapping
 
                 config.CreateMap<SupplierPriceQuotationRequest, SupplierPriceQuotation>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
-              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
               .ForMember(desc => desc.SupplierId, act => act.MapFrom(src => src.SupplierId));
 
                 config.CreateMap<ExportPriceMaterialRequest, ExportPriceMaterial>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
-              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
               .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
               .ForMember(desc => desc.MaterialId, act => act.MapFrom(src => src.MaterialId));
 
                 config.CreateMap<ProgressConstructionMaterialRequest, ProgressConstructionMaterial>()
               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
               .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity))
-              .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
               .ForMember(desc => desc.QuotationDetailId, act => act.MapFrom(src => src.QuotationDetailId));
 
                 config.CreateMap<ImportExportInventoryRequest, ImportExportInventoryHistory>()
              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
-             .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
              .ForMember(desc => desc.Quantity, act => act.MapFrom(src => src.Quantity))
              .ForMember(desc => desc.SupplierPriceDetailId, act => act.MapFrom(src => src.SupplierPriceDetailId))
              .ForMember(desc => desc.ProgressConstructionMaterialId, act => act.MapFrom(src => src.ProgressConstructionMaterialId));

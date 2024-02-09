@@ -18,10 +18,12 @@ namespace HCQS.BackEnd.Common.Util
 
             return vietnamTime;
         }
-        public  double CaculateDiscount(double originPrice, double discount)
+
+        public double CaculateDiscount(double originPrice, double discount)
         {
             return (1 - discount / 100) * originPrice;
         }
+
         public DateTime GetCurrentDateInTimeZone()
         {
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
@@ -122,7 +124,7 @@ namespace HCQS.BackEnd.Common.Util
 
             return cronExpression;
         }
-       
+
         public class FileChecker
         {
             public enum FileType
@@ -198,9 +200,6 @@ namespace HCQS.BackEnd.Common.Util
                 string[] excelExtensions = { ".xls", ".xlsx" };
                 return Array.Exists(excelExtensions, ext => ext.Equals(fileExtension));
             }
-
-           
-
         }
     }
 }

@@ -41,7 +41,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     double rawMaterialTotal = 0;
                     double furnitureMaterialTotal = 0;
                     var quotationDetailsDb = await quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId == quotationDb.Id, q => q.Material);
-                    
+
                     if (quotationDetailsDb.Any())
                     {
                         foreach (var quotationDetail in quotationDetailsDb)
@@ -62,7 +62,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         exportMaterialPrice.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
                         quotationDetail.Id = Guid.NewGuid();
                         var material = await materialRepository.GetById(quotationDetail.MaterialId);
-                     
+
                         if (material == null)
                         {
                             result = BuildAppActionResultError(result, $"The material with id {quotationDetail.MaterialId} is not existed");
@@ -75,7 +75,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"The export price with material id {quotationDetail.MaterialId} is not existed");
                         }
-                        
+
                         if (!BuildAppActionResultIsError(result))
                         {
                             quotationDetail.Total = exportMaterialPrice.FirstOrDefault().Price * quotationDetail.Quantity;
