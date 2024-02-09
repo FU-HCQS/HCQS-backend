@@ -2,7 +2,10 @@
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
+using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
@@ -26,6 +29,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPost("create-project-by-user")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
         public async Task<AppActionResult> CreateProjectByUser([FromForm] ProjectDto projectDto)
         {
             var result = await _validator.ValidateAsync(projectDto);
@@ -37,6 +41,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpPut("config-project")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         public async Task<AppActionResult> ConfigProject(ConfigProjectRequest projectDto)
         {
             var result = await _validatorConfig.ValidateAsync(projectDto);
@@ -48,24 +53,30 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpGet("get-all-project")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.MANAGEMENT)]
         public async Task<AppActionResult> GetAllProject()
         {
             return await _projectService.GetAllProject();
         }
 
         [HttpGet("get-all-project-by-accountId/{accountId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
         public async Task<AppActionResult> GetAllProjectByAccountId(string accountId)
         {
             return await _projectService.GetAllProjectByAccountId(accountId);
         }
 
         [HttpGet("get-project-by-id/{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.MANAGEMENT)]
+
         public async Task<AppActionResult> GetProjectById(Guid id)
         {
             return await _projectService.GetProjectById(id);
         }
 
         [HttpGet("get-project-by-id-for-customer/{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
+
         public async Task<AppActionResult> GetProjectByIdForCustomer(Guid id)
         {
             return await _projectService.GetProjectByIdForCustomer(id);

@@ -117,7 +117,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> DeleteContractProgressPaymentById(Guid id)
+        public async Task<AppActionResult> DeleteContractProgressPaymentByContractId(Guid id)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -125,19 +125,18 @@ namespace HCQS.BackEnd.Service.Implementations
                 var paymentRepository = Resolve<IPaymentRepository>();
                 try
                 {
-                    var contractProgressPaymentDb = await _repository.GetById(id);
-                    if (contractProgressPaymentDb == null)
+                    var contractProgressPaymentDb = await _repository.GetAllDataByExpression(a=> a.ContractId == id && a.Name != "Deposit");
+                    if (!contractProgressPaymentDb.Any() )
                     {
-                        result = BuildAppActionResultError(result, $"The contract progress payment with id {id} is not existed!");
+                        result = BuildAppActionResultError(result, $"The contract progress payment with contract id {id} is not existed!");
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        var paymentDb = await paymentRepository.GetById(contractProgressPaymentDb.PaymentId);
-                        if (paymentDb != null)
+                       foreach( var contract in contractProgressPaymentDb)
                         {
-                            await paymentRepository.DeleteById(paymentDb.Id);
+                            await _repository.DeleteById(id);
+
                         }
-                        await _repository.DeleteById(id);
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -169,47 +168,5 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> UpdateContractProgressPayment(ContractProgressPaymentDto dto)
-        {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                AppActionResult result = new AppActionResult();
-                var paymentRepository = Resolve<IPaymentRepository>();
-                try
-                {
-                    var contractProgressPaymentDb = await _repository.GetById(dto.Id);
-                    if (contractProgressPaymentDb == null)
-                    {
-                        result = BuildAppActionResultError(result, $"The contract progress payment with id {dto.Id} is not existed");
-                    }
-                    var paymentDb = await paymentRepository.GetById(contractProgressPaymentDb.PaymentId);
-                    if (paymentDb == null)
-                    {
-                        result = BuildAppActionResultError(result, $"The payment with id {contractProgressPaymentDb.Id} is not existed");
-                    }
-                    if (!BuildAppActionResultIsError(result))
-                    {
-                        contractProgressPaymentDb.Name = dto.Name;
-                        paymentDb.Price = (double)dto.Price;
-                        paymentDb.Content = dto.Content;
-                        paymentDb.ContractProgressPayment = contractProgressPaymentDb;
-                        contractProgressPaymentDb.Payment = paymentDb;
-                    }
-                    if (!BuildAppActionResultIsError(result))
-                    {
-                        await _repository.Update(contractProgressPaymentDb);
-                        await paymentRepository.Update(paymentDb);
-                        await _unitOfWork.SaveChangeAsync();
-                        scope.Complete();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result = BuildAppActionResultError(result, ex.Message);
-                    _logger.LogError(ex.Message, this);
-                }
-                return result;
-            }
-        }
     }
 }
