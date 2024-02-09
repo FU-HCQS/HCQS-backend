@@ -250,7 +250,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file)
         {
-            IActionResult result = new ObjectResult(null) { StatusCode = 200};
+            IActionResult result = new ObjectResult(null) { StatusCode = 200 };
             string message = "";
             if (file == null || file.Length == 0)
             {
@@ -269,7 +269,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (file.FileName.Contains("(ErrorColor)"))
                             nameDateString = nameDateString.Substring("(ErrorColor)".Length);
                         string[] supplierInfo = nameDateString.Split('_');
-                        if(supplierInfo.Length != 2)
+                        if (supplierInfo.Length != 2)
                         {
                             return new ObjectResult("Invalid file name. Please follow format: SupplierName_ddMMyyyy") { StatusCode = 200 };
                         }
@@ -425,7 +425,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                 }
             }
-            if(!string.IsNullOrEmpty(message)) return new ObjectResult(message) { StatusCode= 200 };    
+            if (!string.IsNullOrEmpty(message)) return new ObjectResult(message) { StatusCode = 200 };
             return result;
         }
 
