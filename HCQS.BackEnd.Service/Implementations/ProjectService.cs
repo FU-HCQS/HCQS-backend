@@ -298,7 +298,7 @@ namespace HCQS.BackEnd.Service.Implementations
             var quotationRepository = Resolve<IQuotationRepository>();
             var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
             var contractRepository = Resolve<IContractRepository>();
-            Project project = await _projectRepository.GetByExpression(filter: a => a.Id == id, a => a.Account, a => a.Contract);
+            Project project = await _projectRepository.GetByExpression(filter: a => a.Id == id, a => a.Account);
             var result = new ProjectResponse
             {
                 Project = project,

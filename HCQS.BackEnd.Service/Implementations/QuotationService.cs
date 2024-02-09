@@ -139,10 +139,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     var paymentRepository = Resolve<IPaymentRepository>();
                     var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                     var projectRepository = Resolve<IProjectRepository>();
-
                     var accountRepository = Resolve<IAccountRepository>();
                     var quotationDb = await _quotationRepository.GetById(quotationId);
-                    var emailService = Resolve<IEmailService>();
                     string code = Guid.NewGuid().ToString("N").Substring(0, 6);
                     var project = await projectRepository.GetById(quotationDb.ProjectId);
                     var account = await accountRepository.GetById(project.AccountId);
@@ -176,10 +174,11 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Deposit = (30 * total) / 100,
                                 EndDate = utility.GetCurrentDateInTimeZone().AddYears(5),
                                 MaterialPrice = total,
+                                Total= utility.CaculateDiscount(quotationDb.RawMaterialPrice,quotationDb.RawMaterialDiscount) + utility.CaculateDiscount(quotationDb.LaborPrice, quotationDb.LaborDiscount)+ utility.CaculateDiscount(quotationDb.FurniturePrice, quotationDb.FurnitureDiscount),
                                 Content = string.Empty,
                                 StartDate = utility.GetCurrentDateTimeInTimeZone(),
-                                LaborPrice = quotationDb.LaborPrice,
-                                FurniturePrice = quotationDb.FurniturePrice,
+                                LaborPrice = utility.CaculateDiscount(quotationDb.LaborPrice,quotationDb.LaborDiscount),
+                                FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice,quotationDb.FurnitureDiscount),
                                 ContractStatus = Contract.Status.NEW
                             };
 
@@ -198,7 +197,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Content = "Deposit",
                                 PaymentStatus = Payment.Status.Pending,
                                 ContractProgressPayment = contractProgressPayment,
-                                Price = (30 * total) / 100
+                                Price = (30 * contract.Total) / 100
                             };
 
                             await contractRepository.Insert(contract);
@@ -225,7 +224,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
-                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
                     }
                 }
                 catch (Exception ex)
