@@ -140,13 +140,13 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var sampleList = await _supplierPriceQuotationRepository.GetAllDataByExpression(null, null);
+                var sampleList = await _supplierPriceQuotationRepository.GetAllDataByExpression(null, s => s.Supplier);
                 List<SupplierPriceQuotationResponse> supplierQuotations = new List<SupplierPriceQuotationResponse>();
                 var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
 
                 foreach (var sample in sampleList)
                 {
-                    List<SupplierPriceDetail> supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(S => S.SupplierPriceQuotationId == sample.Id, null);
+                    List<SupplierPriceDetail> supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(S => S.SupplierPriceQuotationId == sample.Id, s => s.Material);
 
                     supplierQuotations.Add(
 
@@ -194,13 +194,13 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var sampleList = await _supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Date.Month == month && s.Date.Year == year, null);
+                var sampleList = await _supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Date.Month == month && s.Date.Year == year, s => s.Supplier);
                 List<SupplierPriceQuotationResponse> supplierQuotations = new List<SupplierPriceQuotationResponse>();
                 var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
 
                 foreach (var sample in sampleList)
                 {
-                    List<SupplierPriceDetail> supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(S => S.SupplierPriceQuotationId == sample.Id, null);
+                    List<SupplierPriceDetail> supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(S => S.SupplierPriceQuotationId == sample.Id, s => s.Material);
 
                     supplierQuotations.Add(
 
@@ -319,12 +319,14 @@ namespace HCQS.BackEnd.Service.Implementations
                                     Dictionary<int, string> invalidRowInput = new Dictionary<int, string>();
                                     int errorRecordCount = 0;
                                     int i = 2;
+                                    string key = "";
                                     foreach (SupplierMaterialQuotationRecord record in records)
                                     {
                                         Guid materialId = Guid.Empty;
                                         errorRecordCount = 0;
                                         StringBuilder error = new StringBuilder();
-                                        if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
+                                        key = record.MaterialName + '-' + record.Unit;
+                                        if (materials.ContainsKey(key)) materialId = materials[key];
                                         else
                                         {
                                             bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
@@ -339,7 +341,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                                 else
                                                 {
                                                     materialId = material.Id;
-                                                    materials.Add(record.MaterialName, materialId);
+                                                    materials.Add(key, materialId);
                                                 }
                                             }
                                             else

@@ -305,6 +305,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         FileDownloadName = filename
                     };
+
+                if (filename.Contains(".xlsx"))
+                    return new FileContentResult(excelPackage.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    {
+                        FileDownloadName = $"(ErrorColor){filename}"
+                    };
                 return new FileContentResult(excelPackage.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
                     FileDownloadName = $"(ErrorColor){filename}.xlsx"
