@@ -30,7 +30,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(null, null);
+                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(null, s => s.Material, s => s.SupplierPriceQuotation.Supplier);
                     if (supplierPriceDetailDb.Any())
                     {
                         if (pageIndex <= 0) pageIndex = 1;
@@ -74,11 +74,11 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 var supplierPriceQuotationRepository = Resolve<ISupplierPriceQuotationRepository>();
                 //find latest supplier quotation
-                var supplierQuotation = await supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Id != Guid.Empty);
+                var supplierQuotation = await supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Id != Guid.Empty, s => s.Supplier);
                 var latestQuotationIds = supplierQuotation.GroupBy(q => q.SupplierId)
                                                             .Select(group => group.OrderByDescending(q => q.Date).First().Id)
                                                             .ToList();
-                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == Id && latestQuotationIds.Contains((Guid)s.SupplierPriceQuotationId));
+                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == Id && latestQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.Material, s => s.SupplierPriceQuotation);
                 if (supplierPriceDetailDb != null)
                 {
                     if (supplierPriceDetailDb.Any())
@@ -127,11 +127,11 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var supplierPriceQuotationRepository = Resolve<ISupplierPriceQuotationRepository>();
                     //find latest supplier quotation
-                    var supplierQuotation = await supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Id != Guid.Empty);
+                    var supplierQuotation = await supplierPriceQuotationRepository.GetAllDataByExpression(s => s.Id != Guid.Empty, s => s.Supplier);
                     var latestQuotationIds = supplierQuotation.GroupBy(q => q.SupplierId)
                                                                 .Select(group => group.OrderByDescending(q => q.Date).First().Id)
                                                                 .ToList();
-                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == materialDb.Id && latestQuotationIds.Contains((Guid)(s.SupplierPriceQuotationId)), s => s.SupplierPriceQuotation.Supplier);
+                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == materialDb.Id && latestQuotationIds.Contains((Guid)(s.SupplierPriceQuotationId)), s => s.SupplierPriceQuotation, s => s.Material);
 
                     if (supplierPriceDetailDb != null)
                     {
@@ -182,9 +182,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
-                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == Id, null);
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == Id, s => s.Supplier);
                     var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
-                    var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.SupplierPriceQuotation);
+                    var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.SupplierPriceQuotation, s => s.Material);
                     var latestSupplierPriceQuotationOfEachMaterial = allSupplierPriceDetailDb.GroupBy(s => s.MaterialId)
                                                     .ToDictionary(
                                                         group => group.Key,
@@ -245,9 +245,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
-                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id, null);
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id, s => s.Supplier);
                     var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
-                    var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.SupplierPriceQuotation);
+                    var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.Material, s => s.SupplierPriceQuotation);
                     var latestSupplierPriceQuotationOfEachMaterial = allSupplierPriceDetailDb.GroupBy(s => s.MaterialId)
                                                     .ToDictionary(
                                                         group => group.Key,
@@ -297,7 +297,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetById(Id);
+                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.SupplierPriceQuotationId == Id, s => s.Material, s => s.SupplierPriceQuotation.Supplier);
                 if (supplierPriceDetailDb != null)
                 {
                     result.Result.Data = supplierPriceDetailDb;
@@ -316,7 +316,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == Id);
+                var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == Id, s => s.Material, s => s.SupplierPriceQuotation.Supplier);
                 if (supplierPriceDetailDb != null)
                 {
                     if (supplierPriceDetailDb.Any())
@@ -363,7 +363,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 if (!BuildAppActionResultIsError(result))
                 {
-                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == materialDb.Id, s => s.SupplierPriceQuotation.Supplier);
+                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.MaterialId == materialDb.Id, s => s.Material, s => s.SupplierPriceQuotation.Supplier);
                     if (supplierPriceDetailDb != null)
                     {
                         if (supplierPriceDetailDb.Any())
@@ -413,9 +413,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
-                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == Id, null);
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == Id, s => s.Supplier);
                     var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
-                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), null);
+                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.Material, s => s.SupplierPriceQuotation);
                     if (supplierPriceDetailDb != null)
                     {
                         if (supplierPriceDetailDb.Any())
@@ -465,9 +465,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
-                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id, null);
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id, s => s.Supplier);
                     var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
-                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), null);
+                    var supplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.SupplierPriceQuotation, s => s.Material);
                     if (supplierPriceDetailDb != null)
                     {
                         if (supplierPriceDetailDb.Any())
