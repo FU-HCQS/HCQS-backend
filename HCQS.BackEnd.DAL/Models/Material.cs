@@ -15,6 +15,7 @@ namespace HCQS.BackEnd.DAL.Models
             KG,
             M3,
             BAR,
+            ITEM
         }
 
         public Type MaterialType { get; set; }
