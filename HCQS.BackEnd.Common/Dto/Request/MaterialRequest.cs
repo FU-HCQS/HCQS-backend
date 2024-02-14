@@ -12,6 +12,7 @@
             KG,
             M3,
             BAR,
+            ITEM
         }
 
         public MaterialConstructionType MaterialType { get; set; }
