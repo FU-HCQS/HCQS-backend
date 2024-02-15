@@ -294,7 +294,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             else
                             {
                                 var supplierRepository = Resolve<ISupplierRepository>();
-                                var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()) && !s.isDeleted);
+                                var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()) && !s.IsDeleted);
                                 if (supplier == null)
                                 {
                                     _logger.LogError($"Supplier with name: {supplierName} does not exist!", this);
