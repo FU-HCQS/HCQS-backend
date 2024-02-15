@@ -169,7 +169,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 if (!BuildAppActionResultIsError(result))
                 {
-                    result.Result.Data = await _quotationDetailRepository.DeleteById(quotationDetailDb);
+                    result.Result.Data = await _quotationDetailRepository.DeleteById(id);
                     await _unitOfWork.SaveChangeAsync();
                 }
             }
