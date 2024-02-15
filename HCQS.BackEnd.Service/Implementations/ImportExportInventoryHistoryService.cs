@@ -393,36 +393,45 @@ namespace HCQS.BackEnd.Service.Implementations
                                     errorRecordCount = 0;
                                     Guid materialId = Guid.Empty;
                                     Guid supplierId = Guid.Empty;
-                                    if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
-                                    else
+                                    if (!string.IsNullOrEmpty(record.MaterialName) && !string.IsNullOrEmpty(record.SupplierName))
                                     {
-                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
-                                        if (material == null)
-                                        {
-                                            error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
-                                            errorRecordCount++;
-                                        }
+
+                                        if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
                                         else
                                         {
-                                            materialId = material.Id;
-                                            materials.Add(record.MaterialName, materialId);
+                                            var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
+                                            if (material == null)
+                                            {
+                                                error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
+                                                errorRecordCount++;
+                                            }
+                                            else
+                                            {
+                                                materialId = material.Id;
+                                                materials.Add(record.MaterialName, materialId);
+                                            }
+                                        }
+
+                                        if (suppliers.ContainsKey(record.SupplierName)) supplierId = suppliers[record.SupplierName];
+                                        else
+                                        {
+                                            var supplier = await supplierRepository.GetByExpression(m => m.SupplierName.Equals(record.SupplierName));
+                                            if (supplier == null)
+                                            {
+                                                error.Append($"{errorRecordCount + 1}. Supplier with name {record.SupplierName} does not exist.\n");
+                                                errorRecordCount++;
+                                            }
+                                            else
+                                            {
+                                                supplierId = supplier.Id;
+                                                suppliers.Add(record.SupplierName, supplierId);
+                                            }
                                         }
                                     }
-
-                                    if (suppliers.ContainsKey(record.SupplierName)) supplierId = suppliers[record.SupplierName];
                                     else
                                     {
-                                        var supplier = await supplierRepository.GetByExpression(m => m.SupplierName.Equals(record.SupplierName));
-                                        if (supplier == null)
-                                        {
-                                            error.Append($"{errorRecordCount + 1}. Supplier with name {record.SupplierName} does not exist.\n");
-                                            errorRecordCount++;
-                                        }
-                                        else
-                                        {
-                                            supplierId = supplier.Id;
-                                            suppliers.Add(record.SupplierName, supplierId);
-                                        }
+                                        error.Append($"{errorRecordCount + 1}. Cell Material name or Supplier name is empty.\n");
+                                        errorRecordCount++;
                                     }
 
                                     if (record.Quantity <= 0)
@@ -582,9 +591,9 @@ namespace HCQS.BackEnd.Service.Implementations
                             ImportInventoryRecord record = new ImportInventoryRecord()
                             {
                                 Id = Guid.NewGuid(),
-                                MaterialName = worksheet.Cells[row, 2].Value.ToString(),
-                                SupplierName = worksheet.Cells[row, 3].Value.ToString(),
-                                Quantity = int.Parse(worksheet.Cells[row, 4].Value.ToString())
+                                MaterialName = (worksheet.Cells[row, 2].Value == null) ? "" : worksheet.Cells[row, 2].Value.ToString(),
+                                SupplierName = (worksheet.Cells[row, 3].Value == null) ? "" : worksheet.Cells[row, 3].Value.ToString(),
+                                Quantity = (worksheet.Cells[row, 4].Value == null) ? 0 : int.Parse(worksheet.Cells[row, 4].Value.ToString())
                             };
                             records.Add(record);
                         }

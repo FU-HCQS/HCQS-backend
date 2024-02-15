@@ -656,6 +656,9 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("Suppliers");
