@@ -82,7 +82,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        supplierDb.isDeleted = true;
+                        supplierDb.IsDeleted = true;
                         await _unitOfWork.SaveChangeAsync();
                     }
 
