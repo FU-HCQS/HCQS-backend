@@ -294,7 +294,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             else
                             {
                                 var supplierRepository = Resolve<ISupplierRepository>();
-                                var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()));
+                                var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()) && !s.isDeleted);
                                 if (supplier == null)
                                 {
                                     _logger.LogError($"Supplier with name: {supplierName} does not exist!", this);
@@ -318,37 +318,57 @@ namespace HCQS.BackEnd.Service.Implementations
                                     var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                                     Dictionary<int, string> invalidRowInput = new Dictionary<int, string>();
                                     int errorRecordCount = 0;
+                                    SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
                                     int i = 2;
                                     string key = "";
                                     foreach (SupplierMaterialQuotationRecord record in records)
                                     {
-                                        Guid materialId = Guid.Empty;
-                                        errorRecordCount = 0;
                                         StringBuilder error = new StringBuilder();
-                                        key = record.MaterialName + '-' + record.Unit;
-                                        if (materials.ContainsKey(key)) materialId = materials[key];
+                                        errorRecordCount = 0;
+                                        Guid materialId = Guid.Empty;
+                                        if (string.IsNullOrEmpty(record.MaterialName) || string.IsNullOrEmpty(record.Unit))
+                                        {
+                                            error.Append($"{errorRecordCount + 1}. Material Name or Unit cell is empty.\n");
+                                            errorRecordCount++;
+                                        }
                                         else
                                         {
-                                            bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
-                                            if (containsUnit)
+                                            SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int materialUnit);
+                                            if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
                                             {
-                                                var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
-                                                if (material == null)
-                                                {
-                                                    error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
-                                                    errorRecordCount++;
-                                                }
+                                                key = record.MaterialName + '-' + record.Unit;
+                                                if (materials.ContainsKey(key)) materialId = materials[key];
                                                 else
                                                 {
-                                                    materialId = material.Id;
-                                                    materials.Add(key, materialId);
+
+                                                    bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
+                                                    if (containsUnit)
+                                                    {
+                                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
+                                                        if (material == null)
+                                                        {
+                                                            error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
+                                                            errorRecordCount++;
+                                                        }
+                                                        else
+                                                        {
+                                                            materialId = material.Id;
+                                                            materials.Add(key, materialId);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
+                                                        errorRecordCount++;
+                                                    }
                                                 }
                                             }
                                             else
                                             {
-                                                error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
+                                                error.Append($"{errorRecordCount + 1}. Supplier {supplierName} is a {supplier.Type.ToString()} so they don't supply {record.MaterialName}.\n");
                                                 errorRecordCount++;
                                             }
+
                                         }
 
                                         if (record.MOQ <= 0)
@@ -362,7 +382,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                             error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
                                             errorRecordCount++;
                                         }
-
                                         if (errorRecordCount == 0)
                                         {
                                             var newPriceDetail = new SupplierPriceDetail()
@@ -384,6 +403,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         }
                                         i++;
                                     }
+
 
                                     if (invalidRowInput.Count > 0)
                                     {
@@ -459,10 +479,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             SupplierMaterialQuotationRecord record = new SupplierMaterialQuotationRecord()
                             {
                                 Id = Guid.NewGuid(),
-                                MaterialName = worksheet.Cells[row, 2].Value.ToString().ToString(),
-                                Unit = worksheet.Cells[row, 3].Value.ToString().ToString(),
-                                MOQ = int.Parse(worksheet.Cells[row, 4].Value.ToString().ToString()),
-                                Price = double.Parse(worksheet.Cells[row, 5].Value.ToString().ToString())
+                                MaterialName = (worksheet.Cells[row, 2].Value == null) ? "" : worksheet.Cells[row, 2].Value.ToString(),
+                                Unit = (worksheet.Cells[row, 3].Value == null) ? "" : worksheet.Cells[row, 3].Value.ToString(),
+                                MOQ = (worksheet.Cells[row, 4].Value == null) ? 0 : int.Parse(worksheet.Cells[row, 4].Value.ToString()),
+                                Price = (worksheet.Cells[row, 5].Value == null) ? 0 : double.Parse(worksheet.Cells[row, 5].Value.ToString())
                             };
                             records.Add(record);
                         }

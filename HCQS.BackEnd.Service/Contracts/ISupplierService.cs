@@ -21,5 +21,6 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> DeleteSupplierById(Guid id);
 
         public Task<IActionResult> ImportSupplierWithExcelFile(IFormFile file);
+        public Task<IActionResult> GetSupplierTemplate();
     }
 }

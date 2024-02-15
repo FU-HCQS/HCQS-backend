@@ -5,6 +5,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
+using HCQS.BackEnd.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -73,6 +74,12 @@ namespace HCQS.BackEnd.API.Controllers
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _supplierService.GetAll(pageIndex, pageSize, sortInfos);
+        }
+
+        [HttpGet("get-supplier-template")]
+        public async Task<IActionResult> GetSupplierTemplate()
+        {
+            return await _supplierService.GetSupplierTemplate();
         }
     }
 }

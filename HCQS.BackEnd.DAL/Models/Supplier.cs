@@ -16,5 +16,6 @@ namespace HCQS.BackEnd.DAL.Models
             FurnitureSupplier,
             Both
         }
+        public bool isDeleted { get; set; }
     }
 }

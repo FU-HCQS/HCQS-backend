@@ -320,20 +320,28 @@ namespace HCQS.BackEnd.Service.Implementations
                                     Guid materialId = Guid.Empty;
                                     errorRecordCount = 0;
                                     StringBuilder error = new StringBuilder();
-                                    if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
-                                    else
+                                    if (!string.IsNullOrEmpty(record.MaterialName))
                                     {
-                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
-                                        if (material == null)
-                                        {
-                                            error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
-                                            errorRecordCount++;
-                                        }
+                                        if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
                                         else
                                         {
-                                            materialId = material.Id;
-                                            materials.Add(record.MaterialName, materialId);
+                                            var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
+                                            if (material == null)
+                                            {
+                                                error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
+                                                errorRecordCount++;
+                                            }
+                                            else
+                                            {
+                                                materialId = material.Id;
+                                                materials.Add(record.MaterialName, materialId);
+                                            }
                                         }
+                                    }
+                                    else
+                                    {
+                                        error.Append($"{errorRecordCount + 1}. Material Name cell is empty\n");
+                                        errorRecordCount++;
                                     }
 
                                     if (record.Price <= 0)
@@ -428,8 +436,8 @@ namespace HCQS.BackEnd.Service.Implementations
                             ExportPriceMaterialRecord record = new ExportPriceMaterialRecord()
                             {
                                 Id = Guid.NewGuid(),
-                                MaterialName = worksheet.Cells[row, 2].Value.ToString().ToString(),
-                                Price = double.Parse(worksheet.Cells[row, 3].Value.ToString().ToString())
+                                MaterialName = (worksheet.Cells[row, 2].Value == null) ? "" : worksheet.Cells[row, 2].Value.ToString(),
+                                Price = (worksheet.Cells[row, 3].Value == null) ? 0 : double.Parse(worksheet.Cells[row, 3].Value.ToString().ToString())
                             };
                             records.Add(record);
                         }

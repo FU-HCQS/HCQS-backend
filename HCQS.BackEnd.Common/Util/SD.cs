@@ -77,11 +77,15 @@ namespace HCQS.BackEnd.Common.Util
             public static List<string> SUPPLIER_QUOTATION_DETAIL = new List<string> { "No", "MaterialName", "Unit", "MOQ", "Price" };
             public static List<string> EXPORT_PRICE_DETAIL = new List<string> { "No", "MaterialName", "Price" };
             public static List<string> IMPORT_INVENTORY = new List<string> { "No", "MaterialName", "SupplierName", "Quantity" };
+            public static List<string> SUPPLIER = new List<string> { "No", "SupplierName", "Type"};
         }
 
         public class EnumType
         {
-            public static Dictionary<string, int> MaterialUnit = new Dictionary<string, int> { { "KG", 0 }, { "M3", 1 }, { "BAR", 2 }, { "Kg", 0 }, { "m3", 1 }, { "Bar", 2 }, { "kg", 0 }, { "bar", 2 } };
+            public static Dictionary<string, int> MaterialUnit = new Dictionary<string, int> { { "KG", 0 }, { "M3", 1 }, { "BAR", 2 },{"ITEM" , 3}, { "Kg", 0 }, { "m3", 1 }, { "Bar", 2 },{"Item", 3 }, { "kg", 0 }, { "bar", 2 }, { "item", 3} };
+            public static Dictionary<string, int> SupplierType = new Dictionary<string, int> { { "ConstructionMaterialsSupplier", 0 }, { "FurnitureSupplier", 1 }, { "Both", 2 }, { "constructionMaterialsSupplier", 0 }, { "furnitureSupplier", 1 }, { "both", 2 }, { "CONSTRUCTIONMATERIALSSUPPLIER", 0 }, { "FURNITURESUPPLIER", 1 }, { "BOTH", 2 } };
+            public static Dictionary<string, int> MaterialType = new Dictionary<string, int> { { "RawMaterials", 0 }, { "Furniture", 1 }, { "rawMaterials", 0 }, { "furniture", 1 }, { "RAWMATERIALS", 0 }, { "FURNITURE", 1 } };
+
         }
     }
 }

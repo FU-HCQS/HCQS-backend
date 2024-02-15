@@ -12,5 +12,6 @@
             FurnitureSupplier,
             Both
         }
+        public bool isDeleted = false; 
     }
 }
