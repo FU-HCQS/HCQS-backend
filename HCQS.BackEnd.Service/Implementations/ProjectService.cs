@@ -113,6 +113,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         };
                         double totalLaborPrice = 0;
                         List<WorkerForProject> workers = new List<WorkerForProject>();
+                        int totalWorker = 0;
                         foreach (var worker in project.LaborRequests)
                         {
                             var workerDb = await workerPriceRepository.GetById(worker.WorkerPriceId);
@@ -128,6 +129,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 }
                                 else
                                 {
+                                    totalWorker += worker.Quantity;
                                     totalLaborPrice = totalLaborPrice + (worker.Quantity * worker.ExportLaborCost);
                                     workers.Add(new WorkerForProject
                                     {
@@ -213,16 +215,21 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         if (!BuildAppActionResultIsError(result))
                         {
-                            result.Result.Data = await quotationRepository.Insert(quotation);
                             projectDb.ProjectStatus = Project.Status.Processing;
                             projectDb.SandMixingRatio = (int)buildingInputModel.SandRatio;
                             projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
                             projectDb.StoneMixingRatio = (int)buildingInputModel.StoneRatio;
+                            projectDb.NumberOfLabor = totalWorker;
+                            projectDb.WallLength = buildingInputModel.WallLength;
+                            projectDb.WallHeight = buildingInputModel.WallHeight;
+                            projectDb.TiledArea = project.TiledArea;
+
                             quotation.QuotationStatus = Quotation.Status.Pending;
                             quotation.RawMaterialDiscount = quotation.RawMaterialDiscount;
                             quotation.LaborDiscount = quotation.LaborDiscount;
                             quotation.FurnitureDiscount = quotation.FurnitureDiscount;
-
+                            result.Result.Data = await quotationRepository.Insert(quotation);
+                            await _projectRepository.Update(projectDb);
                             await quotationDetailRepository.InsertRange(quotationDetailList);
                             await workerForProjectRepository.InsertRange(workers);
                             await _unitOfWork.SaveChangeAsync();
