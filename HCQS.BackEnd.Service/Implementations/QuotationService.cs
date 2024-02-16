@@ -309,6 +309,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             quotationDb.RawMaterialPrice = utility.CaculateDiscount(price.RawPrice, quotationDb.RawMaterialDiscount);
                             quotationDb.FurniturePrice = utility.CaculateDiscount(price.FurniturePrice, quotationDb.FurnitureDiscount);
                             quotationDb.LaborPrice = utility.CaculateDiscount(price.LaborPrice, quotationDb.LaborDiscount);
+                            quotationDb.Total = quotationDb.RawMaterialPrice + quotationDb.FurniturePrice + quotationDb.LaborPrice;
                             await _quotationRepository.Update(quotationDb);
                             await _unitOfWork.SaveChangeAsync();
                         }
