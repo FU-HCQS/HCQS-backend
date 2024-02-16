@@ -78,6 +78,8 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IQuotationService, QuotationService>();
 
             services.AddScoped<IWorkerForProjectRepository, WorkerForProjectRepository>();
+            services.AddScoped<IWorkerForProjectService, WorkerForProjectService>();
+
             services.AddScoped<IWorkerPriceRepository, WorkerPriceRepository>();
             services.AddScoped<IWorkerPriceService, WorkerPriceService>();
 
