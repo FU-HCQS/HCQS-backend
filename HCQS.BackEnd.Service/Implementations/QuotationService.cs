@@ -174,11 +174,11 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Deposit = (30 * total) / 100,
                                 EndDate = utility.GetCurrentDateInTimeZone().AddYears(5),
                                 MaterialPrice = total,
-                                Total= utility.CaculateDiscount(quotationDb.RawMaterialPrice,quotationDb.RawMaterialDiscount) + utility.CaculateDiscount(quotationDb.LaborPrice, quotationDb.LaborDiscount)+ utility.CaculateDiscount(quotationDb.FurniturePrice, quotationDb.FurnitureDiscount),
+                                Total = utility.CaculateDiscount(quotationDb.RawMaterialPrice, quotationDb.RawMaterialDiscount) + utility.CaculateDiscount(quotationDb.LaborPrice, quotationDb.LaborDiscount) + utility.CaculateDiscount(quotationDb.FurniturePrice, quotationDb.FurnitureDiscount),
                                 Content = string.Empty,
                                 StartDate = utility.GetCurrentDateTimeInTimeZone(),
-                                LaborPrice = utility.CaculateDiscount(quotationDb.LaborPrice,quotationDb.LaborDiscount),
-                                FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice,quotationDb.FurnitureDiscount),
+                                LaborPrice = utility.CaculateDiscount(quotationDb.LaborPrice, quotationDb.LaborDiscount),
+                                FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice, quotationDb.FurnitureDiscount),
                                 ContractStatus = Contract.Status.NEW
                             };
 
@@ -233,6 +233,37 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
+        }
+
+        public async Task<AppActionResult> GetListQuotationByStatus(Quotation.Status status)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                if (status == Quotation.Status.Pending)
+                {
+                    result.Result.Data = await _quotationRepository.GetAllDataByExpression(q => q.QuotationStatus == Quotation.Status.Pending);
+                }
+                else if (status == Quotation.Status.WaitingForCustomerResponse)
+                {
+                    result.Result.Data = await _quotationRepository.GetAllDataByExpression(q => q.QuotationStatus == Quotation.Status.WaitingForCustomerResponse);
+                }
+                else if (status == Quotation.Status.Approved)
+                {
+                    result.Result.Data = await _quotationRepository.GetAllDataByExpression(q => q.QuotationStatus == Quotation.Status.Approved);
+                }
+                else if (status == Quotation.Status.Cancel)
+                {
+                    result.Result.Data = await _quotationRepository.GetAllDataByExpression(q => q.QuotationStatus == Quotation.Status.Cancel);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
         }
 
         public async Task<AppActionResult> GetQuotationById(Guid id)

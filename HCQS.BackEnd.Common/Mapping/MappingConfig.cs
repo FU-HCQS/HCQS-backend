@@ -94,6 +94,13 @@ namespace HCQS.BackEnd.Common.Mapping
               .ForMember(desc => desc.LaborCost, act => act.MapFrom(src => src.LaborCost))
               .ForMember(desc => desc.PositionName, act => act.MapFrom(src => src.PositionName))
               ;
+                config.CreateMap<QuotationDealingDto, QuotationDealing>()
+             .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+             .ForMember(desc => desc.QuotationId, act => act.MapFrom(src => src.QuotationId))
+             .ForMember(desc => desc.FurnitureDiscount, act => act.MapFrom(src => src.FurnitureDiscount))
+             .ForMember(desc => desc.LaborDiscount, act => act.MapFrom(src => src.LaborDiscount))
+             .ForMember(desc => desc.MaterialDiscount, act => act.MapFrom(src => src.MaterialDiscount))
+             ;
             });
             return mappingConfig;
         }
