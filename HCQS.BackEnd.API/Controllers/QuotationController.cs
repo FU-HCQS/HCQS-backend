@@ -3,6 +3,7 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Common;
+using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -41,7 +42,12 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _service.GetQuotationById(quotationId);
         }
-
+        [HttpGet("get-list-quotation-by-status/{status}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+        public async Task<AppActionResult> GetListQuotationByStatus(Quotation.Status status)
+        {
+            return await _service.GetListQuotationByStatus(status);
+        }
         [HttpPost("create-quotation-dealing-request")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
         public async Task<AppActionResult> CreateQuotationDealingRequest(QuotationDealingDto quotationDealingDto)

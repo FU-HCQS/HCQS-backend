@@ -1,5 +1,6 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.DAL.Models;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -14,5 +15,6 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> PublicQuotationForCustomer(Guid quotationId);
 
         Task<AppActionResult> GetQuotationById(Guid id);
+        Task<AppActionResult> GetListQuotationByStatus(Quotation.Status status);
     }
 }

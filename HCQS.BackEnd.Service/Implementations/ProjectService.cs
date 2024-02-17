@@ -223,7 +223,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             projectDb.WallLength = buildingInputModel.WallLength;
                             projectDb.WallHeight = buildingInputModel.WallHeight;
                             projectDb.TiledArea = project.TiledArea;
-
+                            projectDb.EstimatedTimeOfCompletion = project.EstimatedTimeOfCompletion;
                             quotation.QuotationStatus = Quotation.Status.Pending;
                             quotation.RawMaterialDiscount = quotation.RawMaterialDiscount;
                             quotation.LaborDiscount = quotation.LaborDiscount;
