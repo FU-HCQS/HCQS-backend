@@ -27,7 +27,16 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _paymentService.CreatePaymentUrlMomo(paymentId);
         }
-
+        [HttpGet("get-all-payment")]
+        public async Task<AppActionResult> GetAllPayment(int pageIndex=1, int pageSize=10)
+        {
+            return await _paymentService.GetAllPayment(pageIndex, pageSize);
+        }
+        [HttpGet("get-all-payment-by-contractId/{contractId}")]
+        public async Task<AppActionResult> GetAllPayment(Guid contractId)
+        {
+            return await _paymentService.GetAllPaymentByContractId(contractId);
+        }
         [HttpGet("VNPayIpn")]
         public async Task<IActionResult> VNPayIPN()
         {

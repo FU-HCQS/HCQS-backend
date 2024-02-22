@@ -37,7 +37,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project);
                     var accountDb = await accountRepository.GetById(accountId);
-                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId);
+                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId, c=> c.Payment);
                     if (contractDb == null || accountDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The account with id{accountId} or contract with id {contractId} is not existed");
@@ -55,7 +55,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         accountDb.ContractVerifyCode = null;
                         contractDb.ContractStatus = DAL.Models.Contract.Status.ACTIVE;
-                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb?.Project?.Account, listCPP, true);
+                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(),accountDb, listCPP, true);
 
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
