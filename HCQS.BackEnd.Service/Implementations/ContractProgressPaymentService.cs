@@ -48,6 +48,13 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is existed");
                     }
+                    var deposit = list.Where(a => a.Content.ToLower().Equals("Deposit".ToLower()) || a.Name.ToLower().Equals("Deposit".ToLower())).SingleOrDefault();
+                    if (deposit == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The list contract progress payment must have deposit");
+
+                    }
+                   
                     double total = 0;
                     foreach (var item in list)
                     {
@@ -100,6 +107,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         var content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, a.ToList(), false);
                         contractDb.Content = content;
                         contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
+                        contractDb.Deposit = (double)deposit.Price;
                         var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
                         await _unitOfWork.SaveChangeAsync();
@@ -125,14 +133,14 @@ namespace HCQS.BackEnd.Service.Implementations
                 var paymentRepository = Resolve<IPaymentRepository>();
                 try
                 {
-                    var contractProgressPaymentDb = await _repository.GetAllDataByExpression(a=> a.ContractId == id && a.Name != "Deposit");
-                    if (!contractProgressPaymentDb.Any() )
+                    var contractProgressPaymentDb = await _repository.GetAllDataByExpression(a => a.ContractId == id && a.Name != "Deposit");
+                    if (!contractProgressPaymentDb.Any())
                     {
                         result = BuildAppActionResultError(result, $"The contract progress payment with contract id {id} is not existed!");
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                       foreach( var contract in contractProgressPaymentDb)
+                        foreach (var contract in contractProgressPaymentDb)
                         {
                             await _repository.DeleteById(id);
 

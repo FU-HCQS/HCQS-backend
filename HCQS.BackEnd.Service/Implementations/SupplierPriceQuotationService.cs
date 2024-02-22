@@ -288,8 +288,8 @@ namespace HCQS.BackEnd.Service.Implementations
                             if (!(await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL)))
                             {
                                 isSuccessful = false;
-                                _logger.LogError($"Incompatible header to sell price template", this);
-                                message = $"Incompatible header to sell price template";
+                                _logger.LogError($"Incompatible header to supplier's material price quotation template", this);
+                                message = $"Incompatible header to supplier's material price quotation template";
                             }
                             else
                             {

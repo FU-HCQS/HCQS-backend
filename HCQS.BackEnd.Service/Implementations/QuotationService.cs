@@ -48,16 +48,18 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        double total = (quotationDb.RawMaterialPrice * (100 - request.MaterialDiscount) / 100) + (quotationDb.FurniturePrice * (100 - request.FurnitureDiscount) / 100) + (quotationDb.LaborPrice * (100 - request.LaborDiscount) / 100);
+                        double total = utility.CaculateDiscount(quotationDb.RawMaterialPrice, request.RawMaterialDiscount) +
+                                     utility.CaculateDiscount(quotationDb.FurniturePrice, request.FurnitureDiscount) +
+                                      utility.CaculateDiscount(quotationDb.LaborPrice, request.LaborDiscount);
                         Quotation quotation = new Quotation
                         {
                             Id = Guid.NewGuid(),
                             FurnitureDiscount = request.FurnitureDiscount,
                             LaborDiscount = request.LaborDiscount,
-                            RawMaterialDiscount = request.MaterialDiscount,
-                            FurniturePrice = quotationDb.FurniturePrice,
-                            LaborPrice = quotationDb.LaborPrice,
-                            RawMaterialPrice = quotationDb.RawMaterialPrice,
+                            RawMaterialDiscount = request.RawMaterialDiscount,
+                            FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice, request.FurnitureDiscount),
+                            LaborPrice = utility.CaculateDiscount(quotationDb.LaborPrice, request.LaborDiscount),
+                            RawMaterialPrice = utility.CaculateDiscount(quotationDb.RawMaterialPrice, request.RawMaterialDiscount),
                             Total = total,
                             ProjectId = quotationDb.ProjectId
                         };
@@ -136,8 +138,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var contractRepository = Resolve<IContractRepository>();
                     var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
-                    var paymentRepository = Resolve<IPaymentRepository>();
-                    var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                     var projectRepository = Resolve<IProjectRepository>();
                     var accountRepository = Resolve<IAccountRepository>();
                     var quotationDb = await _quotationRepository.GetById(quotationId);
@@ -171,7 +171,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Id = Guid.NewGuid(),
                                 ProjectId = quotationDb.ProjectId,
                                 DateOfContract = utility.GetCurrentDateTimeInTimeZone(),
-                                Deposit = (30 * total) / 100,
                                 EndDate = utility.GetCurrentDateInTimeZone().AddYears(5),
                                 MaterialPrice = total,
                                 Total = utility.CaculateDiscount(quotationDb.RawMaterialPrice, quotationDb.RawMaterialDiscount) + utility.CaculateDiscount(quotationDb.LaborPrice, quotationDb.LaborDiscount) + utility.CaculateDiscount(quotationDb.FurniturePrice, quotationDb.FurnitureDiscount),
@@ -181,29 +180,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice, quotationDb.FurnitureDiscount),
                                 ContractStatus = Contract.Status.NEW
                             };
-
-                            var paymentId = Guid.NewGuid();
-                            ContractProgressPayment contractProgressPayment = new ContractProgressPayment
-                            {
-                                Id = Guid.NewGuid(),
-                                ContractId = contract.Id,
-                                Date = utility.GetCurrentDateTimeInTimeZone().AddDays(45),
-                                Name = "Deposit",
-                                PaymentId = paymentId
-                            };
-                            Payment payment = new Payment
-                            {
-                                Id = paymentId,
-                                Content = "Deposit",
-                                PaymentStatus = Payment.Status.Pending,
-                                ContractProgressPayment = contractProgressPayment,
-                                Price = (30 * contract.Total) / 100
-                            };
-
                             await contractRepository.Insert(contract);
-                            await contractProgressPaymentRepository.Insert(contractProgressPayment);
-                            await paymentRepository.Insert(payment);
-
                             if (string.IsNullOrEmpty(account.ContractVerifyCode))
                             {
                                 account.ContractVerifyCode = code;
