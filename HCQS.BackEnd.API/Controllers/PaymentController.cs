@@ -1,6 +1,9 @@
 ﻿using HCQS.BackEnd.Common.Dto;
+using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService.Payment.PaymentRespone;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
@@ -17,22 +20,30 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpGet("create-payment-url-vnpay")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+
         public async Task<AppActionResult> CreatePaymentUrlVNPay(Guid paymentId)
         {
             return await _paymentService.CreatePaymentUrlVNPay(paymentId, HttpContext);
         }
 
         [HttpGet("create-payment-url-momo")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+
         public async Task<AppActionResult> CreatePaymentUrlMomo(Guid paymentId)
         {
             return await _paymentService.CreatePaymentUrlMomo(paymentId);
         }
         [HttpGet("get-all-payment")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+
         public async Task<AppActionResult> GetAllPayment(int pageIndex=1, int pageSize=10)
         {
             return await _paymentService.GetAllPayment(pageIndex, pageSize);
         }
         [HttpGet("get-all-payment-by-contractId/{contractId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+
         public async Task<AppActionResult> GetAllPayment(Guid contractId)
         {
             return await _paymentService.GetAllPaymentByContractId(contractId);

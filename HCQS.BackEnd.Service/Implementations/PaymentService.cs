@@ -54,11 +54,16 @@ namespace HCQS.BackEnd.Service.Implementations
                 var project = await projectRepository.GetById(contractDb.ProjectId);
                 var accountDb = await accountRepository.GetById(project.AccountId);
 
-                if (paymentDb == null)
+                if (paymentDb == null || contractProgressPaymentDb == null || contractDb == null || accountDb == null)
                 {
                     result = BuildAppActionResultError(result, $"The payment with id {paymentId} is not existed");
                 }
-                else if (paymentDb.Price > 5000000 || paymentDb.Price < 1000)
+                if (contractDb == null || contractDb.ContractStatus != Contract.Status.ACTIVE)
+                {
+                    result = BuildAppActionResultError(result, $"The contract with id {paymentId} is not existed or is not signed");
+
+                }
+                else if (paymentDb != null && (paymentDb.Price > 5000000 || paymentDb.Price < 1000))
                 {
                     result = BuildAppActionResultError(result, $"Momo only supports amounts from 1000 to 5000000");
                 }
@@ -154,15 +159,20 @@ namespace HCQS.BackEnd.Service.Implementations
                 var projectRepository = Resolve<IProjectRepository>();
                 var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                 var paymentDb = await _paymentRepository.GetByExpression(s => s.Id == paymentId);
-                var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c=> c.PaymentId == paymentId);
+                var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c => c.PaymentId == paymentId);
                 var contractId = contractProgressPaymentDb.ContractId;
                 var contractDb = await contractRepository.GetById(contractId);
                 var project = await projectRepository.GetById(contractDb.ProjectId);
                 var accountDb = await accountRepository.GetById(project.AccountId);
 
-                if (paymentDb == null)
+                if (paymentDb == null || contractProgressPaymentDb == null || accountDb == null)
                 {
                     result = BuildAppActionResultError(result, $"The payment with id {paymentId} is not existed");
+                }
+                if (contractDb == null || contractDb.ContractStatus != Contract.Status.ACTIVE)
+                {
+                    result = BuildAppActionResultError(result, $"The contract with id {paymentId} is not existed or is not signed");
+
                 }
                 if (!BuildAppActionResultIsError(result))
                 {
@@ -210,7 +220,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 AppActionResult result = new AppActionResult();
                 var paymentResponseRepository = Resolve<IPaymentResponseRepository>();
-                var paymentDb = await _paymentRepository.GetById(paymentId);
+                var paymentDb = await _paymentRepository.GetByExpression(p => p.Id == Guid.Parse(paymentId));
                 try
                 {
                     PaymentResponse paymentResponse = new PaymentResponse()
@@ -266,7 +276,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var list = await _paymentRepository.GetAllDataByExpression(a=> a.ContractProgressPayment.ContractId == contractId);
+                var list = await _paymentRepository.GetAllDataByExpression(a => a.ContractProgressPayment.ContractId == contractId);
             }
             catch (Exception ex)
             {

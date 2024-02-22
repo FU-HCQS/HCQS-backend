@@ -33,6 +33,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var accountRepository = Resolve<IAccountRepository>();
                     var projectRepository = Resolve<IProjectRepository>();
                     var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                    var fileService = Resolve<IFileService>();
                     var utility = Resolve<Common.Util.Utility>();
 
                     var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project);
@@ -59,6 +60,9 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
+                        var delete = await fileService.DeleteImageFromFirebase($"contract/{contractDb.Id}");
+                        var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(contractDb.Content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
+                        contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
                         await _contractRepository.Update(contractDb);
                         await projectRepository.Update(projectDb);
                         await accountRepository.Update(accountDb);
