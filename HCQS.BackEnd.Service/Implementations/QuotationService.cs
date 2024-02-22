@@ -181,14 +181,10 @@ namespace HCQS.BackEnd.Service.Implementations
                                 ContractStatus = Contract.Status.NEW
                             };
                             await contractRepository.Insert(contract);
-                            if (string.IsNullOrEmpty(account.ContractVerifyCode))
-                            {
-                                account.ContractVerifyCode = code;
-                                await accountRepository.Update(account);
-                            }
-                            else
+                            if (!string.IsNullOrEmpty(account.ContractVerifyCode))
                             {
                                 result = BuildAppActionResultError(result, "The code to sign the contract has been sent via email!");
+
                             }
                         }
                         else
