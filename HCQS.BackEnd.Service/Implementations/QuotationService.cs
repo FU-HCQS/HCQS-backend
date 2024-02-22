@@ -48,16 +48,18 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        double total = (quotationDb.RawMaterialPrice * (100 - request.MaterialDiscount) / 100) + (quotationDb.FurniturePrice * (100 - request.FurnitureDiscount) / 100) + (quotationDb.LaborPrice * (100 - request.LaborDiscount) / 100);
+                        double total = utility.CaculateDiscount(quotationDb.RawMaterialPrice, request.RawMaterialDiscount) +
+                                     utility.CaculateDiscount(quotationDb.FurniturePrice, request.FurnitureDiscount) +
+                                      utility.CaculateDiscount(quotationDb.LaborPrice, request.LaborDiscount);
                         Quotation quotation = new Quotation
                         {
                             Id = Guid.NewGuid(),
                             FurnitureDiscount = request.FurnitureDiscount,
                             LaborDiscount = request.LaborDiscount,
-                            RawMaterialDiscount = request.MaterialDiscount,
-                            FurniturePrice = quotationDb.FurniturePrice,
-                            LaborPrice = quotationDb.LaborPrice,
-                            RawMaterialPrice = quotationDb.RawMaterialPrice,
+                            RawMaterialDiscount = request.RawMaterialDiscount,
+                            FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice, request.FurnitureDiscount),
+                            LaborPrice = utility.CaculateDiscount(quotationDb.LaborPrice, request.LaborDiscount),
+                            RawMaterialPrice = utility.CaculateDiscount(quotationDb.RawMaterialPrice, request.RawMaterialDiscount),
                             Total = total,
                             ProjectId = quotationDb.ProjectId
                         };

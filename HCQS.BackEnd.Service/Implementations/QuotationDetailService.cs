@@ -235,7 +235,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var quotationMap = _mapper.Map<QuotationDetail>(quotationDetail);
 
                     var materialRepository = Resolve<IMaterialRepository>();
                     var quotationRepository = Resolve<IQuotationRepository>();
@@ -244,7 +243,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var quotationDetailDb = await _quotationDetailRepository.GetById(quotationDetail.Id);
                     var material = await materialRepository.GetById(quotationDetail.MaterialId);
                     var quotation = await quotationRepository.GetById(quotationDetail.QuotationId);
-                    var exportMaterialPrice = await exportMaterialPriceRepository.GetAllDataByExpression(filter: a => a.MaterialId == quotationMap.MaterialId);
+                    var exportMaterialPrice = await exportMaterialPriceRepository.GetAllDataByExpression(filter: a => a.MaterialId == quotationDetail.MaterialId);
                     exportMaterialPrice.OrderBy(a => a.Date).ThenByDescending(a => a.Date);
                     if (quotationDetailDb == null)
                     {
@@ -260,8 +259,9 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        quotationDetailDb = quotationMap;
-                        quotationMap.Total = exportMaterialPrice.FirstOrDefault().Price * quotationMap.Quantity;
+                        _mapper.Map(quotationDetail, quotationDetailDb);
+
+                        quotationDetailDb.Total = exportMaterialPrice.FirstOrDefault().Price * quotationDetailDb.Quantity;
 
                         result.Result.Data = await _quotationDetailRepository.Update(quotationDetailDb);
                         await _unitOfWork.SaveChangeAsync();
