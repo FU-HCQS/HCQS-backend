@@ -369,7 +369,10 @@ namespace HCQS.BackEnd.Service.Implementations
             var quotationDb = await _quotationRepository.GetById(id);
             var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
             var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
-            if (quotationDb != null)
+            var projectRepository = Resolve<IProjectRepository>();
+            var project = await projectRepository.GetByExpression(a => a.Id == quotationDb.ProjectId);
+
+            if (quotationDb != null && project != null)
             {
                 var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.Material);
                 var workerForProjects = await workerForProjectRepository.GetAllDataByExpression(q => q.QuotationId == id);
@@ -390,7 +393,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 foreach (var workerForProject in workerForProjects)
                 {
-                    laborPrice = laborPrice + workerForProject.ExportLaborCost;
+                    laborPrice = laborPrice + (workerForProject.ExportLaborCost * workerForProject.Quantity * project.EstimatedTimeOfCompletion);
                 }
 
                 dto.FurniturePrice = furniturePrice;
