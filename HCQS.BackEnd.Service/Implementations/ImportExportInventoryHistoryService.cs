@@ -371,8 +371,8 @@ namespace HCQS.BackEnd.Service.Implementations
                             if (!(await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY)))
                             {
                                 isSuccessful = false;
-                                _logger.LogError($"Incompatible header to sell price template", this);
-                                message = $"Incompatible header to sell price template";
+                                _logger.LogError($"Incompatible header to import material template", this);
+                                message = $"Incompatible header to import material template";
                             }
                             else
                             {
