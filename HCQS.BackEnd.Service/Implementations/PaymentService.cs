@@ -46,8 +46,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 var contractRepository = Resolve<IContractRepository>();
                 var projectRepository = Resolve<IProjectRepository>();
 
-                var paymentDb = await _paymentRepository.GetByExpression(s => s.Id == paymentId, s => s.ContractProgressPayment);
-                var contractId = paymentDb.ContractProgressPayment.ContractId;
+                var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                var paymentDb = await _paymentRepository.GetByExpression(s => s.Id == paymentId);
+                var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c => c.PaymentId == paymentId);
+                var contractId = contractProgressPaymentDb.ContractId;
                 var contractDb = await contractRepository.GetById(contractId);
                 var project = await projectRepository.GetById(contractDb.ProjectId);
                 var accountDb = await accountRepository.GetById(project.AccountId);
@@ -150,9 +152,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 var accountRepository = Resolve<IAccountRepository>();
                 var contractRepository = Resolve<IContractRepository>();
                 var projectRepository = Resolve<IProjectRepository>();
-
-                var paymentDb = await _paymentRepository.GetByExpression(s => s.Id == paymentId, s => s.ContractProgressPayment);
-                var contractId = paymentDb.ContractProgressPayment.ContractId;
+                var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                var paymentDb = await _paymentRepository.GetByExpression(s => s.Id == paymentId);
+                var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c=> c.PaymentId == paymentId);
+                var contractId = contractProgressPaymentDb.ContractId;
                 var contractDb = await contractRepository.GetById(contractId);
                 var project = await projectRepository.GetById(contractDb.ProjectId);
                 var accountDb = await accountRepository.GetById(project.AccountId);
@@ -239,6 +242,38 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
+        }
+
+        public async Task<AppActionResult> GetAllPayment(int pageIndex, int pageSize)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var list = await _paymentRepository.GetAllDataByExpression(null);
+                result.Result.Data = DataPresentationHelper.ApplyPaging(list, pageIndex, pageSize);
+                result.Result.TotalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> GetAllPaymentByContractId(Guid contractId)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var list = await _paymentRepository.GetAllDataByExpression(a=> a.ContractProgressPayment.ContractId == contractId);
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
         }
     }
 }
