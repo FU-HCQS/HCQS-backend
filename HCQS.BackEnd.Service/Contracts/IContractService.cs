@@ -4,6 +4,6 @@ namespace HCQS.BackEnd.Service.Contracts
 {
     public interface IContractService
     {
-        public Task<AppActionResult> SignContract(Guid contractId, Guid accountId, string verificationCode);
+        public Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode);
     }
 }

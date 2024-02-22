@@ -20,7 +20,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpPut("sign-contract")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
-        public async Task<AppActionResult> SignContract(Guid contractId, Guid accountId, string verificationCode)
+        public async Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode)
         {
             return await _contractService.SignContract(contractId, accountId, verificationCode);
         }

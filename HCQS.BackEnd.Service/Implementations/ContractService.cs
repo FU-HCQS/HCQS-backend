@@ -23,7 +23,7 @@ namespace HCQS.BackEnd.Service.Implementations
             _mapper = mapper;
         }
 
-        public async Task<AppActionResult> SignContract(Guid contractId, Guid accountId, string verificationCode)
+        public async Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -35,7 +35,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                     var utility = Resolve<Common.Util.Utility>();
 
-                    var contractDb = await _contractRepository.GetById(contractId);
+                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project);
                     var accountDb = await accountRepository.GetById(accountId);
                     var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId);
                     if (contractDb == null || accountDb == null)
@@ -55,7 +55,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         accountDb.ContractVerifyCode = null;
                         contractDb.ContractStatus = DAL.Models.Contract.Status.ACTIVE;
-                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, listCPP, true);
+                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb?.Project?.Account, listCPP, true);
 
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
