@@ -82,9 +82,12 @@ namespace HCQS.BackEnd.Common.Util
 
         public class EnumType
         {
-            public static Dictionary<string, int> MaterialUnit = new Dictionary<string, int> { { "KG", 0 }, { "M3", 1 }, { "BAR", 2 },{"ITEM" , 3}, { "Kg", 0 }, { "m3", 1 }, { "Bar", 2 },{"Item", 3 }, { "kg", 0 }, { "bar", 2 }, { "item", 3} };
+            public static Dictionary<string, int> MaterialUnit = new Dictionary<string, int> { { "KG", 0 }, { "M3", 1 }, { "BAR", 2 }, { "ITEM", 3 }, { "Kg", 0 }, { "m3", 1 }, { "Bar", 2 }, { "Item", 3 }, { "kg", 0 }, { "bar", 2 }, { "item", 3 } };
             public static Dictionary<string, int> SupplierType = new Dictionary<string, int> { { "ConstructionMaterialsSupplier", 0 }, { "FurnitureSupplier", 1 }, { "Both", 2 }, { "constructionMaterialsSupplier", 0 }, { "furnitureSupplier", 1 }, { "both", 2 }, { "CONSTRUCTIONMATERIALSSUPPLIER", 0 }, { "FURNITURESUPPLIER", 1 }, { "BOTH", 2 } };
             public static Dictionary<string, int> MaterialType = new Dictionary<string, int> { { "RawMaterials", 0 }, { "Furniture", 1 }, { "rawMaterials", 0 }, { "furniture", 1 }, { "RAWMATERIALS", 0 }, { "FURNITURE", 1 } };
+            public static Dictionary<Enum, string> ContractStatus = new Dictionary<Enum, string> { { DAL.Models.Contract.Status.NEW, "New" }, { DAL.Models.Contract.Status.ACTIVE, "Active" }, { DAL.Models.Contract.Status.IN_ACTIVE, "Inactive" } };
+            public static Dictionary<Enum, string> ProjectStatus = new Dictionary<Enum, string> { { DAL.Models.Project.Status.Pending, "Pending" }, { DAL.Models.Project.Status.Processing, "Processing" }, { DAL.Models.Project.Status.UnderConstruction, "UnderConstruction" }, { DAL.Models.Project.Status.Closed, "Closed" } };
+            public static Dictionary<Enum, string> ProjectConstructionType = new Dictionary<Enum, string> { { DAL.Models.Project.ProjectConstructionType.RoughConstruction, "Rough construction" }, { DAL.Models.Project.ProjectConstructionType.CompleteConstruction, "Complete construction" } };
 
         }
     }
