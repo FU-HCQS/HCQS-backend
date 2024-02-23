@@ -28,10 +28,11 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> getProjectContructionTypeRatio(int year = -1, int timePeriod = 1);
         public Task<AppActionResult> getProjectStatusRatio(int year = -1, int timePeriod = 1);
         public Task<AppActionResult> getContractRatio(int year = -1, int timePeriod = 1);
-        public Task<AppActionResult> getImportBySupplierRatio(int year = -1, int timePeriod = 1);
-        public Task<AppActionResult> getImportByMaterialRatio(int year = -1, int timePeriod = 1);
-        public Task<AppActionResult> getExportByMaterialRatio(int year = -1, int timePeriod = 1);
-
+        public Task<AppActionResult> getTotalImportBySupplierRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> getTotalImportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> getTotalExportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> getQuantityImportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> getQuantityExportByMaterialRatio(int year = -1, int timePeriod = 1);
 
 
     }

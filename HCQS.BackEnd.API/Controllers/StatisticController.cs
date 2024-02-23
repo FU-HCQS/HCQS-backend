@@ -98,22 +98,34 @@ namespace HCQS.BackEnd.API.Controllers
             return await _statisticService.getContractRatio(year, timePeriod);
         }
 
-        [HttpPost("get-import-by-supplier-ratio")]
-        public async Task<AppActionResult> GetImportBySupplierRatio(int year, int timePeriod)
+        [HttpPost("get-total-import-by-supplier-ratio")]
+        public async Task<AppActionResult> getTotalImportBySupplierRatio(int year, int timePeriod)
         {
-            return await _statisticService.getImportBySupplierRatio(year, timePeriod);
+            return await _statisticService.getTotalImportBySupplierRatio(year, timePeriod);
         }
 
-        [HttpPost("get-import-by-material-ratio")]
-        public async Task<AppActionResult> GetImportByMaterialRatio(int year, int timePeriod)
+        [HttpPost("get-total-import-by-material-ratio")]
+        public async Task<AppActionResult> getTotalImportByMaterialRatio(int year, int timePeriod)
         {
-            return await _statisticService.getImportByMaterialRatio(year, timePeriod);
+            return await _statisticService.getTotalImportByMaterialRatio(year, timePeriod);
         }
 
-        [HttpPost("get-export-by-material-ratio")]
-        public async Task<AppActionResult> GetExportByMaterialRatio(int year, int timePeriod)
+        [HttpPost("get-total-export-by-material-ratio")]
+        public async Task<AppActionResult> getTotalExportByMaterialRatio(int year, int timePeriod)
         {
-            return await _statisticService.getExportByMaterialRatio(year, timePeriod);
+            return await _statisticService.getTotalExportByMaterialRatio(year, timePeriod);
+        }
+
+        [HttpPost("get-quantity-import-by-material-ratio")]
+        public async Task<AppActionResult> getQuantityImportByMaterialRatio(int year, int timePeriod)
+        {
+            return await _statisticService.getQuantityImportByMaterialRatio(year, timePeriod);
+        }
+
+        [HttpPost("get-quantity-export-by-material-ratio")]
+        public async Task<AppActionResult> getQuantityExportByMaterialRatio(int year, int timePeriod)
+        {
+            return await _statisticService.getQuantityExportByMaterialRatio(year, timePeriod);
         }
     }
 }
