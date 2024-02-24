@@ -35,17 +35,8 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseHangfireDashboard("/hangfire");
-
 app.MapControllers();
-//ApplyMigration();
-using (var scope = app.Services.CreateScope())
-{
-    //var serviceProvider = scope.ServiceProvider;
-    //var workerService = serviceProvider.GetRequiredService<WorkerService>();
-    //workerService.Start();
-}
+
 app.Run();
 
 //void ApplyMigration()

@@ -83,9 +83,6 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IWorkerPriceRepository, WorkerPriceRepository>();
             services.AddScoped<IWorkerPriceService, WorkerPriceService>();
             services.AddScoped<IStatisticService, StatisticService>();
-
-            services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));
-            services.AddHangfireServer();
         }
     }
 }

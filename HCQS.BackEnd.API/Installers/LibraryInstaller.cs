@@ -23,8 +23,6 @@ namespace HCQS.BackEnd.API.Installers
             services.AddSingleton<Utility>();
             services.AddSingleton<SD>();
             services.AddSingleton<TemplateMappingHelper>();
-            services.AddHangfire(x => x.UseSqlServerStorage(configuration["ConnectionStrings:Host"]));
-            services.AddHangfireServer();
         }
     }
 }
