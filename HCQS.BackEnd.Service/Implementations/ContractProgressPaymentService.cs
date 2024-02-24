@@ -133,7 +133,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var paymentRepository = Resolve<IPaymentRepository>();
                 try
                 {
-                    var contractProgressPaymentDb = await _repository.GetAllDataByExpression(a => a.ContractId == id && a.Name != "Deposit");
+                    var contractProgressPaymentDb = await _repository.GetAllDataByExpression(a => a.ContractId == id);
                     if (!contractProgressPaymentDb.Any())
                     {
                         result = BuildAppActionResultError(result, $"The contract progress payment with contract id {id} is not existed!");
@@ -142,7 +142,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         foreach (var contract in contractProgressPaymentDb)
                         {
-                            await _repository.DeleteById(id);
+                            await _repository.DeleteById(contract.Id);
 
                         }
                     }
