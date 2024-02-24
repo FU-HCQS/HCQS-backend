@@ -65,14 +65,14 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         total = (double)(total + item.Price);
                     }
-                    if (contractDb.Total != total)
+                    if (contractDb!=null && contractDb.Total != total)
                     {
 
                         result = BuildAppActionResultError(result, $"The total price for all progress contract payment don't match total in contract");
 
                     }
                     var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
-
+                    
                     if (!BuildAppActionResultIsError(result))
                     {
                         foreach (var item in list)
@@ -103,15 +103,15 @@ namespace HCQS.BackEnd.Service.Implementations
                         var a = await _repository.InsertRange(listCPP);
                         await paymentRepository.InsertRange(listPM);
                         await contractRepository.Update(contractDb);
-                        await _unitOfWork.SaveChangeAsync();
                         var content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, a.ToList(), false);
                         contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
                         contractDb.Deposit = (double)deposit.Price;
                         var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
-                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
                         account.ContractVerifyCode = code;
                         await _unitOfWork.SaveChangeAsync();
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
+
                         scope.Complete();
                     }
                 }
