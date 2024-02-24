@@ -23,7 +23,7 @@ namespace HCQS.BackEnd.Service.Implementations
             _mapper = mapper;
         }
 
-        public async Task<AppActionResult> SignContract(Guid contractId, Guid accountId, string verificationCode)
+        public async Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -33,11 +33,12 @@ namespace HCQS.BackEnd.Service.Implementations
                     var accountRepository = Resolve<IAccountRepository>();
                     var projectRepository = Resolve<IProjectRepository>();
                     var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                    var fileService = Resolve<IFileService>();
                     var utility = Resolve<Common.Util.Utility>();
 
-                    var contractDb = await _contractRepository.GetById(contractId);
+                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project);
                     var accountDb = await accountRepository.GetById(accountId);
-                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId);
+                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId, c=> c.Payment);
                     if (contractDb == null || accountDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The account with id{accountId} or contract with id {contractId} is not existed");
@@ -55,10 +56,13 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         accountDb.ContractVerifyCode = null;
                         contractDb.ContractStatus = DAL.Models.Contract.Status.ACTIVE;
-                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, listCPP, true);
+                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(),accountDb, listCPP, true);
 
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
+                        var delete = await fileService.DeleteImageFromFirebase($"contract/{contractDb.Id}");
+                        var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(contractDb.Content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
+                        contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
                         await _contractRepository.Update(contractDb);
                         await projectRepository.Update(projectDb);
                         await accountRepository.Update(accountDb);

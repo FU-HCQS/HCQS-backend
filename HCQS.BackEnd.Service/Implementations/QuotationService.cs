@@ -35,7 +35,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var utility = Resolve<Utility>();
                     var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
+                    var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
                     var quotationDb = await _quotationRepository.GetById(request.QuotationId);
+                    var workers = await workerForProjectRepository.GetAllDataByExpression(a=> a.QuotationId == request.QuotationId);
                     var quotationDetailsDb = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == request.QuotationId);
                     if (quotationDetailsDb == null)
                     {
@@ -45,6 +47,11 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (!quotationDetailsDb.Any() && quotationDetailsDb != null)
                     {
                         result = BuildAppActionResultError(result, $"The quotation details with quotation id {request.QuotationId} is empty");
+                    }
+                    if (!workers.Any())
+                    {
+                        result = BuildAppActionResultError(result, $"The list workers with quotation id {request.QuotationId} are empty");
+
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -75,10 +82,23 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Total = item.Total,
                             });
                         }
+                        List<WorkerForProject> workerForProject = new List<WorkerForProject>();
+                        foreach(var item in workers)
+                        {
+                            workerForProject.Add(new WorkerForProject { 
+                            Id = Guid.NewGuid(),
+                            ExportLaborCost = item.ExportLaborCost,
+                            Quantity= item.Quantity,
+                            QuotationId= quotation.Id,
+                            WorkerPrice = item.WorkerPrice,
+                            WorkerPriceId = item.WorkerPriceId,
+                            });
+                        }
                         await _quotationRepository.Insert(quotation);
                         quotation.QuotationStatus = Quotation.Status.Pending;
                         quotationDb.QuotationStatus = Quotation.Status.Cancel;
                         await quotationDetailRepository.InsertRange(quotationDetails);
+                        await workerForProjectRepository.InsertRange(workerForProject);
                         await _unitOfWork.SaveChangeAsync();
                     }
                     if (!BuildAppActionResultIsError(result))
@@ -181,14 +201,10 @@ namespace HCQS.BackEnd.Service.Implementations
                                 ContractStatus = Contract.Status.NEW
                             };
                             await contractRepository.Insert(contract);
-                            if (string.IsNullOrEmpty(account.ContractVerifyCode))
-                            {
-                                account.ContractVerifyCode = code;
-                                await accountRepository.Update(account);
-                            }
-                            else
+                            if (!string.IsNullOrEmpty(account.ContractVerifyCode))
                             {
                                 result = BuildAppActionResultError(result, "The code to sign the contract has been sent via email!");
+
                             }
                         }
                         else
@@ -346,7 +362,10 @@ namespace HCQS.BackEnd.Service.Implementations
             var quotationDb = await _quotationRepository.GetById(id);
             var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
             var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
-            if (quotationDb != null)
+            var projectRepository = Resolve<IProjectRepository>();
+            var project = await projectRepository.GetByExpression(a => a.Id == quotationDb.ProjectId);
+
+            if (quotationDb != null && project != null)
             {
                 var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.Material);
                 var workerForProjects = await workerForProjectRepository.GetAllDataByExpression(q => q.QuotationId == id);
@@ -367,7 +386,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 foreach (var workerForProject in workerForProjects)
                 {
-                    laborPrice = laborPrice + workerForProject.ExportLaborCost;
+                    laborPrice = laborPrice + (workerForProject.ExportLaborCost * workerForProject.Quantity * project.EstimatedTimeOfCompletion);
                 }
 
                 dto.FurniturePrice = furniturePrice;

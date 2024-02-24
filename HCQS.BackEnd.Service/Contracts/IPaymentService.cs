@@ -10,5 +10,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> CreatePaymentUrlVNPay(Guid paymentId, HttpContext context);
 
         public Task<AppActionResult> UpdatePaymentStatus(string paymentId, bool status, int type);
+        public Task<AppActionResult> GetAllPayment(int pageIndex = 1, int pageSize = 10);
+        public Task<AppActionResult> GetAllPaymentByContractId(Guid contractId);
     }
 }

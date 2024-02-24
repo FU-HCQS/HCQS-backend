@@ -105,14 +105,13 @@ namespace HCQS.BackEnd.Service.Implementations
                         await contractRepository.Update(contractDb);
                         await _unitOfWork.SaveChangeAsync();
                         var content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, a.ToList(), false);
-                        contractDb.Content = content;
                         contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
                         contractDb.Deposit = (double)deposit.Price;
                         var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
-                        await _unitOfWork.SaveChangeAsync();
                         emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
-
+                        account.ContractVerifyCode = code;
+                        await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
                     }
                 }
