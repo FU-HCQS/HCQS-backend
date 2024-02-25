@@ -23,6 +23,19 @@ namespace HCQS.BackEnd.Service.Implementations
             _mapper = mapper;
         }
 
+        public async Task<AppActionResult> GetContractById(Guid contractId)
+        {
+            AppActionResult result = new AppActionResult();
+            try { 
+            result.Result.Data = await _contractRepository.GetByExpression(c => c.Id == contractId);
+            
+            }catch(Exception ex) {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
         public async Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

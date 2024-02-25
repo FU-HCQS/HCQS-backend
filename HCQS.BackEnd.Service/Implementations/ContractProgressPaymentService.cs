@@ -46,7 +46,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var contractDb = await contractRepository.GetByExpression(a => a.Id == contractId, a => a.Project.Account);
                     if (contractDb == null)
                     {
-                        result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is existed");
+                        result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is not existed");
                     }
                     var deposit = list.Where(a => a.Content.ToLower().Equals("Deposit".ToLower()) || a.Name.ToLower().Equals("Deposit".ToLower())).SingleOrDefault();
                     if (deposit == null)
@@ -72,7 +72,12 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     }
                     var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
-                    
+                    if (account == null )
+                    {
+
+                        result = BuildAppActionResultError(result, $"The account ís not existed");
+
+                    }
                     if (!BuildAppActionResultIsError(result))
                     {
                         foreach (var item in list)

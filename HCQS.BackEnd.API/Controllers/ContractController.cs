@@ -24,5 +24,11 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _contractService.SignContract(contractId, accountId, verificationCode);
         }
+        [HttpGet("get-contract-by-id/{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+        public async Task<AppActionResult> GetContractById(Guid id)
+        {
+            return await _contractService.GetContractById(id);
+        }
     }
 }
