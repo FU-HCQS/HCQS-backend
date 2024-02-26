@@ -117,7 +117,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         if (!BuildAppActionResultIsError(result))
                         {
-
+                            await _unitOfWork.SaveChangeAsync();
                         }
                     }
 
