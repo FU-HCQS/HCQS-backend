@@ -26,7 +26,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [HttpGet("get-contract-progress-payment-by-contractId/{contractId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         public async Task<AppActionResult> GetContractProgressPaymentByContractId(Guid contractId)
         {
             return await _service.GetContractProgressPaymentByContractId(contractId);
