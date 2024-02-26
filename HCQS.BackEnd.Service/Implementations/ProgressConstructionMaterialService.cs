@@ -34,6 +34,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
                     var exportPriceRepository = Resolve<IExportPriceMaterialRepository>();
+                    Dictionary<Guid, int> materialExport = new Dictionary<Guid, int>();
                     List<ProgressConstructionMaterial> progressConstructionMaterials = new List<ProgressConstructionMaterial>();
                     foreach (var ProgressConstructionMaterialRequest in ProgressConstructionMaterialRequests)
                     {
@@ -41,12 +42,20 @@ namespace HCQS.BackEnd.Service.Implementations
                         var quotationDetailDb = await quotationDetailRepository.GetByExpression(q => q.Id == ProgressConstructionMaterialRequest.QuotationDetailId, q => q.Material);
                         if (quotationDetailDb != null)
                         {
-                            var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId);
+                            var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId, e => e.Material);
                             var latestMaterialPrice = exportMaterialPrices.OrderByDescending(e => e.Date).FirstOrDefault();
                             if (latestMaterialPrice != null)
                             {
                                 var discount = await GetDiscountByQuotationDetailId(quotationDetailDb.Id);
                                 var utility = Resolve<Utility>();
+                                if (materialExport.ContainsKey(latestMaterialPrice.Material.Id))
+                                {
+                                    materialExport[latestMaterialPrice.Material.Id] += ProgressConstructionMaterialRequest.Quantity;
+                                }
+                                else
+                                {
+                                    materialExport.Add(latestMaterialPrice.Material.Id, ProgressConstructionMaterialRequest.Quantity);
+                                }
                                 var newProgressConstructionMaterial = new ProgressConstructionMaterial
                                 {
                                     Id = Guid.NewGuid(),
@@ -62,7 +71,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             }
                             else
                             {
-                                result = BuildAppActionResultError(result, $"There is no available material export price!");
+                                result = BuildAppActionResultError(result, $"There is no available material export price of {quotationDetailDb.Material.Name}!");
                             }
                         }
                         else
@@ -87,9 +96,29 @@ namespace HCQS.BackEnd.Service.Implementations
                                 ProgressConstructionMaterialId = progressConstructionMaterial.Id,
                             });
                         }
-
                         await importExportInventoryRepository.InsertRange(importExportInventoryHistories);
-                        await _unitOfWork.SaveChangeAsync();
+
+                        var materialRepository = Resolve<IMaterialRepository>();
+
+                        foreach(var materialId in materialExport.Keys)
+                        {
+                            var materialDb = await materialRepository.GetById(materialId);
+                            if(materialDb.Quantity < materialExport[materialId])
+                            {
+                                result = BuildAppActionResultError(result, $"Current inventory {materialDb.Name} is {materialDb.Quantity}, lower than demand of  {materialExport[materialId]}");
+                                break;
+                            } else
+                            {
+                                materialDb.Quantity -= materialExport[materialId];
+                                await materialRepository.Update(materialDb);
+                            }
+                        }
+
+
+                        if (!BuildAppActionResultIsError(result))
+                        {
+
+                        }
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -113,7 +142,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var progressConstructionDb = await _progressConstructionMaterialRepository.GetById(id);
+                    var progressConstructionDb = await _progressConstructionMaterialRepository.GetByExpression(p => p.Id == id, p => p.ExportPriceMaterial);
                     if (progressConstructionDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The progress construction material with {id} not found !");
@@ -125,6 +154,10 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (progressHistory != null)
                         {
                             await importExportInventoryRepository.DeleteById(progressHistory.Id);
+                            var materRepository = Resolve<IMaterialRepository>();
+                            var materialDb = await materRepository.GetById(progressConstructionDb.ExportPriceMaterial.MaterialId);
+                            materialDb.Quantity += progressHistory.Quantity;
+                            await materRepository.Update(materialDb);
                         }
                         await _progressConstructionMaterialRepository.DeleteById(id);
                         await _unitOfWork.SaveChangeAsync();

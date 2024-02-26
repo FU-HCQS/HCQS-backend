@@ -136,7 +136,7 @@ namespace HCQS.BackEnd.Common.Util
                 <p>ĐẠI DIỆN BÊN A</p>
                 <p>Ngày " + createDate.Day + @" tháng " + createDate.Month + @" năm " + createDate.Year + @"</p>
 <p> Đã kí </p>
-  < p > Công ty Love House </ p >
+  <p> Công ty Love House </p>
 ";
 
 

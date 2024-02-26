@@ -377,6 +377,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             else
                             {
                                 Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                                Dictionary<Guid, int> materialImport = new Dictionary<Guid, int>();
                                 Dictionary<String, Guid> suppliers = new Dictionary<String, Guid>();
                                 List<ImportInventoryRecord> records = await GetImportListFromExcel(file);
                                 List<ImportExportInventoryHistory> importInventoryList = new List<ImportExportInventoryHistory>();
@@ -396,7 +397,11 @@ namespace HCQS.BackEnd.Service.Implementations
                                     if (!string.IsNullOrEmpty(record.MaterialName) && !string.IsNullOrEmpty(record.SupplierName))
                                     {
 
-                                        if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
+                                        if (materials.ContainsKey(record.MaterialName))
+                                        {
+                                            materialId = materials[record.MaterialName];
+                                            materialImport[materialId] += record.Quantity;
+                                        }
                                         else
                                         {
                                             var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
@@ -409,6 +414,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                             {
                                                 materialId = material.Id;
                                                 materials.Add(record.MaterialName, materialId);
+                                                materialImport.Add(material.Id, record.Quantity);
                                             }
                                         }
 
@@ -483,6 +489,12 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (isSuccessful)
                                 {
                                     await _importExportInventoryHistoryRepository.InsertRange(importInventoryList);
+                                    foreach(var materialId in materialImport.Keys)
+                                    {
+                                        var materialDb = await materialRepository.GetById(materialId);
+                                        materialDb.Quantity += materialImport[materialId];
+                                        await materialRepository.Update(materialDb);
+                                    }
                                     await _unitOfWork.SaveChangeAsync();
                                     result = new ObjectResult(importInventoryList) { StatusCode = 200 };
                                 }
