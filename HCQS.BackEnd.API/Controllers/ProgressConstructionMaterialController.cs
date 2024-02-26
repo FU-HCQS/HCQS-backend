@@ -87,5 +87,12 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _progressConstructionMaterialService.DeleteProgressConstructionMaterialById(Id);
         }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpGet("Get-remain-quantity-for-fulfillment-by-quotation-detail-Id/{Id}")]
+        public async Task<AppActionResult> GetRemainMaterialQuantityForFulfillment(Guid QuotationDetailId)
+        {
+            return await _progressConstructionMaterialService.GetRemainMaterialQuantityForFulfillment(QuotationDetailId);
+        }
     }
 }
