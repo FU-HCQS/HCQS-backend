@@ -19,5 +19,6 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> UpdateProgressConstructionMaterial(ProgressConstructionMaterialRequest ProgressConstructionMaterialRequest);
 
         public Task<AppActionResult> DeleteProgressConstructionMaterialById(Guid id);
+        public Task<AppActionResult> GetRemainMaterialQuantityForFulfillment(Guid QuotationDetailId);
     }
 }

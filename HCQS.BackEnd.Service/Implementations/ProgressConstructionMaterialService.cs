@@ -331,6 +331,37 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
+        public async Task<AppActionResult> GetRemainMaterialQuantityForFulfillment(Guid QuotationDetailId)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
+                var quotationDetailDb = await quotationDetailRepository.GetById(QuotationDetailId);
+                if (quotationDetailDb != null)
+                {
+                    var progressConstructionDb = await _progressConstructionMaterialRepository.GetAllDataByExpression(p => p.QuotationDetailId == QuotationDetailId);
+                    int remain = quotationDetailDb.Quantity;
+                    progressConstructionDb.ForEach(p => remain -= p.Quantity);
+                    if (remain > 0)
+                    {
+                        result.Result.Data = remain;
+                    }
+                    else
+                    {
+                        result.Result.Data = 0;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
         public async Task<AppActionResult> UpdateProgressConstructionMaterial(ProgressConstructionMaterialRequest ProgressConstructionMaterialRequest)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
