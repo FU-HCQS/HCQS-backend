@@ -8,6 +8,9 @@ namespace HCQS.BackEnd.DAL.Data
 {
     public class HCQSDbContext : IdentityDbContext<Account>
     {
+        public HCQSDbContext()
+        {
+        }
         public HCQSDbContext(DbContextOptions options) : base(options)
         {
         }
