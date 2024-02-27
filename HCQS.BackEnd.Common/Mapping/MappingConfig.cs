@@ -100,6 +100,7 @@ namespace HCQS.BackEnd.Common.Mapping
              .ForMember(desc => desc.FurnitureDiscount, act => act.MapFrom(src => src.FurnitureDiscount))
              .ForMember(desc => desc.LaborDiscount, act => act.MapFrom(src => src.LaborDiscount))
              .ForMember(desc => desc.MaterialDiscount, act => act.MapFrom(src => src.MaterialDiscount))
+             .ForMember(desc => desc.Description, act => act.MapFrom(src => src.Description))
              ;
             });
             return mappingConfig;

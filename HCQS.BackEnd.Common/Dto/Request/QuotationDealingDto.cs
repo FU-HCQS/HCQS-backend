@@ -6,6 +6,7 @@
         public double MaterialDiscount { get; set; }
         public double FurnitureDiscount { get; set; }
         public double LaborDiscount { get; set; }
+        public string? Description { get; set; }
         public Guid? QuotationId { get; set; }
     }
 }
