@@ -24,7 +24,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         public async Task<AppActionResult> CreatePaymentUrlVNPay(Guid paymentId)
         {
-            return await _paymentService.CreatePaymentUrlVNPay(paymentId, HttpContext);
+            return await _paymentService.CreatePaymentUrlVNPay(paymentId);
         }
 
         [HttpGet("create-payment-url-momo")]

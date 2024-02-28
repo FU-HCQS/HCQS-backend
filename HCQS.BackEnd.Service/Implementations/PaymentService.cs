@@ -148,7 +148,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> CreatePaymentUrlVNPay(Guid paymentId, HttpContext context)
+        public async Task<AppActionResult> CreatePaymentUrlVNPay(Guid paymentId)
         {
             AppActionResult result = new AppActionResult();
 
