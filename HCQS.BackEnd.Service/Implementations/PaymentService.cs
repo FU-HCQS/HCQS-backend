@@ -195,7 +195,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
 
                     pay.AddRequestData("vnp_CurrCode", _vnPayConfiguration.CurrCode);
-                    pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
+                    pay.AddRequestData("vnp_IpAddr", pay.GenerateRandomIPAddress());
                     pay.AddRequestData("vnp_Locale", _vnPayConfiguration.Locale);
                     pay.AddRequestData("vnp_OrderInfo", $"Khach hang: {accountDb.FirstName} {accountDb.LastName} thanh toan hoa don {paymentId}");
                     pay.AddRequestData("vnp_OrderType", "other");

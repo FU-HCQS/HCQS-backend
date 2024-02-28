@@ -83,6 +83,14 @@ namespace HCQS.BackEnd.Service.UtilityService.Payment.PaymentLibrary
 
             return "127.0.0.1";
         }
+        public string GenerateRandomIPAddress()
+        {
+            Random rand = new Random();
+            byte[] ipBytes = new byte[4];
+            rand.NextBytes(ipBytes);
+            IPAddress ipAddress = new IPAddress(ipBytes);
+            return ipAddress.ToString();
+        }
 
         public void AddRequestData(string key, string value)
         {
@@ -152,6 +160,7 @@ namespace HCQS.BackEnd.Service.UtilityService.Payment.PaymentLibrary
 
             return hash.ToString();
         }
+       
 
         private string GetResponseData()
         {
