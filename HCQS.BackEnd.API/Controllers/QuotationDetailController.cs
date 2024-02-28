@@ -39,6 +39,13 @@ namespace HCQS.BackEnd.API.Controllers
             return await _service.GetAllQuotationDetailByQuotationId(id);
         }
 
+        [HttpGet("get-all-approved-quotation-detail-by-project-id/{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
+        public async Task<AppActionResult> GetAllApprovedQuotationDetailByProjectId(Guid id)
+        {
+            return await _service.GetAllApprovedQuotationDetailByProjectId(id);
+        }
+
         //[HttpPost("create-quotation-detail")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         //public async Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail)

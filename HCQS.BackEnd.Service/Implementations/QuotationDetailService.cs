@@ -181,6 +181,45 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
+        public async Task<AppActionResult> GetAllApprovedQuotationDetailByProjectId(Guid id)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var projectRepository = Resolve<IProjectRepository>();
+                var projectDb = await projectRepository.GetByExpression(p => p.Id == id && p.ProjectStatus == Project.Status.UnderConstruction);
+                if(projectDb != null)
+                {
+                    var quotationRepository = Resolve<IQuotationRepository>();
+                    var quotationDb = await quotationRepository.GetByExpression(q => q.ProjectId == projectDb.Id && q.QuotationStatus == Quotation.Status.Approved);
+                    if(quotationDb != null)
+                    {
+                        var quotationDetailsDb = await _quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId ==quotationDb.Id);
+                        result.Result.Data = quotationDetailsDb;
+                    }
+                    else
+                    {
+                        result = BuildAppActionResultError(result, $"The approved quotation of project with id: {id} is not existed");
+                    }
+                }
+                else
+                {
+                    result = BuildAppActionResultError(result, $"The approved project with id: {id} is not existed");
+                }
+                
+                if (!BuildAppActionResultIsError(result))
+                {
+                    await _unitOfWork.SaveChangeAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
         public async Task<AppActionResult> GetAllQuotationDetailByQuotationId(Guid id)
         {
             AppActionResult result = new AppActionResult();
