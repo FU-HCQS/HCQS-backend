@@ -194,7 +194,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var quotationDb = await quotationRepository.GetByExpression(q => q.ProjectId == projectDb.Id && q.QuotationStatus == Quotation.Status.Approved);
                     if(quotationDb != null)
                     {
-                        var quotationDetailsDb = await _quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId ==quotationDb.Id);
+                        var quotationDetailsDb = await _quotationDetailRepository.GetAllDataByExpression(q => q.QuotationId ==quotationDb.Id, q => q.Material);
                         result.Result.Data = quotationDetailsDb;
                     }
                     else
