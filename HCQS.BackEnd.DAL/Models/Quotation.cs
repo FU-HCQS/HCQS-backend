@@ -15,6 +15,7 @@ namespace HCQS.BackEnd.DAL.Models
         public double LaborPrice { get; set; }
         public double LaborDiscount { get; set; }
         public double Total { get; set; }
+        public DateTime CreateDate { get; set; }
         public Status QuotationStatus { get; set; }
 
         public enum Status

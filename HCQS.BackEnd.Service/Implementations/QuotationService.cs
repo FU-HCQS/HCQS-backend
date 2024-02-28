@@ -67,6 +67,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             FurniturePrice = utility.CaculateDiscount(quotationDb.FurniturePrice, request.FurnitureDiscount),
                             LaborPrice = utility.CaculateDiscount(quotationDb.LaborPrice, request.LaborDiscount),
                             RawMaterialPrice = utility.CaculateDiscount(quotationDb.RawMaterialPrice, request.RawMaterialDiscount),
+                            CreateDate = utility.GetCurrentDateTimeInTimeZone(),
                             Total = total,
                             ProjectId = quotationDb.ProjectId
                         };

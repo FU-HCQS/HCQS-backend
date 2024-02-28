@@ -7,6 +7,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService;
+using System.Collections.Generic;
 using System.Transactions;
 using static HCQS.BackEnd.Service.UtilityService.BuildingUtility;
 
@@ -85,6 +86,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var exportPriceMaterialRepository = Resolve<IExportPriceMaterialRepository>();
                     var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
                     var workerPriceRepository = Resolve<IWorkerPriceRepository>();
+                    var utility = Resolve<Utility>();
                     var projectDb = await _projectRepository.GetById(project.Id);
                     if (projectDb == null)
                     {
@@ -109,7 +111,8 @@ namespace HCQS.BackEnd.Service.Implementations
                             QuotationStatus = Quotation.Status.Pending,
                             FurnitureDiscount = project.FurnitureDiscount,
                             LaborDiscount = project.LaborDiscount,
-                            RawMaterialDiscount = project.RawMaterialDiscount
+                            RawMaterialDiscount = project.RawMaterialDiscount,
+                            CreateDate = utility.GetCurrentDateTimeInTimeZone()
                         };
                         double totalLaborPrice = 0;
                         List<WorkerForProject> workers = new List<WorkerForProject>();
@@ -254,7 +257,9 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                result.Result.Data = await GetAllProject(accountId);
+                var list = await GetAllProject(accountId);
+                list.OrderByDescending(a => a.CreateDate);
+                result.Result.Data = list;
             }
             catch (Exception ex)
             {
@@ -269,7 +274,9 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                result.Result.Data = await GetAllProject(null);
+                var list = await GetAllProject(null);
+                list.OrderByDescending(a => a.CreateDate);
+                result.Result.Data = list;
             }
             catch (Exception ex)
             {
@@ -306,11 +313,22 @@ namespace HCQS.BackEnd.Service.Implementations
             var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
             var contractRepository = Resolve<IContractRepository>();
             Project project = await _projectRepository.GetByExpression(filter: a => a.Id == id, a => a.Account);
+            var listQuotation = new List<Quotation>();
+            if (isCustomer)
+            {
+                listQuotation= await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending);
+            }
+            else
+            {
+                listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id);
+            }
+            listQuotation.OrderByDescending(a => a.CreateDate);
+
             var result = new ProjectResponse
             {
                 Project = project,
                 QuotationDealings = project != null ? await quotationDealingRepository.GetAllDataByExpression(filter: a => a.Quotation.ProjectId == id) : null,
-                Quotations = isCustomer == true ? await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending) : await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id),
+                Quotations = listQuotation,
                 Contract = isCustomer == true ? await contractRepository.GetByExpression(c => c.ProjectId == id && c.ContractStatus != Contract.Status.NEW) : await contractRepository.GetByExpression(c => c.ProjectId == id)
             };
 
