@@ -6,5 +6,6 @@ namespace HCQS.BackEnd.Service.Contracts
     {
         public Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode);
         public Task<AppActionResult> GetContractById(Guid contractId);
+        public Task<AppActionResult> ReSendVerificationCode(Guid contractId);
     }
 }

@@ -3,9 +3,11 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.IdentityModel.Tokens;
+using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -39,6 +41,50 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return result;
+        }
+
+        public async Task<AppActionResult> ReSendVerificationCode(Guid contractId)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                AppActionResult result = new AppActionResult();
+                try
+                {
+                    var emailService = Resolve<IEmailService>();
+                    var accountRepository = Resolve<IAccountRepository>();
+                    var contractDb = await _contractRepository.GetById(contractId);
+                    string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                    if (contractDb == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The contract with id {contractId} is not existed");
+
+                    }else if(contractDb.ContractStatus != Contract.Status.IN_ACTIVE)
+                    {
+                        result = BuildAppActionResultError(result, $"Resend code is only valid when the contract status is in active");
+
+                    }
+                    var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
+                    if (account == null)
+                    {
+                        result = BuildAppActionResultError(result, $"The account with id {account.Id} is not existed");
+                    }
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        account.ContractVerifyCode = code;
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
+                        await _unitOfWork.SaveChangeAsync();
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result = BuildAppActionResultError(result, ex.Message);
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+
+            }
+
         }
 
         public async Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode)
