@@ -275,7 +275,7 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var list = await GetAllProject(null);
-                list.OrderByDescending(a => a.CreateDate);
+                list = list.OrderByDescending(a => a.CreateDate).ToList();
                 result.Result.Data = list;
             }
             catch (Exception ex)
@@ -322,7 +322,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id);
             }
-            listQuotation.OrderByDescending(a => a.CreateDate);
+            listQuotation= listQuotation.OrderByDescending(a => a.CreateDate).ToList();
 
             var result = new ProjectResponse
             {
