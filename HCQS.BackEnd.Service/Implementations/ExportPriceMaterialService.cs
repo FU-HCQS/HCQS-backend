@@ -56,10 +56,8 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             var exportPriceMaterial = _mapper.Map<ExportPriceMaterial>(ExportPriceMaterialRequest);
                             exportPriceMaterial.Id = Guid.NewGuid();
-                            if (exportPriceMaterial.Date == null)
-                            {
-                                exportPriceMaterial.Date = DateTime.Now;
-                            }
+                            var utility = Resolve<Utility>();
+                            exportPriceMaterial.Date = utility.GetCurrentDateTimeInTimeZone();
                             result.Result.Data = await _exportPriceMaterialRepository.Insert(exportPriceMaterial);
                             await _unitOfWork.SaveChangeAsync();
                         }
