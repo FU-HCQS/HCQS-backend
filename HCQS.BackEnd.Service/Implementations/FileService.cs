@@ -186,7 +186,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName)
+        public async Task<AppActionResult> UploadFileToFirebase(IFormFile file, string pathFileName)
         {
             bool isValid = true;
             if (file == null || file.Length == 0)
@@ -231,7 +231,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> DeleteImageFromFirebase(string pathFileName)
+        public async Task<AppActionResult> DeleteFileFromFirebase(string pathFileName)
         {
             try
             {

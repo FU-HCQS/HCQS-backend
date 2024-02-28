@@ -52,7 +52,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blog.Id}";
-                        var resultFirebase = await fileService.UploadImageToFirebase(blogRequest.ImageUrl, url);
+                        var resultFirebase = await fileService.UploadFileToFirebase(blogRequest.ImageUrl, url);
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
@@ -90,7 +90,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blogDb.Id}";
-                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+                        var resultFirebase = await fileService.DeleteFileFromFirebase(url);
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
@@ -151,11 +151,11 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.BLOG_PREFIX}{blogDb.Id}";
-                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+                        var resultFirebase = await fileService.DeleteFileFromFirebase(url);
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
-                            var uploadFileResult = await fileService.UploadImageToFirebase(blogRequest.ImageUrl, url);
+                            var uploadFileResult = await fileService.UploadFileToFirebase(blogRequest.ImageUrl, url);
                             if (uploadFileResult.IsSuccess)
                             {
                                 var blog = _mapper.Map<Blog>(blogRequest);

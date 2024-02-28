@@ -51,7 +51,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{news.Id}";
-                        var resultFirebase = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
+                        var resultFirebase = await fileService.UploadFileToFirebase(NewsRequest.ImgUrl, url);
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
                             news.ImageUrl = Convert.ToString(resultFirebase.Result.Data);
@@ -90,7 +90,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
 
-                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+                        var resultFirebase = await fileService.DeleteFileFromFirebase(url);
 
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
@@ -199,10 +199,10 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var fileService = Resolve<IFileService>();
                         string url = $"{SD.FirebasePathName.NEWS_PREFIX}{newsDb.Id}";
-                        var resultFirebase = await fileService.DeleteImageFromFirebase(url);
+                        var resultFirebase = await fileService.DeleteFileFromFirebase(url);
                         if (resultFirebase != null && resultFirebase.IsSuccess)
                         {
-                            var uploadFileResult = await fileService.UploadImageToFirebase(NewsRequest.ImgUrl, url);
+                            var uploadFileResult = await fileService.UploadFileToFirebase(NewsRequest.ImgUrl, url);
                             if (uploadFileResult.IsSuccess)
                             {
                                 var news = _mapper.Map<News>(NewsRequest);

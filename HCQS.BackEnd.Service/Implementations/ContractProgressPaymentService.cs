@@ -121,8 +121,9 @@ namespace HCQS.BackEnd.Service.Implementations
                         var content = TemplateMappingHelper.GetTemplateContract(templateDto);
                         contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
                         contractDb.Deposit = (double)deposit.Price;
-                        var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
+                        var upload = await fileService.UploadFileToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
+                        contractDb.Content = content;
                         account.ContractVerifyCode = code;
                         await _unitOfWork.SaveChangeAsync();
                         emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);

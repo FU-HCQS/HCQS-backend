@@ -16,9 +16,9 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public IActionResult ReturnErrorColored<T>(List<string> headers, List<List<string>> data, Dictionary<int, string> rowsToColor, string filename);
 
-        public Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName);
+        public Task<AppActionResult> UploadFileToFirebase(IFormFile file, string pathFileName);
 
-        public Task<AppActionResult> DeleteImageFromFirebase(string pathFileName);
+        public Task<AppActionResult> DeleteFileFromFirebase(string pathFileName);
         public IFormFile ConvertHtmlToPdf(string content,string fileName);
 
     }

@@ -59,7 +59,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         foreach (var item in sampleProjectRequest.ImageFiles)
                         {
                             var id = Guid.NewGuid();
-                            var resultFirebase = await fileService.UploadImageToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
+                            var resultFirebase = await fileService.UploadFileToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 string url = resultFirebase.Result.Data.ToString();
@@ -123,7 +123,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         foreach (var item in listStaticFile)
                         {
-                            var resultFirebase = await fileService.DeleteImageFromFirebase(item.Url);
+                            var resultFirebase = await fileService.DeleteFileFromFirebase(item.Url);
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 await staticFileRepository.DeleteById(item.Id);
@@ -262,7 +262,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         foreach (var item in listStaticFile)
                         {
-                            var resultFirebase = await fileService.DeleteImageFromFirebase(item.Url);
+                            var resultFirebase = await fileService.DeleteFileFromFirebase(item.Url);
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 await staticFileRepository.DeleteById(item.Id);
@@ -272,7 +272,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         foreach (var item in sampleProjectRequest.ImageFiles)
                         {
                             var id = Guid.NewGuid();
-                            var resultFirebase = await fileService.UploadImageToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
+                            var resultFirebase = await fileService.UploadFileToFirebase(item, $"{SD.FirebasePathName.SAMPLE_HOUSE_PREFIX}{id}");
                             if (resultFirebase != null && resultFirebase.IsSuccess)
                             {
                                 var typeFile = FileChecker.CheckFileType(item);

@@ -52,7 +52,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         await _unitOfWork.SaveChangeAsync();
 
                         var fileRepository = Resolve<IFileService>();
-                        var imgUrl = await fileRepository.UploadImageToFirebase(projectDto.LandDrawingFile, $"landdrawing/{project.Id}");
+                        var imgUrl = await fileRepository.UploadFileToFirebase(projectDto.LandDrawingFile, $"landdrawing/{project.Id}");
                         if (imgUrl.Result.Data != null && result.IsSuccess)
                         {
                             project.LandDrawingFileUrl = Convert.ToString(imgUrl.Result.Data);
