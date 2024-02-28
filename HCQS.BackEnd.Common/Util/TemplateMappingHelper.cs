@@ -67,7 +67,7 @@ namespace HCQS.BackEnd.Common.Util
         <div class=""contract-section"">
             <h3>BÊN NHẬN CUNG CẤP VẬT TƯ VÀ PHÍ XÂY DỰNG (Bên B)</h3>
             <p>Ông/bà: " + $"{dto.Account.FirstName} {dto.Account.LastName}" + @"</p>
-            <p>Địa chỉ: …………………………………………………………………………………</p>
+            <p>Địa chỉ: " +dto.Project.AddressProject +@" </p>
             <p>Điện thoại: " + dto.Account.PhoneNumber + @".</p>
         </div>
 

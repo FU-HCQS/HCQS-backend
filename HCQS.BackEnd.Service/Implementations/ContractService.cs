@@ -28,10 +28,13 @@ namespace HCQS.BackEnd.Service.Implementations
         public async Task<AppActionResult> GetContractById(Guid contractId)
         {
             AppActionResult result = new AppActionResult();
-            try { 
-            result.Result.Data = await _contractRepository.GetByExpression(c => c.Id == contractId);
-            
-            }catch(Exception ex) {
+            try
+            {
+                result.Result.Data = await _contractRepository.GetByExpression(c => c.Id == contractId);
+
+            }
+            catch (Exception ex)
+            {
                 result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
@@ -51,9 +54,9 @@ namespace HCQS.BackEnd.Service.Implementations
                     var fileService = Resolve<IFileService>();
                     var utility = Resolve<Common.Util.Utility>();
 
-                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project, c=> c.Project);
+                    var contractDb = await _contractRepository.GetByExpression(c => c.Id == contractId, c => c.Project, c => c.Project);
                     var accountDb = await accountRepository.GetById(accountId);
-                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId, c=> c.Payment);
+                    var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId, c => c.Payment);
                     if (contractDb == null || accountDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The account with id{accountId} or contract with id {contractId} is not existed");
@@ -62,11 +65,17 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The verification code is wrong");
                     }
+                    else if (string.IsNullOrEmpty(accountDb.PhoneNumber))
+                    {
+                        result = BuildAppActionResultError(result, $"The account {accountDb.Id} don't have phone number. You must update phone number to sign this contract");
+
+                    }
                     if (!listCPP.Any())
                     {
                         result = BuildAppActionResultError(result, $"The list contract progress payment is empty");
 
                     }
+
                     if (!BuildAppActionResultIsError(result))
                     {
                         accountDb.ContractVerifyCode = null;
