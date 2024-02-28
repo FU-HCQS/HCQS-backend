@@ -86,6 +86,7 @@ namespace HCQS.BackEnd.Common.Mapping
                .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))
                .ForMember(desc => desc.Area, act => act.MapFrom(src => src.Area))
                .ForMember(desc => desc.ConstructionType, act => act.MapFrom(src => src.Type))
+               .ForMember(desc => desc.AddressProject, act => act.MapFrom(src => src.AddressProject))
                .ForMember(desc => desc.AccountId, act => act.MapFrom(src => src.AccountId))
                ;
 

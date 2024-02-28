@@ -43,7 +43,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<ContractProgressPayment> listCPP = new List<ContractProgressPayment>();
                     List<Payment> listPM = new List<Payment>();
                     var contractId = list?.First()?.ContractId;
-                    var contractDb = await contractRepository.GetByExpression(a => a.Id == contractId, a => a.Project.Account);
+                    var contractDb = await contractRepository.GetByExpression(a => a.Id == contractId, a => a.Project.Account, a=> a.Project);
                     if (contractDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is not existed");
@@ -108,7 +108,17 @@ namespace HCQS.BackEnd.Service.Implementations
                         var a = await _repository.InsertRange(listCPP);
                         await paymentRepository.InsertRange(listPM);
                         await contractRepository.Update(contractDb);
-                        var content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(), contractDb.Project.Account, a.ToList(), false);
+                        ContractTemplateDto templateDto = new ContractTemplateDto
+                        {
+                            Account =account, 
+                            Contract = contractDb,
+                            ContractProgressPayments=a.ToList(),
+                            CreateDate=contractDb.DateOfContract,
+                            IsSigned=false, 
+                            Project = contractDb.Project,
+                            SignDate= utility.GetCurrentDateTimeInTimeZone()
+                        };
+                        var content = TemplateMappingHelper.GetTemplateContract(templateDto);
                         contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
                         contractDb.Deposit = (double)deposit.Price;
                         var upload = await fileService.UploadImageToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");

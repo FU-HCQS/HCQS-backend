@@ -1,10 +1,12 @@
-﻿using HCQS.BackEnd.DAL.Models;
+﻿using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.DAL.Models;
+using System.Security.Principal;
 
 namespace HCQS.BackEnd.Common.Util
 {
     public class TemplateMappingHelper
     {
-        public static string GetTemplateContract(DateTime createDate, DateTime signDate, Account account, List<ContractProgressPayment> payments, bool isSign)
+        public static string GetTemplateContract(ContractTemplateDto dto)
         {
             string body = @"
 <!DOCTYPE html>
@@ -53,7 +55,7 @@ namespace HCQS.BackEnd.Common.Util
 
         <h2>HỢP ĐỒNG CUNG CẤP VẬT TƯ VÀ PHÍ XÂY DỰNG</h2>
 
-        <p>Hôm nay, ngày " + createDate.Day + @" tháng " + createDate.Month + @" năm " + createDate.Year + @" Tại  Lô E2a-7, Đường D1, Đ. D1, Long Thạnh Mỹ, Thành Phố Thủ Đức, Thành phố Hồ Chí Minh.</p>
+        <p>Hôm nay, ngày " + dto.CreateDate.Day + @" tháng " + dto.CreateDate.Month + @" năm " + dto.CreateDate.Year + @" Tại  Lô E2a-7, Đường D1, Đ. D1, Long Thạnh Mỹ, Thành Phố Thủ Đức, Thành phố Hồ Chí Minh.</p>
 
         <div class=""contract-section"">
             <h3>BÊN CUNG CẤP VẬT TƯ (Bên A)</h3>
@@ -64,15 +66,23 @@ namespace HCQS.BackEnd.Common.Util
 
         <div class=""contract-section"">
             <h3>BÊN NHẬN CUNG CẤP VẬT TƯ VÀ PHÍ XÂY DỰNG (Bên B)</h3>
-            <p>Ông/bà: " + $"{account.FirstName} {account.LastName}" + @"</p>
+            <p>Ông/bà: " + $"{dto.Account.FirstName} {dto.Account.LastName}" + @"</p>
             <p>Địa chỉ: …………………………………………………………………………………</p>
-            <p>Điện thoại: " + account.PhoneNumber + @".</p>
+            <p>Điện thoại: " + dto.Account.PhoneNumber + @".</p>
         </div>
 
         <div class=""contract-section"">
             <p>Hai bên thỏa thuận ký hợp đồng này, trong đó, Bên A cam kết cung cấp vật tư và Bên B cam kết trả phí xây dựng với các điều khoản như sau:</p>
         </div>
-
+        <div class=""contract-section"">
+            <h3>Tổng chi phí dự tính thực hiện thi công:</h3>
+            <ul>
+                <li>Tổng số tiền vật liệu thô (xi măng, cát, thép...): " +dto.Contract.MaterialPrice + @"</li>
+                <li>Tổng số tiền vật liệu nội thất (bồn vệ sinh, đèn điện ...): " +dto.Contract.FurniturePrice + @"</li>
+                <li>Tổng số tiền nhân công: " +dto.Contract.LaborPrice +@"</li>
+            </ul>
+            <p>Tất cả số tiền trên là chi phí dự tính có thể sai lệch khoảng 10%. Nếu trong trường hợp sai lệch hơn thì bên A chịu trách nhiệm.</p>
+        </div>
         <div class=""contract-section"">
             <h3>Điều 1: Nội dung cung cấp vật tư và phí xây dựng</h3>
             <p>Bên A cam kết cung cấp vật tư xây dựng cho Bên B, bao gồm:</p>
@@ -89,7 +99,7 @@ namespace HCQS.BackEnd.Common.Util
             <div class=""payment-schedule""> 
 ";
             int i = 1;
-            foreach (var payment in payments)
+            foreach (var payment in dto.ContractProgressPayments)
             {
                 body += "<p><strong>Đợt" + i + ":</strong> Trước khi bắt đầu công việc - Bên B thanh toán cho Bên A " + payment.Payment.Price + " đồng.</p> ";
                 i++;
@@ -134,7 +144,7 @@ namespace HCQS.BackEnd.Common.Util
         <div class=""signature"">
             <div>
                 <p>ĐẠI DIỆN BÊN A</p>
-                <p>Ngày " + createDate.Day + @" tháng " + createDate.Month + @" năm " + createDate.Year + @"</p>
+                <p>Ngày " + dto.CreateDate.Day + @" tháng " + dto.CreateDate.Month + @" năm " + dto.CreateDate.Year + @"</p>
 <p> Đã kí </p>
   <p> Công ty Love House </p>
 ";
@@ -146,16 +156,16 @@ namespace HCQS.BackEnd.Common.Util
             </div>
             <div>
                 <p>ĐẠI DIỆN BÊN B</p>
-                 <p>Ngày " + signDate.Day + @" tháng " + signDate.Month + @" năm " + signDate.Year + @"</p>";
-            if (isSign)
+                 <p>Ngày " + dto.SignDate.Day + @" tháng " + dto.SignDate.Month + @" năm " + dto.SignDate.Year + @"</p>";
+            if (dto.IsSigned)
             {
                 body += "<p>Đã kí điện tử</p>";
             }
             else
             {
-                body += "<p>Empty !!!!!!!!</p>";
+                body += "<p>Chưa kí</p>";
             }
-            body += @" <p> " + $"{account.FirstName} {account.LastName}" + @" </p>
+            body += @" <p> " + $"{dto.Account.FirstName} {dto.Account.LastName}" + @" </p>
                
             </div>
         </div>

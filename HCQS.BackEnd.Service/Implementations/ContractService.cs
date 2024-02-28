@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
+using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.IdentityModel.Tokens;
 using System.Transactions;
@@ -49,7 +51,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var fileService = Resolve<IFileService>();
                     var utility = Resolve<Common.Util.Utility>();
 
-                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project);
+                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project, c=> c.Project);
                     var accountDb = await accountRepository.GetById(accountId);
                     var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId, c=> c.Payment);
                     if (contractDb == null || accountDb == null)
@@ -69,8 +71,17 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         accountDb.ContractVerifyCode = null;
                         contractDb.ContractStatus = DAL.Models.Contract.Status.ACTIVE;
-                        contractDb.Content = TemplateMappingHelper.GetTemplateContract(contractDb.DateOfContract, utility.GetCurrentDateTimeInTimeZone(),accountDb, listCPP, true);
-
+                        ContractTemplateDto templateDto = new ContractTemplateDto
+                        {
+                            Account = accountDb,
+                            Contract = contractDb,
+                            ContractProgressPayments = listCPP,
+                            CreateDate = contractDb.DateOfContract,
+                            IsSigned = true,
+                            Project = contractDb.Project,
+                            SignDate = utility.GetCurrentDateTimeInTimeZone()
+                        };
+                        var content = TemplateMappingHelper.GetTemplateContract(templateDto);
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
                         var delete = await fileService.DeleteImageFromFirebase($"contract/{contractDb.Id}");
