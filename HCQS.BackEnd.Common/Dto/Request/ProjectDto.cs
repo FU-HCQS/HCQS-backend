@@ -16,7 +16,7 @@ namespace HCQS.BackEnd.Common.Dto.Request
             RoughConstruction,
             CompleteConstruction
         }
-
-        public string AccountId { get; set; }
+        public string? AddressProject { get; set; }
+        public string? AccountId { get; set; }
     }
 }
