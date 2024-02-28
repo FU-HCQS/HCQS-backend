@@ -320,7 +320,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             else
             {
-                listQuotation= await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id)
+                listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id);
             }
             listQuotation.OrderByDescending(a => a.CreateDate);
 
