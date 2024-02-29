@@ -52,13 +52,15 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var emailService = Resolve<IEmailService>();
                     var accountRepository = Resolve<IAccountRepository>();
+                    var contractVerificationCodeRepository = Resolve<IContractVerificationCodeRepository>();
                     var contractDb = await _contractRepository.GetById(contractId);
                     string code = Guid.NewGuid().ToString("N").Substring(0, 6);
                     if (contractDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The contract with id {contractId} is not existed");
 
-                    }else if(contractDb.ContractStatus != Contract.Status.IN_ACTIVE)
+                    }
+                    else if (contractDb.ContractStatus != Contract.Status.IN_ACTIVE)
                     {
                         result = BuildAppActionResultError(result, $"Resend code is only valid when the contract status is in active");
 
@@ -68,9 +70,25 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         result = BuildAppActionResultError(result, $"The account with id {account.Id} is not existed");
                     }
+                    var verificationCodeDb = await contractVerificationCodeRepository.GetByExpression(c => c.ContractId == contractId);
+                    if (verificationCodeDb != null)
+                    {
+                        verificationCodeDb.VerficationCode = code;
+                    }
+                    else
+                    {
+                        await contractVerificationCodeRepository.Insert(
+                            new ContractVerificationCode
+                            {
+                                Id = Guid.NewGuid(),
+                                VerficationCode = code,
+                                ContractId = contractId
+                            }
+                            );
+                    }
                     if (!BuildAppActionResultIsError(result))
                     {
-                        account.ContractVerifyCode = code;
+                        await contractVerificationCodeRepository.Update(verificationCodeDb);
                         emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
                         await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
@@ -99,15 +117,17 @@ namespace HCQS.BackEnd.Service.Implementations
                     var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                     var fileService = Resolve<IFileService>();
                     var utility = Resolve<Common.Util.Utility>();
+                    var verificationCodeRepository = Resolve<IContractVerificationCodeRepository>();
 
                     var contractDb = await _contractRepository.GetByExpression(c => c.Id == contractId, c => c.Project, c => c.Project);
                     var accountDb = await accountRepository.GetById(accountId);
                     var listCPP = await contractProgressPaymentRepository.GetAllDataByExpression(c => c.ContractId == contractId, c => c.Payment);
+                    var verficationCodeDb = await verificationCodeRepository.GetByExpression(c => c.ContractId == contractId && c.VerficationCode == verificationCode);
                     if (contractDb == null || accountDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The account with id{accountId} or contract with id {contractId} is not existed");
                     }
-                    else if (verificationCode != accountDb.ContractVerifyCode)
+                    if (verficationCodeDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The verification code is wrong");
                     }
@@ -124,7 +144,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     if (!BuildAppActionResultIsError(result))
                     {
-                        accountDb.ContractVerifyCode = null;
+                        verficationCodeDb.VerficationCode = null;
                         contractDb.ContractStatus = DAL.Models.Contract.Status.ACTIVE;
                         ContractTemplateDto templateDto = new ContractTemplateDto
                         {
