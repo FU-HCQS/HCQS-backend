@@ -4,6 +4,7 @@ using HCQS.BackEnd.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    partial class HCQSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240229094046_AddConstructionConfig")]
+    partial class AddConstructionConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +34,9 @@ namespace HCQS.BackEnd.DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContractVerifyCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -139,24 +144,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.ToTable("Blogs");
                 });
 
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ConstructionConfig", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Value")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ConstructionConfigs");
-                });
-
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Contract", b =>
                 {
                     b.Property<Guid>("Id")
@@ -238,25 +225,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasFilter("[PaymentId] IS NOT NULL");
 
                     b.ToTable("ContractProgressPayment");
-                });
-
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ContractVerificationCode", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ContractId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("VerficationCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("ContractVerificationCodes");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ExportPriceMaterial", b =>
@@ -831,21 +799,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "58cba403-7d15-4d22-8f5a-9da4b6000558",
+                            ConcurrencyStamp = "0e587c0d-fc2e-4b6a-8eeb-9cbd7a4c3888",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "c8c7b9cd-07ae-4880-be15-ccbae2d130fd",
+                            ConcurrencyStamp = "33cce708-d844-4dc2-a63e-ae47df17eb04",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "2e3175bb-467e-491c-af69-32ae227970e3",
+                            ConcurrencyStamp = "e46d97f8-55c4-4c57-b9d7-33f33575f3b8",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -988,17 +956,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Navigation("Contract");
 
                     b.Navigation("Payment");
-                });
-
-            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ContractVerificationCode", b =>
-                {
-                    b.HasOne("HCQS.BackEnd.DAL.Models.Contract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ExportPriceMaterial", b =>
