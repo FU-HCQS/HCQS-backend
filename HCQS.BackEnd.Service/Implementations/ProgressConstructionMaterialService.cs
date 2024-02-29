@@ -42,37 +42,49 @@ namespace HCQS.BackEnd.Service.Implementations
                         var quotationDetailDb = await quotationDetailRepository.GetByExpression(q => q.Id == ProgressConstructionMaterialRequest.QuotationDetailId, q => q.Material);
                         if (quotationDetailDb != null)
                         {
-                            var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId, e => e.Material);
-                            var latestMaterialPrice = exportMaterialPrices.OrderByDescending(e => e.Date).FirstOrDefault();
-                            if (latestMaterialPrice != null)
-                            {
-                                var discount = await GetDiscountByQuotationDetailId(quotationDetailDb.Id);
-                                var utility = Resolve<Utility>();
-                                if (materialExport.ContainsKey(latestMaterialPrice.Material.Id))
-                                {
-                                    materialExport[latestMaterialPrice.Material.Id] += ProgressConstructionMaterialRequest.Quantity;
-                                }
-                                else
-                                {
-                                    materialExport.Add(latestMaterialPrice.Material.Id, ProgressConstructionMaterialRequest.Quantity);
-                                }
-                                var newProgressConstructionMaterial = new ProgressConstructionMaterial
-                                {
-                                    Id = Guid.NewGuid(),
-                                    Discount = discount,
-                                    Date = utility.GetCurrentDateTimeInTimeZone(),
-                                    Quantity = ProgressConstructionMaterialRequest.Quantity,
-                                    Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount * 1.00) * latestMaterialPrice.Price,
+                            var progressConstructionDb = await _progressConstructionMaterialRepository.GetAllDataByExpression(p => p.QuotationDetailId == ProgressConstructionMaterialRequest.QuotationDetailId);
 
-                                    ExportPriceMaterialId = latestMaterialPrice.Id,
-                                    QuotationDetailId = quotationDetailDb.Id
-                                };
-                                progressConstructionMaterials.Add(newProgressConstructionMaterial);
+                            int remain = quotationDetailDb.Quantity;
+                            progressConstructionDb.ForEach(p => remain -= p.Quantity);
+                            if(remain < ProgressConstructionMaterialRequest.Quantity)
+                            {
+                                result = BuildAppActionResultError(result, $"The fulfilling quantity request is higher than remain quantity!");
                             }
                             else
                             {
-                                result = BuildAppActionResultError(result, $"There is no available material export price of {quotationDetailDb.Material.Name}!");
+                                var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId, e => e.Material);
+                                var latestMaterialPrice = exportMaterialPrices.OrderByDescending(e => e.Date).FirstOrDefault();
+                                if (latestMaterialPrice != null)
+                                {
+                                    var discount = await GetDiscountByQuotationDetailId(quotationDetailDb.Id);
+                                    var utility = Resolve<Utility>();
+                                    if (materialExport.ContainsKey(latestMaterialPrice.Material.Id))
+                                    {
+                                        materialExport[latestMaterialPrice.Material.Id] += ProgressConstructionMaterialRequest.Quantity;
+                                    }
+                                    else
+                                    {
+                                        materialExport.Add(latestMaterialPrice.Material.Id, ProgressConstructionMaterialRequest.Quantity);
+                                    }
+                                    var newProgressConstructionMaterial = new ProgressConstructionMaterial
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Discount = discount,
+                                        Date = utility.GetCurrentDateTimeInTimeZone(),
+                                        Quantity = ProgressConstructionMaterialRequest.Quantity,
+                                        Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount * 1.00) * latestMaterialPrice.Price,
+
+                                        ExportPriceMaterialId = latestMaterialPrice.Id,
+                                        QuotationDetailId = quotationDetailDb.Id
+                                    };
+                                    progressConstructionMaterials.Add(newProgressConstructionMaterial);
+                                }
+                                else
+                                {
+                                    result = BuildAppActionResultError(result, $"There is no available material export price of {quotationDetailDb.Material.Name}!");
+                                }
                             }
+                            
                         }
                         else
                         {
