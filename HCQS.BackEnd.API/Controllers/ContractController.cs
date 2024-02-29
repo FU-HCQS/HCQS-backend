@@ -25,7 +25,6 @@ namespace HCQS.BackEnd.API.Controllers
             return await _contractService.SignContract(contractId, accountId, verificationCode);
         }
         [HttpPut("resend-verification-code-by-contractId/{contractId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
         public async Task<AppActionResult> ReSendVerificationCode(Guid contractId)
         {
             return await _contractService.ReSendVerificationCode(contractId);

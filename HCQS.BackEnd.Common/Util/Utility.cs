@@ -38,7 +38,7 @@ namespace HCQS.BackEnd.Common.Util
                 long chunk = wholePart % 1000;
 
                 if (chunk > 0)
-                    result = ConvertChunkToVietnamese(chunk, digitNames) + unitNames[index] + result;
+                    result = ConvertChunkToVietnamese(chunk, digitNames) + unitNames[index] + (result == "" ? "" : " ") + result;
 
                 wholePart /= 1000;
                 index++;
