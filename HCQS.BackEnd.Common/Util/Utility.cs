@@ -18,6 +18,63 @@ namespace HCQS.BackEnd.Common.Util
 
             return vietnamTime;
         }
+        public string FormatMoney(double money)
+        {
+            return money.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        public string TranslateToVietnamese(double money)
+        {
+            if (money == 0) return "Không đồng";
+
+            string[] unitNames = { "", " nghìn", " triệu", " tỷ", " nghìn tỷ", " triệu tỷ" };
+            string[] digitNames = { "", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
+
+            long wholePart = (long)money;
+            int index = 0;
+            string result = "";
+
+            while (wholePart > 0)
+            {
+                long chunk = wholePart % 1000;
+
+                if (chunk > 0)
+                    result = ConvertChunkToVietnamese(chunk, digitNames) + unitNames[index] + result;
+
+                wholePart /= 1000;
+                index++;
+            }
+
+            // Handle the decimal part
+            string decimalPart = money.ToString("F2").Split('.')[1];
+            if (decimalPart != "00")
+            {
+                result += " point";
+                foreach (char digit in decimalPart)
+                {
+                    result += " " + digitNames[Convert.ToInt32(char.GetNumericValue(digit))];
+                }
+            }
+
+            return result.Trim();
+        }
+
+        static string ConvertChunkToVietnamese(long chunk, string[] digitNames)
+        {
+            int hundreds = (int)(chunk / 100), tens = (int)((chunk % 100) / 10), ones = (int)(chunk % 10);
+            string result = "";
+
+            if (hundreds > 0) result += digitNames[hundreds] + " trăm";
+            if (tens > 1) result += (result == "" ? "" : " ") + digitNames[tens] + " mươi";
+            else if (tens == 1) result += (result == "" ? "" : " mười");
+            if (ones > 1) result += (result == "" ? "" : " ") + digitNames[ones];
+            else if (ones == 1) result += (result == "" ? "" : " một");
+
+            return result;
+        }
+        public string FormatDate(DateTime dateTime)
+        {
+            return dateTime.ToString("dd/MM/yyyy");
+        }
 
         public double CaculateDiscount(double originPrice, double discount)
         {

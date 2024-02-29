@@ -8,6 +8,7 @@ namespace HCQS.BackEnd.Common.Util
     {
         public static string GetTemplateContract(ContractTemplateDto dto)
         {
+            var utility = new Utility();
             string body = @"
 <!DOCTYPE html>
 <html lang=""vi"">
@@ -77,9 +78,9 @@ namespace HCQS.BackEnd.Common.Util
         <div class=""contract-section"">
             <h3>Tổng chi phí dự tính thực hiện thi công:</h3>
             <ul>
-                <li>Tổng số tiền vật liệu thô (xi măng, cát, thép...): " +dto.Contract.MaterialPrice + @"</li>
-                <li>Tổng số tiền vật liệu nội thất (bồn vệ sinh, đèn điện ...): " +dto.Contract.FurniturePrice + @"</li>
-                <li>Tổng số tiền nhân công: " +dto.Contract.LaborPrice +@"</li>
+                <li>Tổng số tiền vật liệu thô (xi măng, cát, thép...): " + $"{utility.FormatMoney(dto.Contract.MaterialPrice)} Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.MaterialPrice)}"  + @"</li>
+                <li>Tổng số tiền vật liệu nội thất (bồn vệ sinh, đèn điện ...): " + $"{utility.FormatMoney(dto.Contract.FurniturePrice)} Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.FurniturePrice)}" + @"</li>
+                <li>Tổng số tiền nhân công: " + $"{utility.FormatMoney(dto.Contract.LaborPrice)} Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.LaborPrice)}" + @"</li>
             </ul>
             <p>Tất cả số tiền trên là chi phí dự tính có thể sai lệch khoảng 10%. Nếu trong trường hợp sai lệch hơn thì bên A chịu trách nhiệm.</p>
         </div>
@@ -99,9 +100,9 @@ namespace HCQS.BackEnd.Common.Util
             <div class=""payment-schedule""> 
 ";
             int i = 1;
-            foreach (var payment in dto.ContractProgressPayments)
+            foreach (var progressPayment in dto.ContractProgressPayments)
             {
-                body += "<p><strong>Đợt" + i + ":</strong> Trước khi bắt đầu công việc - Bên B thanh toán cho Bên A " + payment.Payment.Price + " đồng.</p> ";
+                body += "<p><strong>Đợt" + i + ":</strong> "+ $"(Ngày {utility.FormatDate(progressPayment.Date)})" +" Trước khi bắt đầu công việc - Bên B thanh toán cho Bên A " + $"{utility.FormatMoney(progressPayment.Payment.Price)} Bằng chữ: {utility.TranslateToVietnamese(progressPayment.Payment.Price)}" + " đồng.</p> ";
                 i++;
             };
 
