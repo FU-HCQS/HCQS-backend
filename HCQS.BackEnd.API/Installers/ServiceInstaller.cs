@@ -83,6 +83,9 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IWorkerPriceRepository, WorkerPriceRepository>();
             services.AddScoped<IWorkerPriceService, WorkerPriceService>();
             services.AddScoped<IStatisticService, StatisticService>();
+
+            services.AddScoped<IConstructionConfigRepository, ConstructionConfigRepository>();
+            services.AddScoped<IConstructionConfigService, ConstructionConfigService>();
         }
     }
 }
