@@ -89,10 +89,10 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpGet("Get-remain-quantity-for-fulfillment-by-quotation-detail-Id/{Id}")]
-        public async Task<AppActionResult> GetRemainMaterialQuantityForFulfillment(Guid QuotationDetailId)
+        [HttpGet("get-remain-quantity-for-fulfillment-by-quotation-detail-Id/{quotationDetailId}")]
+        public async Task<AppActionResult> GetRemainMaterialQuantityForFulfillment(Guid quotationDetailId)
         {
-            return await _progressConstructionMaterialService.GetRemainMaterialQuantityForFulfillment(QuotationDetailId);
+            return await _progressConstructionMaterialService.GetRemainMaterialQuantityForFulfillment(quotationDetailId);
         }
     }
 }
