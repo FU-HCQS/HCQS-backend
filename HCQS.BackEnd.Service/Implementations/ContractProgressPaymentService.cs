@@ -34,6 +34,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var paymentRepository = Resolve<IPaymentRepository>();
                 var contractRepository = Resolve<IContractRepository>();
                 var accountRepository = Resolve<IAccountRepository>();
+                var contractVerificationCodeRepository = Resolve<IContractVerificationCodeRepository>();
                 var fileService = Resolve<IFileService>();
                 var emailService = Resolve<IEmailService>();
                 string code = Guid.NewGuid().ToString("N").Substring(0, 6);
@@ -43,7 +44,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     List<ContractProgressPayment> listCPP = new List<ContractProgressPayment>();
                     List<Payment> listPM = new List<Payment>();
                     var contractId = list?.First()?.ContractId;
-                    var contractDb = await contractRepository.GetByExpression(a => a.Id == contractId, a => a.Project.Account, a=> a.Project);
+                    var contractDb = await contractRepository.GetByExpression(a => a.Id == contractId, a => a.Project.Account, a => a.Project);
                     if (contractDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The contract with id {list.First().ContractId} is not existed");
@@ -54,7 +55,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         result = BuildAppActionResultError(result, $"The list contract progress payment must have deposit");
 
                     }
-                   
+
                     double total = 0;
                     foreach (var item in list)
                     {
@@ -65,14 +66,25 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         total = (double)(total + item.Price);
                     }
-                    if (contractDb!=null && contractDb.Total != total)
+
+                    if (contractDb != null && contractDb.Total != total)
                     {
 
                         result = BuildAppActionResultError(result, $"The total price for all progress contract payment don't match total in contract");
 
                     }
+                    else
+                    {
+                        var contractVerificationCode = await contractVerificationCodeRepository.GetByExpression(c => c.ContractId == contractDb.Id);
+                        if (contractVerificationCode != null)
+                        {
+                            result = BuildAppActionResultError(result, $"The verification code is existed");
+
+                        }
+                    }
+
                     var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
-                    if (account == null )
+                    if (account == null)
                     {
 
                         result = BuildAppActionResultError(result, $"The account ís not existed");
@@ -102,7 +114,6 @@ namespace HCQS.BackEnd.Service.Implementations
                             });
                         }
                     }
-
                     if (!BuildAppActionResultIsError(result))
                     {
                         var a = await _repository.InsertRange(listCPP);
@@ -110,13 +121,13 @@ namespace HCQS.BackEnd.Service.Implementations
                         await contractRepository.Update(contractDb);
                         ContractTemplateDto templateDto = new ContractTemplateDto
                         {
-                            Account =account, 
+                            Account = account,
                             Contract = contractDb,
-                            ContractProgressPayments=a.ToList(),
-                            CreateDate=contractDb.DateOfContract,
-                            IsSigned=false, 
+                            ContractProgressPayments = a.ToList(),
+                            CreateDate = contractDb.DateOfContract,
+                            IsSigned = false,
                             Project = contractDb.Project,
-                            SignDate= utility.GetCurrentDateTimeInTimeZone()
+                            SignDate = utility.GetCurrentDateTimeInTimeZone()
                         };
                         var content = TemplateMappingHelper.GetTemplateContract(templateDto);
                         contractDb.ContractStatus = Contract.Status.IN_ACTIVE;
@@ -124,7 +135,14 @@ namespace HCQS.BackEnd.Service.Implementations
                         var upload = await fileService.UploadFileToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
                         contractDb.Content = content;
-                        account.ContractVerifyCode = code;
+                        await contractVerificationCodeRepository.Insert(
+                                new ContractVerificationCode
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ContractId = contractDb.Id,
+                                    VerficationCode = code
+                                }
+                            );
                         await _unitOfWork.SaveChangeAsync();
                         emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
 
