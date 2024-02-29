@@ -53,7 +53,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var emailService = Resolve<IEmailService>();
                     var accountRepository = Resolve<IAccountRepository>();
                     var contractVerificationCodeRepository = Resolve<IContractVerificationCodeRepository>();
-                    var contractDb = await _contractRepository.GetById(contractId);
+                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project.Account);
                     string code = Guid.NewGuid().ToString("N").Substring(0, 6);
                     if (contractDb == null)
                     {
