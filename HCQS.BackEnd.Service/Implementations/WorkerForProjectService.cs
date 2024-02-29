@@ -3,11 +3,6 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Service.Implementations
 {

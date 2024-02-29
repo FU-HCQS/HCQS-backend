@@ -1,5 +1,4 @@
-﻿using Hangfire;
-using HCQS.BackEnd.DAL.Contracts;
+﻿using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Implementations;

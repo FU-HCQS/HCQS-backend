@@ -4,16 +4,11 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
+using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -22,7 +17,8 @@ namespace HCQS.BackEnd.Service.Implementations
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
         private IConstructionConfigRepository _constructionConfigRepository;
-        public ConstructionConfigService(BackEndLogger logger, IUnitOfWork unitOfWork, IConstructionConfigRepository constructionConfigRepository, IMapper mapper, IServiceProvider serviceProvIder):base(serviceProvIder) 
+
+        public ConstructionConfigService(BackEndLogger logger, IUnitOfWork unitOfWork, IConstructionConfigRepository constructionConfigRepository, IMapper mapper, IServiceProvider serviceProvIder) : base(serviceProvIder)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -37,21 +33,36 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var requestString = await GetRequestString(request);
-                    var constructionConfigDb = await _constructionConfigRepository.GetByExpression(n => n.Name.Equals(requestString));
-                    if (constructionConfigDb != null)
+                    var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(n => n.Name.Contains(requestString));
+                    if (constructionConfigDb != null && constructionConfigDb.Count > 0)
                     {
-                        result = BuildAppActionResultError(result, $"The constructionConfig whose name is {requestString} has already existed!");
+                        result = BuildAppActionResultError(result, $"The constructionConfig of {requestString} has already existed!");
                     }
                     else
                     {
-                        var constructionConfig = new ConstructionConfig()
+                        //fix validator
+                        List<ConstructionConfig> configs = new List<ConstructionConfig>();
+                        configs.Add(new ConstructionConfig()
                         {
-                            Name = requestString,
-                            Value = request.Value
-                        };
+                            Id = Guid.NewGuid(),
+                            Name = $"{requestString}, SandMixingRatio",
+                            Value = (float)request.SandMixingRatio
+                        });
+                        configs.Add(new ConstructionConfig()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = $"{requestString}, CementMixingRatio",
+                            Value = (float)request.CementMixingRatio
+                        });
 
-                        constructionConfig.Id = Guid.NewGuid();
-                        result.Result.Data = await _constructionConfigRepository.Insert(constructionConfig);
+                        configs.Add(new ConstructionConfig()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = $"{requestString}, StoneMixingRatio",
+                            Value = (float)request.StoneMixingRatio
+                        });
+
+                        result.Result.Data = await _constructionConfigRepository.InsertRange(configs);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -69,7 +80,8 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> DeleteConstructionConfig(Guid Id)
+        //
+        public async Task<AppActionResult> DeleteConstructionConfig(DeleteConstructionConfigRequest request)
 
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -77,14 +89,15 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var constructionConfigDb = await _constructionConfigRepository.GetById(Id);
-                    if (constructionConfigDb == null)
+                    string searchString = await GetDeleteString(request);
+                    var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(c => c.Name.Contains(searchString), null);
+                    if (constructionConfigDb == null || constructionConfigDb.Count == 0)
                     {
-                        result = BuildAppActionResultError(result, $"The constructionConfig with {Id} not found !");
+                        result = BuildAppActionResultError(result, $"The constructionConfig of {searchString} not found !");
                     }
                     else
                     {
-                        result.Result.Data = await _constructionConfigRepository.DeleteById(Id);
+                        await _constructionConfigRepository.DeleteRange(constructionConfigDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -118,84 +131,63 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> GetConstructionConfig(Guid projectId)
+        public async Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request)
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                var projectRepository = Resolve<IProjectRepository>();
-                var projectDb = await projectRepository.GetByExpression(c => c.Id == projectId);
-                if(projectDb == null)
+                string searchString = await GetSearchString(request.ConstructionType, request.NumOfFloor, request.Area, request.TiledArea);
+                var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(c => c.Name.Contains(searchString));
+                if (constructionConfigDb != null)
                 {
-                    result = BuildAppActionResultError(result, $"Project with id: {projectId} does not exist");
-                }
-                else
-                {
-                    string searchString = await GetSearchString(projectDb);
-                    var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(c => c.Name.Contains(searchString));
-                    if (constructionConfigDb != null)
+                    var constructionConfig = new ConstructionConfigResponse();
+                    Dictionary<string, bool> checkAvailableConfig = new Dictionary<string, bool>();
+                    checkAvailableConfig.Add("SandMixingRatio", false);
+                    checkAvailableConfig.Add("CementMixingRatio", false);
+                    checkAvailableConfig.Add("StoneMixingRatio", false);
+                    foreach (var config in constructionConfigDb)
                     {
-                        var constructionConfig = new ConstructionConfigResponse();
-                        Dictionary<string, bool> checkAvailableConfig = new Dictionary<string, bool>();
-                        checkAvailableConfig.Add("SandMixingRatio", false);
-                        checkAvailableConfig.Add("CementMixingRatio", false);
-                        checkAvailableConfig.Add("StoneMixingRatio", false);
-                        checkAvailableConfig.Add("EstimatedTimeOfCompletion", false);
-                        checkAvailableConfig.Add("NumberOfLabor", false);
-                        foreach (var config in constructionConfigDb)
+                        if (config.Name.Contains("SandMixingRatio"))
                         {
-                            if (config.Name.Contains("SandMixingRatio"))
-                            {
-                                constructionConfig.SandMixingRatio = (int)Math.Round(config.Value);
-                                checkAvailableConfig["SandMixingRatio"] = true;
-                            }
-                            else if (config.Name.Contains("CementMixingRatio"))
-                            {
-                                constructionConfig.CementMixingRatio = (int)Math.Round(config.Value);
-                                checkAvailableConfig["CementMixingRatio"] = true;
-                            }
-                            else if (config.Name.Contains("StoneMixingRatio"))
-                            {
-                                constructionConfig.StoneMixingRatio = (int)Math.Round(config.Value);
-                                checkAvailableConfig["StoneMixingRatio"] = true;
-                            }
-                            else if (config.Name.Contains("EstimatedTimeOfCompletion"))
-                            {
-                                constructionConfig.EstimatedTimeOfCompletion = (int)Math.Round(config.Value);
-                                checkAvailableConfig["EstimatedTimeOfCompletion"] = true;
-                            }
-                            else if (config.Name.Contains("NumberOfLabor"))
-                            {
-                                constructionConfig.NumberOfLabor = (int)Math.Round(config.Value);
-                                checkAvailableConfig["NumberOfLabor"] = true;
-                            }
+                            constructionConfig.SandMixingRatio = (int)Math.Round(config.Value);
+                            checkAvailableConfig["SandMixingRatio"] = true;
                         }
-                        StringBuilder sb = new StringBuilder();
-                        foreach(KeyValuePair<string, bool> check in checkAvailableConfig) {
-                            if(!check.Value)
-                            {
-                                if (sb.Length == 0)
-                                {
-                                    sb.Append("No available config for: ");
-                                }
-                                sb.Append($"{check.Key}, ");
-                            }
+                        else if (config.Name.Contains("CementMixingRatio"))
+                        {
+                            constructionConfig.CementMixingRatio = (int)Math.Round(config.Value);
+                            checkAvailableConfig["CementMixingRatio"] = true;
                         }
+                        else if (config.Name.Contains("StoneMixingRatio"))
+                        {
+                            constructionConfig.StoneMixingRatio = (int)Math.Round(config.Value);
+                            checkAvailableConfig["StoneMixingRatio"] = true;
+                        }
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    foreach (KeyValuePair<string, bool> check in checkAvailableConfig)
+                    {
+                        if (!check.Value)
+                        {
+                            if (sb.Length == 0)
+                            {
+                                sb.Append("No available config for: ");
+                            }
+                            sb.Append($"{check.Key}, ");
+                        }
+                    }
 
-                        if(sb.Length > 0)
-                        {
-                            result = BuildAppActionResultError(result, sb.ToString());
-                        }
-                        else
-                        {
-                            result.Result.Data = constructionConfig;
-                        }
-
+                    if (sb.Length > 0)
+                    {
+                        result = BuildAppActionResultError(result, sb.ToString());
                     }
                     else
                     {
-                        result = BuildAppActionResultError(result, $"The is not config availabl for this project");
+                        result.Result.Data = constructionConfig;
                     }
+                }
+                else
+                {
+                    result = BuildAppActionResultError(result, $"The is not config availabl for this project");
                 }
             }
             catch (Exception ex)
@@ -214,15 +206,24 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var requestString = await GetRequestString(request);
-                    var constructionConfigDb = await _constructionConfigRepository.GetByExpression(n => n.Name.Equals(requestString));
-                    if (constructionConfigDb == null)
+                    var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(n => n.Name.Contains(requestString));
+                    if (constructionConfigDb == null || constructionConfigDb.Count == 0)
                     {
-                        result = BuildAppActionResultError(result, $"The constructionConfig whose name is {requestString} does not exist!");
+                        result = BuildAppActionResultError(result, $"The constructionConfig of {requestString} does not existed!");
                     }
                     else
                     {
-                        constructionConfigDb.Value = request.Value;
-                        result.Result.Data = await _constructionConfigRepository.Update(constructionConfigDb);
+                        //fix validator
+                        var sandConfig = constructionConfigDb.FirstOrDefault(c => c.Name.Contains("SandMixingRatio"));
+                        sandConfig.Value = (float)request.SandMixingRatio;
+                        var stoneConfig = constructionConfigDb.FirstOrDefault(c => c.Name.Contains("StoneMixingRatio"));
+                        stoneConfig.Value = (float)request.StoneMixingRatio;
+                        var cementConfig = constructionConfigDb.FirstOrDefault(c => c.Name.Contains("CementMixingRatio"));
+                        cementConfig.Value = (float)request.CementMixingRatio;
+
+                        await _constructionConfigRepository.Update(sandConfig);
+                        await _constructionConfigRepository.Update(stoneConfig);
+                        await _constructionConfigRepository.Update(cementConfig);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -240,22 +241,23 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        private async Task<string> GetSearchString(Project project)
+        private async Task<string> GetSearchString(ConstructionType constructionType, int numOfFloor, double area, double tiledArea)
         {
             StringBuilder sb = new StringBuilder();
-            if(project.ConstructionType == Project.ProjectConstructionType.CompleteConstruction)
-            {
-                sb.Append("RoughConstruction");
-            }
-            else
+            if (constructionType == ConstructionType.CompleteConstruction)
             {
                 sb.Append("CompleteConstruction");
             }
+            else
+            {
+                sb.Append("RoughConstruction");
+            }
 
-            if(project.NumberOfLabor <= 2)
+            if (numOfFloor <= 2)
             {
                 sb.Append(", 1-2 Floors");
-            } else if(project.NumberOfLabor <= 5)
+            }
+            else if (numOfFloor <= 5)
             {
                 sb.Append(", 3-5 Floors");
             }
@@ -264,13 +266,40 @@ namespace HCQS.BackEnd.Service.Implementations
                 sb.Append(", 6+ Floors");
             }
 
-            if (project.Area <= 100)
+            if (area <= 50)
             {
-                sb.Append(", 1-100");
-            } else if (project.Area <= 300)
+                sb.Append(", 1-50");
+            }
+            else if (area <= 100)
+            {
+                sb.Append(", 50-100");
+            }
+            else if (area <= 300)
             {
                 sb.Append(", 100-300");
-            } else if (project.Area <= 500)
+            }
+            else if (area <= 500)
+            {
+                sb.Append(", 300-500");
+            }
+            else
+            {
+                sb.Append(", 500+");
+            }
+
+            if (tiledArea <= 50)
+            {
+                sb.Append(", 1-50");
+            }
+            else if (tiledArea <= 100)
+            {
+                sb.Append(", 50-100");
+            }
+            else if (tiledArea <= 300)
+            {
+                sb.Append(", 100-300");
+            }
+            else if (tiledArea <= 500)
             {
                 sb.Append(", 300-500");
             }
@@ -284,7 +313,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private async Task<string> GetRequestString(ConstructionConfigRequest request)
         {
             StringBuilder sb = new StringBuilder();
-            if(request.ConstructionType == ProjectDto.ConstructionType.RoughConstruction)
+            if (request.ConstructionType == ProjectDto.ConstructionType.RoughConstruction)
             {
                 sb.Append("RoughConstruction");
             }
@@ -292,27 +321,29 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 sb.Append("CompleteConstruction");
             }
-
-            sb.Append($", {request.NumOfFloor}");
+            sb.Append($", {request.NumOfFloor} Floors");
             sb.Append($", {request.Area}");
-            if(request.Type == ConstructionConfigRequest.ConfigType.SandMixingRatio)
-            {
-                sb.Append($", SandMixingRatio");
-            } else if(request.Type == ConstructionConfigRequest.ConfigType.CementMixingRatio)
-            {
-                sb.Append($", CementMixingRatio");
-            } else if(request.Type == ConstructionConfigRequest.ConfigType.StoneMixingRatio)
-            {
-                sb.Append($", StoneMixingRatio");
-            } else if(request.Type == ConstructionConfigRequest.ConfigType.EstimatedTimeOfCompletion)
-            {
-                sb.Append($", EstimatedTimeOfCompletion");
-            } else
-            {
-                sb.Append($", NumberOfLabor");
-            }
+            sb.Append($", {request.TiledArea}");
 
-            return sb.ToString() ;
+            return sb.ToString();
+        }
+
+        private async Task<string> GetDeleteString(DeleteConstructionConfigRequest request)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (request.ConstructionType == ProjectDto.ConstructionType.RoughConstruction)
+            {
+                sb.Append("RoughConstruction");
+            }
+            else
+            {
+                sb.Append("CompleteConstruction");
+            }
+            sb.Append($", {request.NumOfFloor} Floors");
+            sb.Append($", {request.Area}");
+            sb.Append($", {request.TiledArea}");
+
+            return sb.ToString();
         }
 
         public async Task<AppActionResult> CreateConstructionConfig(string name, float value)
@@ -337,6 +368,54 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         constructionConfig.Id = Guid.NewGuid();
                         result.Result.Data = await _constructionConfigRepository.Insert(constructionConfig);
+                        await _unitOfWork.SaveChangeAsync();
+                    }
+
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result = BuildAppActionResultError(result, ex.Message);
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+            }
+        }
+
+        public async Task<AppActionResult> SearchConstructionConfig(string keyword)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(c => c.Name.Contains(keyword), null);
+                result.Result.Data = constructionConfigDb;
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> DeleteAllConstructionConfig()
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                AppActionResult result = new AppActionResult();
+                try
+                {
+                    var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(null, null);
+                    if (constructionConfigDb == null)
+                    {
+                        result = BuildAppActionResultError(result, $"There is no construction config to delete!");
+                    }
+                    else
+                    {
+                        await _constructionConfigRepository.DeleteRange(constructionConfigDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
 

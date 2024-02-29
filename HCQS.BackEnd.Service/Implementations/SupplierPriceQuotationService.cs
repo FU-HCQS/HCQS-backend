@@ -340,7 +340,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                                 if (materials.ContainsKey(key)) materialId = materials[key];
                                                 else
                                                 {
-
                                                     bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
                                                     if (containsUnit)
                                                     {
@@ -368,7 +367,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                                 error.Append($"{errorRecordCount + 1}. Supplier {supplierName} is a {supplier.Type.ToString()} so they don't supply {record.MaterialName}.\n");
                                                 errorRecordCount++;
                                             }
-
                                         }
 
                                         if (record.MOQ <= 0)
@@ -403,7 +401,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                         }
                                         i++;
                                     }
-
 
                                     if (invalidRowInput.Count > 0)
                                     {

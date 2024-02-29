@@ -7,7 +7,6 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService;
-using System.Collections.Generic;
 using System.Transactions;
 using static HCQS.BackEnd.Service.UtilityService.BuildingUtility;
 
@@ -316,13 +315,13 @@ namespace HCQS.BackEnd.Service.Implementations
             var listQuotation = new List<Quotation>();
             if (isCustomer)
             {
-                listQuotation= await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending);
+                listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending);
             }
             else
             {
                 listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id);
             }
-            listQuotation= listQuotation.OrderByDescending(a => a.CreateDate).ToList();
+            listQuotation = listQuotation.OrderByDescending(a => a.CreateDate).ToList();
 
             var result = new ProjectResponse
             {

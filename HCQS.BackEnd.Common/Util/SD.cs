@@ -77,7 +77,7 @@ namespace HCQS.BackEnd.Common.Util
             public static List<string> SUPPLIER_QUOTATION_DETAIL = new List<string> { "No", "MaterialName", "Unit", "MOQ", "Price" };
             public static List<string> EXPORT_PRICE_DETAIL = new List<string> { "No", "MaterialName", "Price" };
             public static List<string> IMPORT_INVENTORY = new List<string> { "No", "MaterialName", "SupplierName", "Quantity" };
-            public static List<string> SUPPLIER = new List<string> { "No", "SupplierName", "Type"};
+            public static List<string> SUPPLIER = new List<string> { "No", "SupplierName", "Type" };
         }
 
         public class EnumType
@@ -88,7 +88,6 @@ namespace HCQS.BackEnd.Common.Util
             public static Dictionary<Enum, string> ContractStatus = new Dictionary<Enum, string> { { DAL.Models.Contract.Status.NEW, "New" }, { DAL.Models.Contract.Status.ACTIVE, "Active" }, { DAL.Models.Contract.Status.IN_ACTIVE, "Inactive" } };
             public static Dictionary<Enum, string> ProjectStatus = new Dictionary<Enum, string> { { DAL.Models.Project.Status.Pending, "Pending" }, { DAL.Models.Project.Status.Processing, "Processing" }, { DAL.Models.Project.Status.UnderConstruction, "UnderConstruction" }, { DAL.Models.Project.Status.Closed, "Closed" } };
             public static Dictionary<Enum, string> ProjectConstructionType = new Dictionary<Enum, string> { { DAL.Models.Project.ProjectConstructionType.RoughConstruction, "Rough construction" }, { DAL.Models.Project.ProjectConstructionType.CompleteConstruction, "Complete construction" } };
-
         }
     }
 }

@@ -68,7 +68,6 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpGet("get-project-by-id/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.MANAGEMENT)]
-
         public async Task<AppActionResult> GetProjectById(Guid id)
         {
             return await _projectService.GetProjectById(id);
@@ -76,7 +75,6 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpGet("get-project-by-id-for-customer/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
-
         public async Task<AppActionResult> GetProjectByIdForCustomer(Guid id)
         {
             return await _projectService.GetProjectByIdForCustomer(id);

@@ -46,7 +46,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                             int remain = quotationDetailDb.Quantity;
                             progressConstructionDb.ForEach(p => remain -= p.Quantity);
-                            if(remain < ProgressConstructionMaterialRequest.Quantity)
+                            if (remain < ProgressConstructionMaterialRequest.Quantity)
                             {
                                 result = BuildAppActionResultError(result, $"The fulfilling quantity request is higher than remain quantity!");
                             }
@@ -84,7 +84,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                     result = BuildAppActionResultError(result, $"There is no available material export price of {quotationDetailDb.Material.Name}!");
                                 }
                             }
-                            
                         }
                         else
                         {
@@ -112,20 +111,20 @@ namespace HCQS.BackEnd.Service.Implementations
 
                         var materialRepository = Resolve<IMaterialRepository>();
 
-                        foreach(var materialId in materialExport.Keys)
+                        foreach (var materialId in materialExport.Keys)
                         {
                             var materialDb = await materialRepository.GetById(materialId);
-                            if(materialDb.Quantity < materialExport[materialId])
+                            if (materialDb.Quantity < materialExport[materialId])
                             {
                                 result = BuildAppActionResultError(result, $"Current inventory {materialDb.Name} is {materialDb.Quantity}, lower than demand of  {materialExport[materialId]}");
                                 break;
-                            } else
+                            }
+                            else
                             {
                                 materialDb.Quantity -= materialExport[materialId];
                                 await materialRepository.Update(materialDb);
                             }
                         }
-
 
                         if (!BuildAppActionResultIsError(result))
                         {
@@ -364,7 +363,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         result.Result.Data = 0;
                     }
                 }
-
             }
             catch (Exception ex)
             {

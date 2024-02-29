@@ -5,7 +5,6 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

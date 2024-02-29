@@ -1,4 +1,3 @@
-using Hangfire;
 using HCQS.BackEnd.API.Installers;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";

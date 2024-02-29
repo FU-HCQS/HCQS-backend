@@ -11,6 +11,7 @@ namespace HCQS.BackEnd.DAL.Data
         public HCQSDbContext()
         {
         }
+
         public HCQSDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -40,6 +41,7 @@ namespace HCQS.BackEnd.DAL.Data
         public DbSet<SupplierPriceDetail> SupplierPriceDetails { get; set; }
         public DbSet<QuotationDealing> QuotationDealings { get; set; }
         public DbSet<ContractVerificationCode> ContractVerificationCodes { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Data Source=SQL5063.site4now.net;Initial Catalog=db_aa45b3_hcqsbe01;User Id=db_aa45b3_hcqsbe01_admin;Password=qkPw@123;MultipleActiveResultSets=True;TrustServerCertificate=True");
