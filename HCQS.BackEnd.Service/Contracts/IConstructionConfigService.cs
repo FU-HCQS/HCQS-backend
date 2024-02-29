@@ -12,6 +12,7 @@ namespace HCQS.BackEnd.Service.Contracts
     public interface IConstructionConfigService
     {
         Task<AppActionResult> CreateConstructionConfig(ConstructionConfigRequest request);
+        Task<AppActionResult> CreateConstructionConfig(string name, float value);
         Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request);
         Task<AppActionResult> DeleteConstructionConfig(Guid Id);
         Task<AppActionResult> GetConstructionConfig(Guid projectId);

@@ -19,6 +19,7 @@ namespace HCQS.BackEnd.DAL.Data
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<ProgressConstructionMaterial> ProgressConstructionMaterials { get; set; }
         public DbSet<Contract> Contracts { get; set; }
+        public DbSet<ConstructionConfig> ConstructionConfigs { get; set; }
         public DbSet<ContractProgressPayment> ContractProgressPayment { get; set; }
         public DbSet<ExportPriceMaterial> ExportPriceMaterials { get; set; }
         public DbSet<ImportExportInventoryHistory> ImportExportInventoryHistorys { get; set; }

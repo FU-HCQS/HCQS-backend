@@ -1,14 +1,14 @@
-﻿using HCQS.BackEnd.Common.Dto.Request;
+﻿using FluentValidation;
 using HCQS.BackEnd.Common.Dto;
-using Microsoft.AspNetCore.Mvc;
-using FluentValidation;
+using HCQS.BackEnd.Common.Dto.BaseRequest;
+using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
-using HCQS.BackEnd.Service.Contracts;
-using HCQS.BackEnd.Service.Implementations;
-using Org.BouncyCastle.Asn1.Ocsp;
 using HCQS.BackEnd.DAL.Common;
+using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -42,15 +42,23 @@ namespace HCQS.BackEnd.API.Controllers
 
 
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpPut("update-construction-config")]
-        public async Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request)
+        //[HttpPut("update-construction-config")]
+        //public async Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request)
+        //{
+        //    var result = await _validator.ValidateAsync(request);
+        //    if (!result.IsValid)
+        //    {
+        //        return _handleErrorValidator.HandleError(result);
+        //    }
+        //    return await _constructionConfigService.UpdateConstructionConfig(request);
+        //}
+
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("create-construction-config-by-name-and-value")]
+        public async Task<AppActionResult> CreateConstructionConfig(string name, float value)
         {
-            var result = await _validator.ValidateAsync(request);
-            if (!result.IsValid)
-            {
-                return _handleErrorValidator.HandleError(result);
-            }
-            return await _constructionConfigService.UpdateConstructionConfig(request);
+          
+            return await _constructionConfigService.CreateConstructionConfig(name, value);
         }
 
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
@@ -69,7 +77,7 @@ namespace HCQS.BackEnd.API.Controllers
 
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpGet("get-all")]
-        public async Task<AppActionResult> GetAll(Guid projectId)
+        public async Task<AppActionResult> GetAll()
         {
             return await _constructionConfigService.GetAll();
         }
