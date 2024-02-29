@@ -140,7 +140,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
                         projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
                         var delete = await fileService.DeleteFileFromFirebase($"contract/{contractDb.Id}");
-                        var upload = await fileService.UploadFileToFirebase(fileService.ConvertHtmlToPdf(contractDb.Content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
+                        var upload = await fileService.UploadFileToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
                         contractDb.Content = content;
                         await _contractRepository.Update(contractDb);
