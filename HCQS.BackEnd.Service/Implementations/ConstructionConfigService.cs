@@ -285,7 +285,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private async Task<string> GetRequestString(ConstructionConfigRequest request)
         {
             StringBuilder sb = new StringBuilder();
-            if(request.constructionType == ConstructionConfigRequest.ConstructionType.RoughConstruction)
+            if(request.ConstructionType == ProjectDto.ConstructionType.RoughConstruction)
             {
                 sb.Append("RoughConstruction");
             }
@@ -296,16 +296,16 @@ namespace HCQS.BackEnd.Service.Implementations
 
             sb.Append($", {request.NumOfFloor}");
             sb.Append($", {request.Area}");
-            if(request.configType == ConstructionConfigRequest.ConfigType.SandMixingRatio)
+            if(request.Type == ConstructionConfigRequest.ConfigType.SandMixingRatio)
             {
                 sb.Append($", SandMixingRatio");
-            } else if(request.configType == ConstructionConfigRequest.ConfigType.CementMixingRatio)
+            } else if(request.Type == ConstructionConfigRequest.ConfigType.CementMixingRatio)
             {
                 sb.Append($", CementMixingRatio");
-            } else if(request.configType == ConstructionConfigRequest.ConfigType.StoneMixingRatio)
+            } else if(request.Type == ConstructionConfigRequest.ConfigType.StoneMixingRatio)
             {
                 sb.Append($", StoneMixingRatio");
-            } else if(request.configType == ConstructionConfigRequest.ConfigType.EstimatedTimeOfCompletion)
+            } else if(request.Type == ConstructionConfigRequest.ConfigType.EstimatedTimeOfCompletion)
             {
                 sb.Append($", EstimatedTimeOfCompletion");
             } else

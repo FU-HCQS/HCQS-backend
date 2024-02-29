@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
 
 namespace HCQS.BackEnd.Common.Dto.Request
 {
@@ -11,7 +12,7 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public Guid Id { get; set; }
         
 
-        public ConfigType configType { get; set; }
+        public ConfigType Type { get; set; }
 
         public enum ConfigType
         {
@@ -22,13 +23,9 @@ namespace HCQS.BackEnd.Common.Dto.Request
             NumberOfLabor
         }
 
-        public ConstructionType constructionType { get; set; }
+        public ConstructionType ConstructionType { get; set; }
 
-        public enum ConstructionType
-        {
-            RoughConstruction,
-            CompleteConstruction
-        }
+      
         public string NumOfFloor {  get; set; }
         public string Area { get; set; }
         public float Value { get; set; }
