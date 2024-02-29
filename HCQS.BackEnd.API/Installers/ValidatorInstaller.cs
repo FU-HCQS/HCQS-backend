@@ -20,6 +20,7 @@ namespace HCQS.BackEnd.API.Installers
             services.AddValidatorsFromAssemblyContaining<WorkerPriceRequest>();
             services.AddValidatorsFromAssemblyContaining<ContractProgressPaymentDto>();
             services.AddValidatorsFromAssemblyContaining<ConstructionConfigRequest>();
+
         }
     }
 }

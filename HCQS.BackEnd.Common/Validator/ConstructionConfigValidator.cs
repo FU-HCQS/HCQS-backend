@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HCQS.BackEnd.Common.Validator
 {
-    internal class ConstructionConfigValidator : AbstractValidator<ConstructionConfigRequest>
+    public class ConstructionConfigValidator : AbstractValidator<ConstructionConfigRequest>
     {
         public ConstructionConfigValidator()
         {

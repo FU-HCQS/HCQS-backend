@@ -7,6 +7,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +22,11 @@ namespace HCQS.BackEnd.Service.Implementations
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
         private IConstructionConfigRepository _constructionConfigRepository;
-        private IMapper _mapper;
         public ConstructionConfigService(BackEndLogger logger, IUnitOfWork unitOfWork, IConstructionConfigRepository constructionConfigRepository, IMapper mapper, IServiceProvider serviceProvIder):base(serviceProvIder) 
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _constructionConfigRepository = constructionConfigRepository;
-            _mapper = mapper;
         }
 
         public async Task<AppActionResult> CreateConstructionConfig(ConstructionConfigRequest request)
@@ -314,6 +313,45 @@ namespace HCQS.BackEnd.Service.Implementations
             }
 
             return sb.ToString() ;
+        }
+
+        public async Task<AppActionResult> CreateConstructionConfig(string name, float value)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                AppActionResult result = new AppActionResult();
+                try
+                {
+                    var constructionConfigDb = await _constructionConfigRepository.GetByExpression(n => n.Name.Equals(name));
+                    if (constructionConfigDb != null)
+                    {
+                        result = BuildAppActionResultError(result, $"The constructionConfig whose name is {name} has already existed!");
+                    }
+                    else
+                    {
+                        var constructionConfig = new ConstructionConfig()
+                        {
+                            Name = name,
+                            Value = value
+                        };
+
+                        constructionConfig.Id = Guid.NewGuid();
+                        result.Result.Data = await _constructionConfigRepository.Insert(constructionConfig);
+                        await _unitOfWork.SaveChangeAsync();
+                    }
+
+                    if (!BuildAppActionResultIsError(result))
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result = BuildAppActionResultError(result, ex.Message);
+                    _logger.LogError(ex.Message, this);
+                }
+                return result;
+            }
         }
     }
 }
