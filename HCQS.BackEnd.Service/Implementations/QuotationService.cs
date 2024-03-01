@@ -37,7 +37,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
                     var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
                     var quotationDb = await _quotationRepository.GetById(request.QuotationId);
-                    var workers = await workerForProjectRepository.GetAllDataByExpression(a=> a.QuotationId == request.QuotationId);
+                    var workers = await workerForProjectRepository.GetAllDataByExpression(a => a.QuotationId == request.QuotationId);
                     var quotationDetailsDb = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == request.QuotationId);
                     if (quotationDetailsDb == null)
                     {
@@ -51,7 +51,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (!workers.Any())
                     {
                         result = BuildAppActionResultError(result, $"The list workers with quotation id {request.QuotationId} are empty");
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -84,15 +83,16 @@ namespace HCQS.BackEnd.Service.Implementations
                             });
                         }
                         List<WorkerForProject> workerForProject = new List<WorkerForProject>();
-                        foreach(var item in workers)
+                        foreach (var item in workers)
                         {
-                            workerForProject.Add(new WorkerForProject { 
-                            Id = Guid.NewGuid(),
-                            ExportLaborCost = item.ExportLaborCost,
-                            Quantity= item.Quantity,
-                            QuotationId= quotation.Id,
-                            WorkerPrice = item.WorkerPrice,
-                            WorkerPriceId = item.WorkerPriceId,
+                            workerForProject.Add(new WorkerForProject
+                            {
+                                Id = Guid.NewGuid(),
+                                ExportLaborCost = item.ExportLaborCost,
+                                Quantity = item.Quantity,
+                                QuotationId = quotation.Id,
+                                WorkerPrice = item.WorkerPrice,
+                                WorkerPriceId = item.WorkerPriceId,
                             });
                         }
                         await _quotationRepository.Insert(quotation);
@@ -202,7 +202,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                 ContractStatus = Contract.Status.NEW
                             };
                             await contractRepository.Insert(contract);
-                          
                         }
                         else
                         {
@@ -246,7 +245,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     result.Result.Data = await _quotationRepository.GetAllDataByExpression(q => q.QuotationStatus == Quotation.Status.Cancel);
                 }
-
             }
             catch (Exception ex)
             {

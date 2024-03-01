@@ -3,9 +3,9 @@ using HCQS.BackEnd.Common.Dto.Request;
 
 namespace HCQS.BackEnd.Common.Validator
 {
-    public class ConstructionConfigValidator : AbstractValidator<ConstructionConfigRequest>
+    public class DeleteConstructionConfigValidator : AbstractValidator<DeleteConstructionConfigRequest>
     {
-        public ConstructionConfigValidator()
+        public DeleteConstructionConfigValidator()
         {
             RuleFor(x => x.NumOfFloorMin)
             .NotNull().NotEmpty().GreaterThan(0)
@@ -44,9 +44,6 @@ namespace HCQS.BackEnd.Common.Validator
                 .Must(x => (x.TiledAreaMax > x.TiledAreaMin))
                 .WithMessage("TiledAreaMax must be greater than TiledAreaMin!");
             RuleFor(x => x.ConstructionType).NotNull().WithMessage("The construction type is required!");
-            RuleFor(x => x.SandMixingRatio).NotNull().NotEmpty().GreaterThan(0).WithMessage("The sand mixing ratio must be greater than 0!");
-            RuleFor(x => x.StoneMixingRatio).NotNull().NotEmpty().GreaterThan(0).WithMessage("The stone mixing ratio must be greater than 0!");
-            RuleFor(x => x.CementMixingRatio).NotNull().NotEmpty().GreaterThan(0).WithMessage("The cement mixing ratio must be greater than 0!");
         }
     }
 }

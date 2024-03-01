@@ -5,7 +5,6 @@ using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -53,7 +52,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (deposit == null)
                     {
                         result = BuildAppActionResultError(result, $"The list contract progress payment must have deposit");
-
                     }
 
                     double total = 0;
@@ -69,9 +67,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     if (contractDb != null && contractDb.Total != total)
                     {
-
                         result = BuildAppActionResultError(result, $"The total price for all progress contract payment don't match total in contract");
-
                     }
                     else
                     {
@@ -79,16 +75,13 @@ namespace HCQS.BackEnd.Service.Implementations
                         if (contractVerificationCode != null)
                         {
                             result = BuildAppActionResultError(result, $"The verification code is existed");
-
                         }
                     }
 
                     var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
                     if (account == null)
                     {
-
                         result = BuildAppActionResultError(result, $"The account ís not existed");
-
                     }
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -176,7 +169,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         foreach (var contract in contractProgressPaymentDb)
                         {
                             await _repository.DeleteById(contract.Id);
-
                         }
                     }
                     if (!BuildAppActionResultIsError(result))
@@ -208,6 +200,5 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
-
     }
 }

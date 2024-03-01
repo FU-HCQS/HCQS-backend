@@ -1,5 +1,4 @@
 ﻿using HCQS.BackEnd.Common.Dto;
-using Microsoft.AspNetCore.Http;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -10,7 +9,9 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> CreatePaymentUrlVNPay(Guid paymentId);
 
         public Task<AppActionResult> UpdatePaymentStatus(string paymentId, bool status, int type);
+
         public Task<AppActionResult> GetAllPayment(int pageIndex = 1, int pageSize = 10);
+
         public Task<AppActionResult> GetAllPaymentByContractId(Guid contractId);
     }
 }

@@ -7,7 +7,6 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService.Payment.PaymentLibrary;
 using HCQS.BackEnd.Service.UtilityService.Payment.PaymentRequest;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -61,7 +60,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (contractDb == null || contractDb.ContractStatus != Contract.Status.ACTIVE)
                 {
                     result = BuildAppActionResultError(result, $"The contract with id {paymentId} is not existed or is not signed");
-
                 }
                 else if (paymentDb != null && (paymentDb.Price > 5000000 || paymentDb.Price < 1000))
                 {
@@ -172,7 +170,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (contractDb == null || contractDb.ContractStatus != Contract.Status.ACTIVE)
                 {
                     result = BuildAppActionResultError(result, $"The contract with id {paymentId} is not existed or is not signed");
-
                 }
                 if (!BuildAppActionResultIsError(result))
                 {

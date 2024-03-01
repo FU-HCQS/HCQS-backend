@@ -18,10 +18,12 @@ namespace HCQS.BackEnd.Common.Util
 
             return vietnamTime;
         }
+
         public string FormatMoney(double money)
         {
             return money.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture);
         }
+
         public string TranslateToVietnamese(double money)
         {
             if (money == 0) return "Không đồng";
@@ -58,7 +60,7 @@ namespace HCQS.BackEnd.Common.Util
             return result.Trim();
         }
 
-        static string ConvertChunkToVietnamese(long chunk, string[] digitNames)
+        private static string ConvertChunkToVietnamese(long chunk, string[] digitNames)
         {
             int hundreds = (int)(chunk / 100), tens = (int)((chunk % 100) / 10), ones = (int)(chunk % 10);
             string result = "";
@@ -71,6 +73,7 @@ namespace HCQS.BackEnd.Common.Util
 
             return result;
         }
+
         public string FormatDate(DateTime dateTime)
         {
             return dateTime.ToString("dd/MM/yyyy");

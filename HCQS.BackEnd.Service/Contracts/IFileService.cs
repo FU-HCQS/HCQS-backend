@@ -19,7 +19,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> UploadFileToFirebase(IFormFile file, string pathFileName);
 
         public Task<AppActionResult> DeleteFileFromFirebase(string pathFileName);
-        public IFormFile ConvertHtmlToPdf(string content,string fileName);
 
+        public IFormFile ConvertHtmlToPdf(string content, string fileName);
     }
 }

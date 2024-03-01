@@ -396,7 +396,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                     Guid supplierId = Guid.Empty;
                                     if (!string.IsNullOrEmpty(record.MaterialName) && !string.IsNullOrEmpty(record.SupplierName))
                                     {
-
                                         if (materials.ContainsKey(record.MaterialName))
                                         {
                                             materialId = materials[record.MaterialName];
@@ -489,7 +488,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 if (isSuccessful)
                                 {
                                     await _importExportInventoryHistoryRepository.InsertRange(importInventoryList);
-                                    foreach(var materialId in materialImport.Keys)
+                                    foreach (var materialId in materialImport.Keys)
                                     {
                                         var materialDb = await materialRepository.GetById(materialId);
                                         materialDb.Quantity += materialImport[materialId];

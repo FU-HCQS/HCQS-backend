@@ -3,11 +3,8 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using Microsoft.IdentityModel.Tokens;
-using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -33,7 +30,6 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 result.Result.Data = await _contractRepository.GetByExpression(c => c.Id == contractId);
-
             }
             catch (Exception ex)
             {
@@ -53,17 +49,15 @@ namespace HCQS.BackEnd.Service.Implementations
                     var emailService = Resolve<IEmailService>();
                     var accountRepository = Resolve<IAccountRepository>();
                     var contractVerificationCodeRepository = Resolve<IContractVerificationCodeRepository>();
-                    var contractDb = await _contractRepository.GetByExpression(c=> c.Id== contractId, c=> c.Project.Account);
+                    var contractDb = await _contractRepository.GetByExpression(c => c.Id == contractId, c => c.Project.Account);
                     string code = Guid.NewGuid().ToString("N").Substring(0, 6);
                     if (contractDb == null)
                     {
                         result = BuildAppActionResultError(result, $"The contract with id {contractId} is not existed");
-
                     }
                     else if (contractDb.ContractStatus != Contract.Status.IN_ACTIVE)
                     {
                         result = BuildAppActionResultError(result, $"Resend code is only valid when the contract status is in active");
-
                     }
                     var account = await accountRepository.GetByExpression(c => c.Id == contractDb.Project.AccountId);
                     if (account == null)
@@ -100,9 +94,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
-
             }
-
         }
 
         public async Task<AppActionResult> SignContract(Guid contractId, string accountId, string verificationCode)
@@ -134,12 +126,10 @@ namespace HCQS.BackEnd.Service.Implementations
                     else if (string.IsNullOrEmpty(accountDb.PhoneNumber))
                     {
                         result = BuildAppActionResultError(result, $"The account {accountDb.Id} don't have phone number. You must update phone number to sign this contract");
-
                     }
                     if (!listCPP.Any())
                     {
                         result = BuildAppActionResultError(result, $"The list contract progress payment is empty");
-
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -158,7 +148,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         };
                         var content = TemplateMappingHelper.GetTemplateContract(templateDto);
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
-                        projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
+                        projectDb.Status = DAL.Models.Project.ProjectStatus.UnderConstruction;
                         var delete = await fileService.DeleteFileFromFirebase($"contract/{contractDb.Id}");
                         var upload = await fileService.UploadFileToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);

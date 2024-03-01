@@ -9,6 +9,7 @@ namespace HCQS.BackEnd.API.Controllers
     public class StatisticController : Controller
     {
         private IStatisticService _statisticService;
+
         public StatisticController(IStatisticService statisticService)
         {
             _statisticService = statisticService;

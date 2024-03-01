@@ -4,6 +4,7 @@ using HCQS.BackEnd.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    partial class HCQSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240301100525_Edit StatusField Project")]
+    partial class EditStatusFieldProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

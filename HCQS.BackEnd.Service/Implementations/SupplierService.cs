@@ -3,7 +3,6 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
@@ -208,7 +207,8 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 _logger.LogError($"Incompatible header to supplier template", this);
                                 message = $"Incompatible header to supplier template";
-                            } else
+                            }
+                            else
                             {
                                 bool containsError = false;
                                 bool containDuplicated = false;
@@ -232,7 +232,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                                 if (!containDuplicated) containDuplicated = true;
                                                 containsError = true;
                                                 rowError.Append($"{i++}. Duplicated Supplier name in database.\n");
-                                                
                                             }
 
                                             if (!inputtedSupplierName.Add(name.ToLower()))
@@ -254,7 +253,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                                     containsError = true;
                                                     rowError.Append($"{i++}. Supplier type: {type} does not exist.\n");
                                                 }
-                                                
                                             }
                                         }
                                         else
@@ -315,7 +313,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                 }
                                 scope.Complete();
                             }
-                            
                         }
                     }
                 }
@@ -334,8 +331,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
-
-
 
         private async Task<bool> CheckHeader(IFormFile file, List<string> headerTemplate)
         {
@@ -410,7 +405,6 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<IActionResult> GetSupplierTemplate()
         {
-
             {
                 using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
@@ -419,7 +413,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         List<SupplierRecord> sampleData = new List<SupplierRecord>();
                         sampleData.Add(new SupplierRecord
-                        { SupplierName = "Supplier1", Type = "Both"});
+                        { SupplierName = "Supplier1", Type = "Both" });
                         result = _fileService.GenerateExcelContent<SupplierRecord>(sampleData, "SupplierTemplate");
                         if (result != null)
                         {
