@@ -29,7 +29,7 @@ namespace HCQS.BackEnd.API.Controllers
             _constructionConfigService = constructionConfigService;
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("create-construction-config")]
         public async Task<AppActionResult> CreateConstructionConfig(ConstructionConfigRequest request)
         {
@@ -41,7 +41,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _constructionConfigService.CreateConstructionConfig(request);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+      //  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPut("update-construction-config")]
         public async Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request)
         {
@@ -53,14 +53,14 @@ namespace HCQS.BackEnd.API.Controllers
             return await _constructionConfigService.UpdateConstructionConfig(request);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+      //  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("create-construction-config-by-name-and-value")]
         public async Task<AppActionResult> CreateConstructionConfig(string name, float value)
         {
             return await _constructionConfigService.CreateConstructionConfig(name, value);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+       // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpDelete("delete-construction-config")]
         public async Task<AppActionResult> DeleteConstructionConfig(DeleteConstructionConfigRequest request)
         {
@@ -78,7 +78,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _constructionConfigService.DeleteAllConstructionConfig();
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-construction-config")]
         public async Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request)
         {
@@ -90,14 +90,14 @@ namespace HCQS.BackEnd.API.Controllers
             return await _constructionConfigService.GetConstructionConfig(request);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+      //  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpGet("get-all")]
         public async Task<AppActionResult> GetAll()
         {
             return await _constructionConfigService.GetAll();
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+     //   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpGet("search-construction-config/{keyword}")]
         public async Task<AppActionResult> SearchConstructionConfig(string keyword)
         {

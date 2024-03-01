@@ -9,6 +9,7 @@ using HCQS.BackEnd.Service.Contracts;
 using System.Text;
 using System.Transactions;
 using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
+using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -187,7 +188,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 else
                 {
-                    result = BuildAppActionResultError(result, $"The is not config availabl for this project");
+                    result = BuildAppActionResultError(result, $"The is not config available for this project");
                 }
             }
             catch (Exception ex)
@@ -241,10 +242,10 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        private async Task<string> GetSearchString(ConstructionType constructionType, int numOfFloor, double area, double tiledArea)
+        private async Task<string> GetSearchString(Project.ProjectConstructionType constructionType, int numOfFloor, double area, double tiledArea)
         {
             StringBuilder sb = new StringBuilder();
-            if (constructionType == ConstructionType.CompleteConstruction)
+            if (constructionType == ProjectConstructionType.CompleteConstruction)
             {
                 sb.Append("CompleteConstruction");
             }
@@ -313,7 +314,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private async Task<string> GetRequestString(ConstructionConfigRequest request)
         {
             StringBuilder sb = new StringBuilder();
-            if (request.ConstructionType == ProjectDto.ConstructionType.RoughConstruction)
+            if (request.ConstructionType == ProjectConstructionType.RoughConstruction)
             {
                 sb.Append("RoughConstruction");
             }
@@ -331,7 +332,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private async Task<string> GetDeleteString(DeleteConstructionConfigRequest request)
         {
             StringBuilder sb = new StringBuilder();
-            if (request.ConstructionType == ProjectDto.ConstructionType.RoughConstruction)
+            if (request.ConstructionType == Project.ProjectConstructionType.RoughConstruction)
             {
                 sb.Append("RoughConstruction");
             }

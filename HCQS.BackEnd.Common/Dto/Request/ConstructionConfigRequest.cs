@@ -1,4 +1,4 @@
-﻿using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
+﻿using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Common.Dto.Request
 {
@@ -10,10 +10,10 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public double CementMixingRatio { get; set; }
         public double StoneMixingRatio { get; set; }
 
-        public ConstructionType ConstructionType { get; set; }
+        public ProjectConstructionType ConstructionType { get; set; }
 
-        public string NumOfFloor { get; set; }
-        public string Area { get; set; }
-        public string TiledArea { get; set; }
+        public double NumOfFloor { get; set; }
+        public double Area { get; set; }
+        public double TiledArea { get; set; }
     }
 }

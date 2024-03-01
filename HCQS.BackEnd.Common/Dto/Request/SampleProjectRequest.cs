@@ -9,9 +9,9 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public int? NumOfFloor { get; set; }
         public double? ConstructionArea { get; set; }
         public double? TotalArea { get; set; }
-        public ProjectConstructionType ProjectType { get; set; }
+        public ConstructionType ProjectType { get; set; }
 
-        public enum ProjectConstructionType
+        public enum ConstructionType
         {
             Level_4_House,
             House_With_Multiple_Floors

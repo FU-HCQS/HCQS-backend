@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Common.Dto.Request
 {
@@ -9,13 +10,9 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public int NumOfFloor { get; set; }
         public double Area { get; set; }
         public IFormFile LandDrawingFile { get; set; }
-        public ConstructionType Type { get; set; }
+        public ProjectConstructionType Type { get; set; }
 
-        public enum ConstructionType
-        {
-            RoughConstruction,
-            CompleteConstruction
-        }
+        
 
         public string? AddressProject { get; set; }
         public string? AccountId { get; set; }

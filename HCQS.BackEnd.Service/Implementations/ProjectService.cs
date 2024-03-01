@@ -8,6 +8,7 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService;
 using System.Transactions;
+using static HCQS.BackEnd.Common.Dto.Request.ConfigProjectRequest;
 using static HCQS.BackEnd.Service.UtilityService.BuildingUtility;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -85,6 +86,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var exportPriceMaterialRepository = Resolve<IExportPriceMaterialRepository>();
                     var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
                     var workerPriceRepository = Resolve<IWorkerPriceRepository>();
+                    var constructionConfigService = Resolve<IConstructionConfigService>();
                     var utility = Resolve<Utility>();
                     var projectDb = await _projectRepository.GetById(project.Id);
                     if (projectDb == null)
@@ -100,6 +102,15 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"The Worker Price with id {laborRequest.WorkerPriceId} not found ");
                         }
                     }
+                    var resulGetConstructionCofig = await constructionConfigService.GetConstructionConfig(new SearchConstructionConfigRequest
+                    {
+                        Area = projectDb.Area,
+                        ConstructionType = projectDb.ConstructionType,
+                    });
+                    if (!resulGetConstructionCofig.IsSuccess)
+                    {
+                        result = BuildAppActionResultError(result, $"The config is not existed. Please create construction config ");
+                    }
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -108,9 +119,9 @@ namespace HCQS.BackEnd.Service.Implementations
                             Id = Guid.NewGuid(),
                             ProjectId = (Guid)project.Id,
                             QuotationStatus = Quotation.Status.Pending,
-                            FurnitureDiscount = project.FurnitureDiscount,
-                            LaborDiscount = project.LaborDiscount,
-                            RawMaterialDiscount = project.RawMaterialDiscount,
+                            FurnitureDiscount = 0,
+                            LaborDiscount = 0,
+                            RawMaterialDiscount = 0,
                             CreateDate = utility.GetCurrentDateTimeInTimeZone()
                         };
                         double totalLaborPrice = 0;
@@ -145,11 +156,14 @@ namespace HCQS.BackEnd.Service.Implementations
                             }
                         }
 
+
+                        var config = (ConstructionConfigResponse)resulGetConstructionCofig.Result.Data;
+
                         BuildingInputModel buildingInputModel = new BuildingInputModel()
                         {
-                            CementRatio = project.CementMixingRatio,
-                            SandRatio = project.SandMixingRatio,
-                            StoneRatio = project.StoneMixingRatio,
+                            CementRatio = config.CementMixingRatio,
+                            SandRatio = config.SandMixingRatio,
+                            StoneRatio = config.StoneMixingRatio,
                             WallHeight = project.WallHeight,
                             WallLength = project.WallLength
                         };
