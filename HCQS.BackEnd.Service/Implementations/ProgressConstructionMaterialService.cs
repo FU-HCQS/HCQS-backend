@@ -42,47 +42,64 @@ namespace HCQS.BackEnd.Service.Implementations
                         var quotationDetailDb = await quotationDetailRepository.GetByExpression(q => q.Id == ProgressConstructionMaterialRequest.QuotationDetailId, q => q.Material);
                         if (quotationDetailDb != null)
                         {
-                            var progressConstructionDb = await _progressConstructionMaterialRepository.GetAllDataByExpression(p => p.QuotationDetailId == ProgressConstructionMaterialRequest.QuotationDetailId);
-
-                            int remain = quotationDetailDb.Quantity;
-                            progressConstructionDb.ForEach(p => remain -= p.Quantity);
-                            if (remain < ProgressConstructionMaterialRequest.Quantity)
+                            var quotationRepository = Resolve<IQuotationRepository>();
+                            var quotationDb = await quotationRepository.GetByExpression(q => q.Id == quotationDetailDb.QuotationId && q.QuotationStatus == Quotation.Status.Approved, q => q.Project, q => q.Project.Contract);
+                            if(quotationDb != null && quotationDb.Project.ProjectStatus == Project.Status.UnderConstruction && quotationDb.Project.Contract != null && quotationDb.Project.Contract.ContractStatus == Contract.Status.ACTIVE)
                             {
-                                result = BuildAppActionResultError(result, $"The fulfilling quantity request is higher than remain quantity!");
-                            }
-                            else
-                            {
-                                var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId, e => e.Material);
-                                var latestMaterialPrice = exportMaterialPrices.OrderByDescending(e => e.Date).FirstOrDefault();
-                                if (latestMaterialPrice != null)
+                                var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
+                                var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c => c.ContractId == quotationDb.Project.Contract.Id && c.Name.Equals("Deposit"));
+                                if(contractProgressPaymentDb != null)
                                 {
-                                    var discount = await GetDiscountByQuotationDetailId(quotationDetailDb.Id);
-                                    var utility = Resolve<Utility>();
-                                    if (materialExport.ContainsKey(latestMaterialPrice.Material.Id))
+                                    var progressConstructionDb = await _progressConstructionMaterialRepository.GetAllDataByExpression(p => p.QuotationDetailId == ProgressConstructionMaterialRequest.QuotationDetailId);
+
+                                    int remain = quotationDetailDb.Quantity;
+                                    progressConstructionDb.ForEach(p => remain -= p.Quantity);
+                                    if (remain < ProgressConstructionMaterialRequest.Quantity)
                                     {
-                                        materialExport[latestMaterialPrice.Material.Id] += ProgressConstructionMaterialRequest.Quantity;
+                                        result = BuildAppActionResultError(result, $"The fulfilling quantity request is higher than remain quantity!");
                                     }
                                     else
                                     {
-                                        materialExport.Add(latestMaterialPrice.Material.Id, ProgressConstructionMaterialRequest.Quantity);
-                                    }
-                                    var newProgressConstructionMaterial = new ProgressConstructionMaterial
-                                    {
-                                        Id = Guid.NewGuid(),
-                                        Discount = discount,
-                                        Date = utility.GetCurrentDateTimeInTimeZone(),
-                                        Quantity = ProgressConstructionMaterialRequest.Quantity,
-                                        Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount * 1.00) * latestMaterialPrice.Price,
+                                        var exportMaterialPrices = await exportPriceRepository.GetAllDataByExpression(e => e.MaterialId == quotationDetailDb.MaterialId, e => e.Material);
+                                        var latestMaterialPrice = exportMaterialPrices.OrderByDescending(e => e.Date).FirstOrDefault();
+                                        if (latestMaterialPrice != null)
+                                        {
+                                            var discount = await GetDiscountByQuotationDetailId(quotationDetailDb.Id);
+                                            var utility = Resolve<Utility>();
+                                            if (materialExport.ContainsKey(latestMaterialPrice.Material.Id))
+                                            {
+                                                materialExport[latestMaterialPrice.Material.Id] += ProgressConstructionMaterialRequest.Quantity;
+                                            }
+                                            else
+                                            {
+                                                materialExport.Add(latestMaterialPrice.Material.Id, ProgressConstructionMaterialRequest.Quantity);
+                                            }
+                                            var newProgressConstructionMaterial = new ProgressConstructionMaterial
+                                            {
+                                                Id = Guid.NewGuid(),
+                                                Discount = discount,
+                                                Date = utility.GetCurrentDateTimeInTimeZone(),
+                                                Quantity = ProgressConstructionMaterialRequest.Quantity,
+                                                Total = ProgressConstructionMaterialRequest.Quantity * (1 - discount * 1.00) * latestMaterialPrice.Price,
 
-                                        ExportPriceMaterialId = latestMaterialPrice.Id,
-                                        QuotationDetailId = quotationDetailDb.Id
-                                    };
-                                    progressConstructionMaterials.Add(newProgressConstructionMaterial);
-                                }
-                                else
+                                                ExportPriceMaterialId = latestMaterialPrice.Id,
+                                                QuotationDetailId = quotationDetailDb.Id
+                                            };
+                                            progressConstructionMaterials.Add(newProgressConstructionMaterial);
+                                        }
+                                        else
+                                        {
+                                            result = BuildAppActionResultError(result, $"There is no available material export price of {quotationDetailDb.Material.Name}!");
+                                        }
+                                    }
+                                } else
                                 {
-                                    result = BuildAppActionResultError(result, $"There is no available material export price of {quotationDetailDb.Material.Name}!");
+                                    result = BuildAppActionResultError(result, $"There is no signed cotract including quotation detail: {ProgressConstructionMaterialRequest.QuotationDetailId} does not have a deposit!");
                                 }
+                            }
+                            else
+                            {
+                                result = BuildAppActionResultError(result, $"There is no approved quotation, project or signed cotract including quotation detail: {ProgressConstructionMaterialRequest.QuotationDetailId} does not exist!");
                             }
                         }
                         else
