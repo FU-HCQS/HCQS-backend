@@ -3,6 +3,7 @@ using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Common;
+using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -54,16 +55,16 @@ namespace HCQS.BackEnd.API.Controllers
 
         [HttpGet("get-all-project")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.MANAGEMENT)]
-        public async Task<AppActionResult> GetAllProject()
+        public async Task<AppActionResult> GetAllProject(Project.ProjectStatus status)
         {
-            return await _projectService.GetAllProject();
+            return await _projectService.GetAllProject(status);
         }
 
         [HttpGet("get-all-project-by-accountId/{accountId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
-        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId)
+        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId, Project.ProjectStatus status)
         {
-            return await _projectService.GetAllProjectByAccountId(accountId);
+            return await _projectService.GetAllProjectByAccountId(accountId, status);
         }
 
         [HttpGet("get-project-by-id/{id}")]

@@ -47,7 +47,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         var project = _mapper.Map<Project>(projectDto);
                         project.Id = Guid.NewGuid();
                         project.CreateDate = utility.GetCurrentDateTimeInTimeZone();
-                        project.ProjectStatus = Project.Status.Pending;
+                        project.Status = Project.ProjectStatus.Pending;
                         await _projectRepository.Insert(project);
                         await _unitOfWork.SaveChangeAsync();
 
@@ -231,7 +231,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         if (!BuildAppActionResultIsError(result))
                         {
-                            projectDb.ProjectStatus = Project.Status.Processing;
+                            projectDb.Status = Project.ProjectStatus.Processing;
                             projectDb.SandMixingRatio = (int)buildingInputModel.SandRatio;
                             projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
                             projectDb.StoneMixingRatio = (int)buildingInputModel.StoneRatio;
@@ -265,12 +265,12 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId)
+        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId, Project.ProjectStatus status)
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                var list = await GetAllProject(accountId);
+                var list = await GetAllProject(accountId, status);
                 list.OrderByDescending(a => a.CreateDate);
                 result.Result.Data = list;
             }
@@ -282,12 +282,12 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> GetAllProject()
+        public async Task<AppActionResult> GetAllProject(Project.ProjectStatus status)
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                var list = await GetAllProject(null);
+                var list = await GetAllProject(null,status);
                 list = list.OrderByDescending(a => a.CreateDate).ToList();
                 result.Result.Data = list;
             }
@@ -299,9 +299,9 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        private async Task<List<Project>> GetAllProject(string accountId)
+        private async Task<List<Project>> GetAllProject(string accountId, Project.ProjectStatus status)
         {
-            return accountId != null ? await _projectRepository.GetAllDataByExpression(filter: a => a.AccountId == accountId, a => a.Account) : await _projectRepository.GetAllDataByExpression(filter: null, a => a.Account);
+            return accountId != null ? await _projectRepository.GetAllDataByExpression(filter: a => a.AccountId == accountId && a.Status == status, a => a.Account) : await _projectRepository.GetAllDataByExpression(filter: a=>  a.Status == status, a => a.Account);
         }
 
         public async Task<AppActionResult> GetProjectById(Guid id)

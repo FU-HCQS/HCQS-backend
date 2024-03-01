@@ -44,7 +44,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             var quotationRepository = Resolve<IQuotationRepository>();
                             var quotationDb = await quotationRepository.GetByExpression(q => q.Id == quotationDetailDb.QuotationId && q.QuotationStatus == Quotation.Status.Approved, q => q.Project, q => q.Project.Contract);
-                            if(quotationDb != null && quotationDb.Project.ProjectStatus == Project.Status.UnderConstruction && quotationDb.Project.Contract != null && quotationDb.Project.Contract.ContractStatus == Contract.Status.ACTIVE)
+                            if(quotationDb != null && quotationDb.Project.Status == Project.ProjectStatus.UnderConstruction && quotationDb.Project.Contract != null && quotationDb.Project.Contract.ContractStatus == Contract.Status.ACTIVE)
                             {
                                 var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                                 var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c => c.ContractId == quotationDb.Project.Contract.Id && c.Name.Equals("Deposit"), c => c.Payment);

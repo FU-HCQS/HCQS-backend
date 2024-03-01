@@ -187,7 +187,7 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var projectRepository = Resolve<IProjectRepository>();
-                var projectDb = await projectRepository.GetByExpression(p => p.Id == id && p.ProjectStatus == Project.Status.UnderConstruction);
+                var projectDb = await projectRepository.GetByExpression(p => p.Id == id && p.Status == Project.ProjectStatus.UnderConstruction);
                 if (projectDb != null)
                 {
                     var quotationRepository = Resolve<IQuotationRepository>();

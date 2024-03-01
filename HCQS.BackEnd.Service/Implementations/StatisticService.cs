@@ -550,7 +550,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     string key = null;
                     projectDb.ForEach(p =>
                     {
-                        key = SD.EnumType.ProjectStatus[p.ProjectStatus];
+                        key = SD.EnumType.ProjectStatus[p.Status];
                         if (projectDistribution.ContainsKey(key))
                         {
                             projectDistribution[key]++;

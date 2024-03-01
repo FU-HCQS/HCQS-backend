@@ -19,11 +19,11 @@ namespace HCQS.BackEnd.DAL.Models
 
         public string? LandDrawingFileUrl { get; set; }
         public string AddressProject { get; set; }
-        public Status ProjectStatus { get; set; }
+        public ProjectStatus Status { get; set; }
 
         public ProjectConstructionType ConstructionType { get; set; }
 
-        public enum Status
+        public enum ProjectStatus
         {
             Pending,
             Processing,

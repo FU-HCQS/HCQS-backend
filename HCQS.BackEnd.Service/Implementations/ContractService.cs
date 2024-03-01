@@ -148,7 +148,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         };
                         var content = TemplateMappingHelper.GetTemplateContract(templateDto);
                         var projectDb = await projectRepository.GetById(contractDb.ProjectId);
-                        projectDb.ProjectStatus = DAL.Models.Project.Status.UnderConstruction;
+                        projectDb.Status = DAL.Models.Project.ProjectStatus.UnderConstruction;
                         var delete = await fileService.DeleteFileFromFirebase($"contract/{contractDb.Id}");
                         var upload = await fileService.UploadFileToFirebase(fileService.ConvertHtmlToPdf(content, $"{contractDb.Id}.pdf"), $"contract/{contractDb.Id}");
                         contractDb.ContractUrl = Convert.ToString(upload.Result.Data);
