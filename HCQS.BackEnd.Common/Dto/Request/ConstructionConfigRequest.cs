@@ -12,8 +12,11 @@ namespace HCQS.BackEnd.Common.Dto.Request
 
         public ProjectConstructionType ConstructionType { get; set; }
 
-        public double NumOfFloor { get; set; }
-        public double Area { get; set; }
-        public double TiledArea { get; set; }
+        public int NumOfFloorMin { get; set; }
+        public int? NumOfFloorMax { get; set; }
+        public int AreaMin { get; set; }
+        public int? AreaMax { get; set; }
+        public int TiledAreaMin { get; set; }
+        public int? TiledAreaMax { get; set; }
     }
 }

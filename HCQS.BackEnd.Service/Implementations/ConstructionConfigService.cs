@@ -6,6 +6,10 @@ using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using ICSharpCode.SharpZipLib.Zip;
+using NPOI.Util.ArrayExtensions;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.Diagnostics;
 using System.Text;
 using System.Transactions;
 using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
@@ -35,6 +39,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var requestString = await GetRequestString(request);
                     var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(n => n.Name.Contains(requestString));
+
                     if (constructionConfigDb != null && constructionConfigDb.Count > 0)
                     {
                         result = BuildAppActionResultError(result, $"The constructionConfig of {requestString} has already existed!");
@@ -42,29 +47,61 @@ namespace HCQS.BackEnd.Service.Implementations
                     else
                     {
                         //fix validator
-                        List<ConstructionConfig> configs = new List<ConstructionConfig>();
-                        configs.Add(new ConstructionConfig()
+                        bool validRange = true;
+                        var allContructionConfig = await _constructionConfigRepository.GetAllDataByExpression(null);
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Invalid range of ");
+                        if(allContructionConfig.Count != 0)
                         {
-                            Id = Guid.NewGuid(),
-                            Name = $"{requestString}, SandMixingRatio",
-                            Value = (float)request.SandMixingRatio
-                        });
-                        configs.Add(new ConstructionConfig()
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = $"{requestString}, CementMixingRatio",
-                            Value = (float)request.CementMixingRatio
-                        });
+                            List<string>[] configsSet = await getThreeRange(allContructionConfig.Select(c => c.Name).ToList());
+                            validRange &= await IsValidRange(configsSet[0], $"{request.NumOfFloorMin}-{request.NumOfFloorMax}");
+                            if (!validRange)
+                            {
+                                sb.Append($"number of floor: {request.NumOfFloorMin}-{request.NumOfFloorMax}, ");
+                            }
+                            validRange &= await IsValidRange(configsSet[1], $"{request.AreaMin}-{request.AreaMax}");
+                            if (!validRange)
+                            {
+                                sb.Append($"area: {request.AreaMin}-{request.AreaMax}, ");
+                            }
+                            validRange &= await IsValidRange(configsSet[2], $"{request.TiledAreaMin}-{request.TiledAreaMax}");
+                            if (!validRange)
+                            {
+                                sb.Append($"tiled area: {request.TiledAreaMin}-{request.TiledAreaMax}");
+                            }
+                        }
 
-                        configs.Add(new ConstructionConfig()
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = $"{requestString}, StoneMixingRatio",
-                            Value = (float)request.StoneMixingRatio
-                        });
 
-                        result.Result.Data = await _constructionConfigRepository.InsertRange(configs);
-                        await _unitOfWork.SaveChangeAsync();
+                        if (validRange)
+                        {
+                            List<ConstructionConfig> configs = new List<ConstructionConfig>();
+                            configs.Add(new ConstructionConfig()
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = $"{requestString}, SandMixingRatio",
+                                Value = (float)request.SandMixingRatio
+                            });
+                            configs.Add(new ConstructionConfig()
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = $"{requestString}, CementMixingRatio",
+                                Value = (float)request.CementMixingRatio
+                            });
+
+                            configs.Add(new ConstructionConfig()
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = $"{requestString}, StoneMixingRatio",
+                                Value = (float)request.StoneMixingRatio
+                            });
+
+                            result.Result.Data = await _constructionConfigRepository.InsertRange(configs);
+                            await _unitOfWork.SaveChangeAsync();
+                        }
+                        else
+                        {
+                            result = BuildAppActionResultError(result, sb.ToString());
+                        }
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -80,11 +117,11 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
-
-        //
+        
         public async Task<AppActionResult> DeleteConstructionConfig(DeleteConstructionConfigRequest request)
-
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 AppActionResult result = new AppActionResult();
@@ -112,6 +149,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     result = BuildAppActionResultError(result, ex.Message);
                     _logger.LogError(ex.Message, this);
                 }
+                stopwatch.Stop();
+                result.Messages.Add($"{stopwatch.Elapsed}");
                 return result;
             }
         }
@@ -134,70 +173,67 @@ namespace HCQS.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request)
         {
-            AppActionResult result = new AppActionResult();
             try
             {
-                string searchString = await GetSearchString(request.ConstructionType, request.NumOfFloor, request.Area, request.TiledArea);
-                var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(c => c.Name.Contains(searchString));
-                if (constructionConfigDb != null)
-                {
-                    var constructionConfig = new ConstructionConfigResponse();
-                    Dictionary<string, bool> checkAvailableConfig = new Dictionary<string, bool>();
-                    checkAvailableConfig.Add("SandMixingRatio", false);
-                    checkAvailableConfig.Add("CementMixingRatio", false);
-                    checkAvailableConfig.Add("StoneMixingRatio", false);
-                    foreach (var config in constructionConfigDb)
-                    {
-                        if (config.Name.Contains("SandMixingRatio"))
-                        {
-                            constructionConfig.SandMixingRatio = (int)Math.Round(config.Value);
-                            checkAvailableConfig["SandMixingRatio"] = true;
-                        }
-                        else if (config.Name.Contains("CementMixingRatio"))
-                        {
-                            constructionConfig.CementMixingRatio = (int)Math.Round(config.Value);
-                            checkAvailableConfig["CementMixingRatio"] = true;
-                        }
-                        else if (config.Name.Contains("StoneMixingRatio"))
-                        {
-                            constructionConfig.StoneMixingRatio = (int)Math.Round(config.Value);
-                            checkAvailableConfig["StoneMixingRatio"] = true;
-                        }
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    foreach (KeyValuePair<string, bool> check in checkAvailableConfig)
-                    {
-                        if (!check.Value)
-                        {
-                            if (sb.Length == 0)
-                            {
-                                sb.Append("No available config for: ");
-                            }
-                            sb.Append($"{check.Key}, ");
-                        }
-                    }
+                var allConstructionConfig = await _constructionConfigRepository.GetAllDataByExpression(null);
 
-                    if (sb.Length > 0)
-                    {
-                        result = BuildAppActionResultError(result, sb.ToString());
-                    }
-                    else
-                    {
-                        result.Result.Data = constructionConfig;
-                    }
-                }
-                else
+                if (allConstructionConfig == null || allConstructionConfig.Count == 0)
                 {
-                    result = BuildAppActionResultError(result, $"The is not config available for this project");
+                    return BuildAppActionResultError(new AppActionResult(), "There is no config available for this project");
                 }
+
+                var searchString = await GetSearchString(request.ConstructionType, request.NumOfFloor, request.Area, request.TiledArea);
+
+                var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(c => c.Name.Contains(searchString));
+
+                if (constructionConfigDb == null || constructionConfigDb.Count == 0)
+                {
+                    return BuildAppActionResultError(new AppActionResult(), "There is no config available for this project");
+                }
+
+                var constructionConfig = new ConstructionConfigResponse();
+                var checkAvailableConfig = new Dictionary<string, bool>
+        {
+            {"SandMixingRatio", false},
+            {"CementMixingRatio", false},
+            {"StoneMixingRatio", false}
+        };
+
+                Parallel.ForEach(constructionConfigDb, config =>
+                {
+                    if (config.Name.Contains("SandMixingRatio"))
+                    {
+                        constructionConfig.SandMixingRatio = (int)Math.Round(config.Value);
+                        checkAvailableConfig["SandMixingRatio"] = true;
+                    }
+                    else if (config.Name.Contains("CementMixingRatio"))
+                    {
+                        constructionConfig.CementMixingRatio = (int)Math.Round(config.Value);
+                        checkAvailableConfig["CementMixingRatio"] = true;
+                    }
+                    else if (config.Name.Contains("StoneMixingRatio"))
+                    {
+                        constructionConfig.StoneMixingRatio = (int)Math.Round(config.Value);
+                        checkAvailableConfig["StoneMixingRatio"] = true;
+                    }
+                });
+
+                var missingConfigs = checkAvailableConfig.Where(x => !x.Value).Select(x => x.Key);
+                if (missingConfigs.Any())
+                {
+                    return BuildAppActionResultError(new AppActionResult(), $"No available config for: {string.Join(", ", missingConfigs)}");
+                }
+
+                var result = new AppActionResult { Result = { Data = constructionConfig } };
+                return result;
             }
-            catch (Exception ex)
+            catch (Exception ex) // Specify the actual exception type
             {
-                result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
+                return BuildAppActionResultError(new AppActionResult(), ex.Message);
             }
-            return result;
         }
+
 
         public async Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request)
         {
@@ -214,18 +250,17 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        //fix validator
                         var sandConfig = constructionConfigDb.FirstOrDefault(c => c.Name.Contains("SandMixingRatio"));
                         sandConfig.Value = (float)request.SandMixingRatio;
                         var stoneConfig = constructionConfigDb.FirstOrDefault(c => c.Name.Contains("StoneMixingRatio"));
                         stoneConfig.Value = (float)request.StoneMixingRatio;
                         var cementConfig = constructionConfigDb.FirstOrDefault(c => c.Name.Contains("CementMixingRatio"));
                         cementConfig.Value = (float)request.CementMixingRatio;
-
                         await _constructionConfigRepository.Update(sandConfig);
                         await _constructionConfigRepository.Update(stoneConfig);
                         await _constructionConfigRepository.Update(cementConfig);
                         await _unitOfWork.SaveChangeAsync();
+                    
                     }
 
                     if (!BuildAppActionResultIsError(result))
@@ -253,61 +288,16 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 sb.Append("RoughConstruction");
             }
+            var allContructionConfig = await _constructionConfigRepository.GetAllDataByExpression(null);
+            List<string>[] configsSet = await getThreeRange(allContructionConfig.Select(c => c.Name).ToList());
+            var numOfFloorSearch = await GetSearchRange(configsSet[0], numOfFloor);
+            sb.Append($", {numOfFloorSearch} Floors");
+            var areaSearch = await GetSearchRange(configsSet[1], area);
+            sb.Append($", {areaSearch}");
 
-            if (numOfFloor <= 2)
-            {
-                sb.Append(", 1-2 Floors");
-            }
-            else if (numOfFloor <= 5)
-            {
-                sb.Append(", 3-5 Floors");
-            }
-            else
-            {
-                sb.Append(", 6+ Floors");
-            }
+            var tiledAreaSearch = await GetSearchRange(configsSet[2], tiledArea);
+            sb.Append($", {tiledAreaSearch}");
 
-            if (area <= 50)
-            {
-                sb.Append(", 1-50");
-            }
-            else if (area <= 100)
-            {
-                sb.Append(", 50-100");
-            }
-            else if (area <= 300)
-            {
-                sb.Append(", 100-300");
-            }
-            else if (area <= 500)
-            {
-                sb.Append(", 300-500");
-            }
-            else
-            {
-                sb.Append(", 500+");
-            }
-
-            if (tiledArea <= 50)
-            {
-                sb.Append(", 1-50");
-            }
-            else if (tiledArea <= 100)
-            {
-                sb.Append(", 50-100");
-            }
-            else if (tiledArea <= 300)
-            {
-                sb.Append(", 100-300");
-            }
-            else if (tiledArea <= 500)
-            {
-                sb.Append(", 300-500");
-            }
-            else
-            {
-                sb.Append(", 500+");
-            }
             return sb.ToString();
         }
 
@@ -322,9 +312,9 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 sb.Append("CompleteConstruction");
             }
-            sb.Append($", {request.NumOfFloor} Floors");
-            sb.Append($", {request.Area}");
-            sb.Append($", {request.TiledArea}");
+            sb.Append($", {$"{request.NumOfFloorMin}-{request.NumOfFloorMax}"} Floors");
+            sb.Append($", {$"{request.AreaMin}-{request.AreaMax}"}");
+            sb.Append($", {$"{request.TiledAreaMin}-{request.TiledAreaMax}"}");
 
             return sb.ToString();
         }
@@ -340,9 +330,10 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 sb.Append("CompleteConstruction");
             }
-            sb.Append($", {request.NumOfFloor} Floors");
-            sb.Append($", {request.Area}");
-            sb.Append($", {request.TiledArea}");
+
+            sb.Append($", {$"{request.NumOfFloorMin}-{request.NumOfFloorMax}"} Floors");
+            sb.Append($", {$"{request.AreaMin}-{request.AreaMax}"}");
+            sb.Append($", {$"{request.TiledAreaMin}-{request.TiledAreaMax}"}");
 
             return sb.ToString();
         }
@@ -433,5 +424,120 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
+        public async Task<bool> IsValidRange(List<string> currentRanges, string inputRange)
+        {
+            var currentRangesSet = new HashSet<string>(currentRanges);
+
+            if (currentRangesSet.Contains(inputRange))
+            {
+                return true; // Exact match found
+            }
+
+            var intervals = new List<(int, int)>();
+
+            foreach (var currentRange in currentRangesSet)
+            {
+                var rangeParts = currentRange.Split('-');
+
+                if (rangeParts.Length == 2)
+                {
+                    if (int.TryParse(rangeParts[0], out int start) && int.TryParse(rangeParts[1], out int end))
+                    {
+                        intervals.Add((start, end));
+                    }
+                    else
+                    {
+                        return false; // Invalid range format
+                    }
+                }
+                else
+                {
+                    intervals.Add((int.Parse(rangeParts[0].TrimEnd('+')), int.MaxValue));
+                }
+            }
+
+            var inputParts = inputRange.Split("-");
+            if (inputParts.Length == 2)
+            {
+                if (int.TryParse(inputParts[0], out int start) && int.TryParse(inputParts[1], out int end))
+                {
+                    intervals.Add((start, end));
+                }
+                else
+                {
+                    return false; // Invalid input range format
+                }
+            }
+            else
+            {
+                intervals.Add((int.Parse(inputParts[0].TrimEnd('+')), int.MaxValue));
+            }
+
+            int maxEnd = int.MinValue;
+
+            foreach (var interval in intervals)
+            {
+                if (interval.Item1 < maxEnd)
+                {
+                    return false; // Overlapping intervals
+                }
+
+                maxEnd = Math.Max(maxEnd, interval.Item2);
+            }
+
+            return true;
+        }
+        public async Task<List<string>[]> getThreeRange(List<string> configNames)
+        {
+            HashSet<string>[] result = new HashSet<string>[3];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = new HashSet<string>();
+            }
+
+            string[] lineConfig = null;
+            foreach(string configName in configNames)
+            {
+                lineConfig = configName.Split(", ");
+                result[0].Add(lineConfig[1].Substring(0, lineConfig[1].Length - 7));
+                result[1].Add(lineConfig[2]);
+                result[2].Add(lineConfig[3]);
+            }
+            return new List<string>[]{
+                result[0].ToList(),
+                result[1].ToList(),
+                result[2].ToList()
+            };
+        }
+
+        public async Task<string> GetSearchRange(List<string> ranges, double value)
+{
+    var intervals = new List<Tuple<int, int>>();
+    
+    foreach (var currentRange in ranges)
+    {
+        var range = currentRange.Split('-');
+        
+        if (range.Length == 2)
+        {
+            intervals.Add(Tuple.Create(int.Parse(range[0]), int.Parse(range[1])));
+        }
+        else
+        {
+            intervals.Add(Tuple.Create(int.Parse(range[0].Substring(0, range[0].Length - 1)), int.MaxValue));
+        }
+    }
+
+    foreach (var interval in intervals)
+    {
+        if (interval.Item1 <= value && interval.Item2 >= value)
+        {
+            return $"{interval.Item1}-{interval.Item2}";
+        }
+    }
+
+    return string.Empty;
+}
     }
 }
