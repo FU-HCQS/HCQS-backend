@@ -7,9 +7,11 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using ICSharpCode.SharpZipLib.Zip;
+using NPOI.HSSF.Record;
 using NPOI.Util.ArrayExtensions;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Transactions;
 using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
@@ -159,9 +161,39 @@ namespace HCQS.BackEnd.Service.Implementations
         {
             AppActionResult result = new AppActionResult();
             try
-            {
+            {                
                 var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(null, null);
-                result.Result.Data = constructionConfigDb;
+                var groupedRecords = constructionConfigDb
+            .GroupBy(record => GetGroupKey(record.Name))
+            .Select(group => new
+            {
+                GroupKey = group.Key,
+                Records = group.ToList()
+            }).ToList();
+                List<ConstructionConfigRequest> constructionConfigRequests = new List<ConstructionConfigRequest>();
+                // Print the grouped records
+                foreach (var group in groupedRecords)
+                {
+                    var constructionConfigRequest = new ConstructionConfigRequest();
+                    StringToConfig(ref constructionConfigRequest, group.GroupKey);
+                    foreach(var value in group.Records) {
+                        if (value.Name.Contains("Sand"))
+                        {
+                            constructionConfigRequest.SandMixingRatio = value.Value;
+                        } else if (value.Name.Contains("Cement"))
+                        {
+                            constructionConfigRequest.CementMixingRatio = value.Value;
+                        }
+                        else
+                        {
+                            constructionConfigRequest.StoneMixingRatio = value.Value;
+                        }
+                    }
+                    constructionConfigRequests.Add(constructionConfigRequest);
+                }
+
+
+                result.Result.Data = constructionConfigRequests;
             }
             catch (Exception ex)
             {
@@ -234,7 +266,6 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-
         public async Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -275,67 +306,6 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
-        }
-
-        private async Task<string> GetSearchString(Project.ProjectConstructionType constructionType, int numOfFloor, double area, double tiledArea)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (constructionType == ProjectConstructionType.CompleteConstruction)
-            {
-                sb.Append("CompleteConstruction");
-            }
-            else
-            {
-                sb.Append("RoughConstruction");
-            }
-            var allContructionConfig = await _constructionConfigRepository.GetAllDataByExpression(null);
-            List<string>[] configsSet = await getThreeRange(allContructionConfig.Select(c => c.Name).ToList());
-            var numOfFloorSearch = await GetSearchRange(configsSet[0], numOfFloor);
-            sb.Append($", {numOfFloorSearch} Floors");
-            var areaSearch = await GetSearchRange(configsSet[1], area);
-            sb.Append($", {areaSearch}");
-
-            var tiledAreaSearch = await GetSearchRange(configsSet[2], tiledArea);
-            sb.Append($", {tiledAreaSearch}");
-
-            return sb.ToString();
-        }
-
-        private async Task<string> GetRequestString(ConstructionConfigRequest request)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (request.ConstructionType == ProjectConstructionType.RoughConstruction)
-            {
-                sb.Append("RoughConstruction");
-            }
-            else
-            {
-                sb.Append("CompleteConstruction");
-            }
-            sb.Append($", {$"{request.NumOfFloorMin}-{request.NumOfFloorMax}"} Floors");
-            sb.Append($", {$"{request.AreaMin}-{request.AreaMax}"}");
-            sb.Append($", {$"{request.TiledAreaMin}-{request.TiledAreaMax}"}");
-
-            return sb.ToString();
-        }
-
-        private async Task<string> GetDeleteString(DeleteConstructionConfigRequest request)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (request.ConstructionType == Project.ProjectConstructionType.RoughConstruction)
-            {
-                sb.Append("RoughConstruction");
-            }
-            else
-            {
-                sb.Append("CompleteConstruction");
-            }
-
-            sb.Append($", {$"{request.NumOfFloorMin}-{request.NumOfFloorMax}"} Floors");
-            sb.Append($", {$"{request.AreaMin}-{request.AreaMax}"}");
-            sb.Append($", {$"{request.TiledAreaMin}-{request.TiledAreaMax}"}");
-
-            return sb.ToString();
         }
 
         public async Task<AppActionResult> CreateConstructionConfig(string name, float value)
@@ -425,6 +395,21 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
+        public async Task<AppActionResult> GetConstructionConfigById(Guid Id)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var constructionConfigDb = await _constructionConfigRepository.GetById(Id);
+                result.Result.Data = constructionConfigDb;
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
         public async Task<bool> IsValidRange(List<string> currentRanges, string inputRange)
         {
             var currentRangesSet = new HashSet<string>(currentRanges);
@@ -497,7 +482,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
 
             string[] lineConfig = null;
-            foreach(string configName in configNames)
+            foreach (string configName in configNames)
             {
                 lineConfig = configName.Split(", ");
                 result[0].Add(lineConfig[1].Substring(0, lineConfig[1].Length - 7));
@@ -510,34 +495,120 @@ namespace HCQS.BackEnd.Service.Implementations
                 result[2].ToList()
             };
         }
-
         public async Task<string> GetSearchRange(List<string> ranges, double value)
-{
-    var intervals = new List<Tuple<int, int>>();
-    
-    foreach (var currentRange in ranges)
-    {
-        var range = currentRange.Split('-');
-        
-        if (range.Length == 2)
         {
-            intervals.Add(Tuple.Create(int.Parse(range[0]), int.Parse(range[1])));
-        }
-        else
-        {
-            intervals.Add(Tuple.Create(int.Parse(range[0].Substring(0, range[0].Length - 1)), int.MaxValue));
-        }
-    }
+            var intervals = new List<Tuple<int, int>>();
 
-    foreach (var interval in intervals)
-    {
-        if (interval.Item1 <= value && interval.Item2 >= value)
-        {
-            return $"{interval.Item1}-{interval.Item2}";
-        }
-    }
+            foreach (var currentRange in ranges)
+            {
+                var range = currentRange.Split('-');
 
-    return string.Empty;
-}
+                if (range.Length == 2)
+                {
+                    intervals.Add(Tuple.Create(int.Parse(range[0]), int.Parse(range[1])));
+                }
+                else
+                {
+                    intervals.Add(Tuple.Create(int.Parse(range[0].Substring(0, range[0].Length - 1)), int.MaxValue));
+                }
+            }
+
+            foreach (var interval in intervals)
+            {
+                if (interval.Item1 <= value && interval.Item2 >= value)
+                {
+                    return $"{interval.Item1}-{interval.Item2}";
+                }
+            }
+
+            return string.Empty;
+        }
+        public string GetGroupKey(string name)
+        {
+            // Extract the first 4 values from the "Name" field
+            string[] values = name.Split(", ").Take(4).ToArray();
+            return string.Join(", ", values);
+        }
+        public void StringToConfig(ref ConstructionConfigRequest constructionConfig, string configName)
+        {
+            string[] configAttributes = configName.Split(", ");
+            if(configAttributes.Length != 4)
+            {
+                return ;
+            }
+
+            constructionConfig.ConstructionType = configAttributes[0].Equals("RoughConstruction") ? 
+                                        ProjectConstructionType.RoughConstruction : 
+                                        ProjectConstructionType.CompleteConstruction;
+
+            string[] numOfFloors = configAttributes[1].Substring(0, configAttributes[1].Length - 7).Split('-');
+            string[] area = configAttributes[2].Split('-');
+            string[] tiledArea = configAttributes[3].Split('-');
+            constructionConfig.NumOfFloorMin = int.Parse(numOfFloors[0]);
+            constructionConfig.NumOfFloorMax = int.Parse(numOfFloors[1]);
+            constructionConfig.AreaMin = int.Parse(area[0]);
+            constructionConfig.AreaMax = int.Parse(area[1]);
+            constructionConfig.TiledAreaMin = int.Parse(tiledArea[0]);
+            constructionConfig.TiledAreaMax = int.Parse(tiledArea[1]);
+        }
+        private async Task<string> GetSearchString(Project.ProjectConstructionType constructionType, int numOfFloor, double area, double tiledArea)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (constructionType == ProjectConstructionType.CompleteConstruction)
+            {
+                sb.Append("CompleteConstruction");
+            }
+            else
+            {
+                sb.Append("RoughConstruction");
+            }
+            var allContructionConfig = await _constructionConfigRepository.GetAllDataByExpression(null);
+            List<string>[] configsSet = await getThreeRange(allContructionConfig.Select(c => c.Name).ToList());
+            var numOfFloorSearch = await GetSearchRange(configsSet[0], numOfFloor);
+            sb.Append($", {numOfFloorSearch} Floors");
+            var areaSearch = await GetSearchRange(configsSet[1], area);
+            sb.Append($", {areaSearch}");
+
+            var tiledAreaSearch = await GetSearchRange(configsSet[2], tiledArea);
+            sb.Append($", {tiledAreaSearch}");
+
+            return sb.ToString();
+        }
+        private async Task<string> GetRequestString(ConstructionConfigRequest request)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (request.ConstructionType == ProjectConstructionType.RoughConstruction)
+            {
+                sb.Append("RoughConstruction");
+            }
+            else
+            {
+                sb.Append("CompleteConstruction");
+            }
+            sb.Append($", {$"{request.NumOfFloorMin}-{request.NumOfFloorMax}"} Floors");
+            sb.Append($", {$"{request.AreaMin}-{request.AreaMax}"}");
+            sb.Append($", {$"{request.TiledAreaMin}-{request.TiledAreaMax}"}");
+
+            return sb.ToString();
+        }
+        private async Task<string> GetDeleteString(DeleteConstructionConfigRequest request)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (request.ConstructionType == Project.ProjectConstructionType.RoughConstruction)
+            {
+                sb.Append("RoughConstruction");
+            }
+            else
+            {
+                sb.Append("CompleteConstruction");
+            }
+
+            sb.Append($", {$"{request.NumOfFloorMin}-{request.NumOfFloorMax}"} Floors");
+            sb.Append($", {$"{request.AreaMin}-{request.AreaMax}"}");
+            sb.Append($", {$"{request.TiledAreaMin}-{request.TiledAreaMax}"}");
+
+            return sb.ToString();
+        }
+
     }
 }
