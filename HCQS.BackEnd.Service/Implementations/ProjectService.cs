@@ -7,6 +7,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService;
+using System.Linq.Expressions;
 using System.Transactions;
 using static HCQS.BackEnd.Common.Dto.Request.ConfigProjectRequest;
 using static HCQS.BackEnd.Service.UtilityService.BuildingUtility;
@@ -106,6 +107,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         Area = projectDb.Area,
                         ConstructionType = projectDb.ConstructionType,
+                        NumOfFloor = projectDb.NumOfFloor,
+                        TiledArea = project.TiledArea
                     });
                     if (!resulGetConstructionCofig.IsSuccess)
                     {
@@ -287,7 +290,7 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var list = await GetAllProject(null,status);
+                var list = await GetAllProject(null, status);
                 list = list.OrderByDescending(a => a.CreateDate).ToList();
                 result.Result.Data = list;
             }
@@ -301,7 +304,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
         private async Task<List<Project>> GetAllProject(string accountId, Project.ProjectStatus status)
         {
-            return accountId != null ? await _projectRepository.GetAllDataByExpression(filter: a => a.AccountId == accountId && a.Status == status, a => a.Account) : await _projectRepository.GetAllDataByExpression(filter: a=>  a.Status == status, a => a.Account);
+            return accountId != null ? await _projectRepository.GetAllDataByExpression(filter: a => a.AccountId == accountId && a.Status == status, a => a.Account) : await _projectRepository.GetAllDataByExpression(filter: a => a.Status == status, a => a.Account);
         }
 
         public async Task<AppActionResult> GetProjectById(Guid id)
@@ -337,10 +340,11 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             listQuotation = listQuotation.OrderByDescending(a => a.CreateDate).ToList();
 
+            var listQuotationDealing = await quotationDealingRepository.GetAllDataByExpression(filter: null);
             var result = new ProjectResponse
             {
                 Project = project,
-                QuotationDealings = project != null ? await quotationDealingRepository.GetAllDataByExpression(filter: a => a.Quotation.ProjectId == id) : null,
+                QuotationDealings = listQuotationDealing,
                 Quotations = listQuotation,
                 Contract = isCustomer == true ? await contractRepository.GetByExpression(c => c.ProjectId == id && c.ContractStatus != Contract.Status.NEW) : await contractRepository.GetByExpression(c => c.ProjectId == id)
             };
