@@ -8,7 +8,6 @@ namespace HCQS.BackEnd.Common.Validator
         public CreateQuotationDeallingStaffValidator()
         {
             RuleFor(x => x.RawMaterialDiscount).NotNull().NotEmpty().WithMessage("The MaterialDiscount must be required!");
-            RuleFor(x => x.LaborDiscount).NotNull().NotEmpty().WithMessage("The LaborDiscount must be required!");
             RuleFor(x => x.FurnitureDiscount).NotNull().NotEmpty().WithMessage("The FurnitureDiscount must be required!");
         }
     }
