@@ -458,10 +458,10 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 intervals.Add((int.Parse(inputParts[0].TrimEnd('+')), int.MaxValue));
             }
-
+            var orderedInterval = intervals.OrderBy(x => x.Item1);
             int maxEnd = int.MinValue;
 
-            foreach (var interval in intervals)
+            foreach (var interval in orderedInterval)
             {
                 if (interval.Item1 < maxEnd)
                 {
