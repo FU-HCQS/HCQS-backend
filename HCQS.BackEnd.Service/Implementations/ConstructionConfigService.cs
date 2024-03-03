@@ -610,5 +610,44 @@ namespace HCQS.BackEnd.Service.Implementations
             return sb.ToString();
         }
 
+        private async Task<int> GetGreatestConfig(List<string> configs)
+        {
+            int result = 0;
+
+            foreach (var currentRange in configs)
+            {
+                var rangeParts = currentRange.Split('-');
+
+                bool canParsed = int.TryParse(rangeParts[1], out int value);
+                if(canParsed)
+                {
+                    result = Math.Max(result, value);
+                }
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> GetMaxConfig()
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var constructionConfigDb = await _constructionConfigRepository.GetAllDataByExpression(null);
+                List<string>[] configsSet = await getThreeRange(constructionConfigDb.Select(c => c.Name).ToList());
+                MaxContructionConfig data = new MaxContructionConfig()
+                {
+                    NumOfFloorMax = await GetGreatestConfig(configsSet[0]),
+                    AreaMax = await GetGreatestConfig(configsSet[1]),
+                    TiledAreaMax = await GetGreatestConfig(configsSet[2]),
+                };
+                result.Result.Data = data;
+            }
+            catch (Exception ex) // Specify the actual exception type
+            {
+                _logger.LogError(ex.Message, this);
+                return BuildAppActionResultError(new AppActionResult(), ex.Message);
+            }
+            return result;
+        }
     }
 }

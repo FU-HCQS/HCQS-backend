@@ -29,7 +29,7 @@ namespace HCQS.BackEnd.API.Controllers
             _constructionConfigService = constructionConfigService;
         }
 
-      [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("create-construction-config")]
         public async Task<AppActionResult> CreateConstructionConfig(ConstructionConfigRequest request)
         {
@@ -102,6 +102,13 @@ namespace HCQS.BackEnd.API.Controllers
         public async Task<AppActionResult> SearchConstructionConfig(string keyword)
         {
             return await _constructionConfigService.SearchConstructionConfig(keyword);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpGet("get-max-config/")]
+        public async Task<AppActionResult> GetMaxConfig()
+        {
+            return await _constructionConfigService.GetMaxConfig();
         }
     }
 }
