@@ -237,14 +237,14 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(6) > DateTime.UtcNow && a.CreateDate <= DateTime.UtcNow, null);
                         projectCountPerTimePeriod = projectDb
-                                                .GroupBy(a => a.CreateDate.ToString("MMMM"))
+                                                .GroupBy(a => a.CreateDate.ToString("MMM"))
                                                 .ToDictionary(group => group.Key, group => group.Count());
                     }
                     else
                     {
                         projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddYears(1) > DateTime.UtcNow && a.CreateDate <= DateTime.UtcNow, null);
                         projectCountPerTimePeriod = projectDb
-                                                .GroupBy(a => a.CreateDate.ToString("MMMM"))
+                                                .GroupBy(a => a.CreateDate.ToString("MMM"))
                                                 .ToDictionary(group => group.Key, group => group.Count());
                     }
                 }
