@@ -340,7 +340,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             listQuotation = listQuotation.OrderByDescending(a => a.CreateDate).ToList();
 
-            var listQuotationDealing = await quotationDealingRepository.GetAllDataByExpression(filter: null);
+            var listQuotationDealing = await quotationDealingRepository.GetAllDataByExpression(filter: a=> a.Quotation.ProjectId== id);
             var result = new ProjectResponse
             {
                 Project = project,
