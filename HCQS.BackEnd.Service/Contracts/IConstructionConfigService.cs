@@ -16,6 +16,7 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> DeleteAllConstructionConfig();
 
         Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request);
+        Task<AppActionResult> GetMaxConfig();
 
         Task<AppActionResult> SearchConstructionConfig(string keyword);
 
