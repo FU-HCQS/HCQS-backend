@@ -15,34 +15,35 @@ namespace HCQS.BackEnd.Service.Contracts
 
         public Task<AppActionResult> GetTotalQuotationRequest();
 
-        public Task<AppActionResult> getTotalImport();
+        public Task<AppActionResult> GetTotalImport();
 
-        public Task<AppActionResult> getTotalExport();
+        public Task<AppActionResult> GetTotalExport();
 
-        public Task<AppActionResult> getIncreaseProject(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetIncreaseProject(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getIncreaseContract(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetIncreaseContract(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getIncreaseImportInventory(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetIncreaseImportExportInventory(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetIncreaseImportInventory(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getIncreaseExportInventory(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetIncreaseExportInventory(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getAccountRatio();
+        public Task<AppActionResult> GetAccountRatio();
 
-        public Task<AppActionResult> getProjectContructionTypeRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetProjectContructionTypeRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getProjectStatusRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetProjectStatusRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getContractRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetContractRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getTotalImportBySupplierRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetTotalImportBySupplierRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getTotalImportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetTotalImportByMaterialRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getTotalExportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetTotalExportByMaterialRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getQuantityImportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetQuantityImportByMaterialRatio(int year = -1, int timePeriod = 1);
 
-        public Task<AppActionResult> getQuantityExportByMaterialRatio(int year = -1, int timePeriod = 1);
+        public Task<AppActionResult> GetQuantityExportByMaterialRatio(int year = -1, int timePeriod = 1);
     }
 }

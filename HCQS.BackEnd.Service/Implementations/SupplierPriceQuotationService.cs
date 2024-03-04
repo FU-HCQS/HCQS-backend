@@ -285,11 +285,12 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            if (!(await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL)))
+                            string errorHeader = await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL);
+                            if (!string.IsNullOrEmpty(errorHeader))
                             {
                                 isSuccessful = false;
-                                _logger.LogError($"Incompatible header to supplier's material price quotation template", this);
-                                message = $"Incompatible header to supplier's material price quotation template";
+                                _logger.LogError(errorHeader, this);
+                                message = errorHeader;
                             }
                             else
                             {
@@ -494,11 +495,11 @@ namespace HCQS.BackEnd.Service.Implementations
             return null;
         }
 
-        private async Task<bool> CheckHeader(IFormFile file, List<string> headerTemplate)
+        private async Task<string> CheckHeader(IFormFile file, List<string> headerTemplate)
         {
             if (file == null || file.Length == 0)
             {
-                return false;
+                return "File not found";
             }
 
             try
@@ -513,14 +514,22 @@ namespace HCQS.BackEnd.Service.Implementations
                         ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
 
                         int colCount = worksheet.Dimension.Columns;
-                        if (colCount != headerTemplate.Count) return false;
-
+                        if (colCount != headerTemplate.Count) return "The number of columns is different from template's!";
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Incorrect column names: ");
+                        bool containsError = false;
                         for (int col = 1; col <= colCount; col++) // Assuming header is in the first row
                         {
                             if (!worksheet.Cells[1, col].Value.Equals(headerTemplate[col - 1]))
-                                return false;
+                            {
+                                if(!containsError) containsError = true;
+                                sb.Append($"{worksheet.Cells[1, col].Value}, ");
+                            }
                         }
-                        return true;
+                        if (containsError)
+                        {
+                            return sb.Remove(sb.Length - 2, 2).ToString();
+                        }
                     }
                 }
             }
@@ -528,7 +537,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 _logger.LogError(ex.Message, this);
             }
-            return false;
+            return string.Empty;
         }
 
         private async Task<List<SupplierPriceDetail>> GetSupplierPriceDetailFromRecords(Guid supplierPriceQuotationId, List<SupplierMaterialQuotationRecord> records, Dictionary<String, Guid> materials, IMaterialRepository materialRepository)
@@ -589,6 +598,166 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 return result;
             }
+        }
+
+        public async Task<AppActionResult> ValidateExcelFile(IFormFile file)
+        {
+            AppActionResult result = new AppActionResult();
+            ExcelValidatingResponse data = new ExcelValidatingResponse();
+            if (file == null || file.Length == 0)
+            {
+                data.IsValidated = false;
+                data.HeaderError = "Unable to load excel file. Please restart!";
+                result.Result.Data = data;
+            }
+                try
+                {
+                    //Format: Name_ddmmyyy
+                    //Format: ddMMyyyy
+                    string nameDateString = file.FileName;
+                    if (file.FileName.Contains("(ErrorColor)"))
+                        nameDateString = nameDateString.Substring("(ErrorColor)".Length);
+                    string[] supplierInfo = nameDateString.Split('_');
+                    if (supplierInfo.Length != 2)
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = "Invalid file name. Please follow format: SupplierName_ddMMyyyy";
+                        result.Result.Data = data;
+                        return result;
+                    }
+                    string supplierName = supplierInfo[0];
+                    if (supplierInfo[1].Length < 8)
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = "Invalid date. Please follow date format: ddMMyyyy";
+                        result.Result.Data = data;
+                        return result;
+                    }
+
+                    string dateString = supplierInfo[1].Substring(0, 8);
+                    if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = $"{dateString} is not in format: ddMMyyyy";
+                        result.Result.Data = data;
+                        return result;
+                    }
+                    string errorHeader = await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL);
+                    if (!string.IsNullOrEmpty(errorHeader))
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = errorHeader;
+                        result.Result.Data = data;
+                        return result;
+                    }
+                    var supplierRepository = Resolve<ISupplierRepository>();
+                    var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()) && !s.IsDeleted);
+                    if (supplier == null)
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = $"Supplier with name: {supplierName} does not exist!";
+                        result.Result.Data = data;
+                        return result;
+                    }
+
+                    Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                    List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
+                    List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
+                    var materialRepository = Resolve<IMaterialRepository>();
+                    var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
+                    int errorRecordCount = 0;
+                    SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
+                    int i = 2;
+                    int invalidRowInput = 0;
+                    string key = "";
+                    data.Errors = new string[records.Count + 1];
+                    foreach (SupplierMaterialQuotationRecord record in records)
+                    {
+                        StringBuilder error = new StringBuilder();
+                        errorRecordCount = 0;
+                        Guid materialId = Guid.Empty;
+                        if (string.IsNullOrEmpty(record.MaterialName) || string.IsNullOrEmpty(record.Unit))
+                        {
+                            error.Append($"{errorRecordCount + 1}. Material Name or Unit cell is empty.\n");
+                            errorRecordCount++;
+                        }
+                        else
+                        {
+                            SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int materialUnit);
+                            if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
+                            {
+                                key = record.MaterialName + '-' + record.Unit;
+                                if (materials.ContainsKey(key)) materialId = materials[key];
+                                else
+                                {
+                                    bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
+                                    if (containsUnit)
+                                    {
+                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
+                                        if (material == null)
+                                        {
+                                            error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
+                                            errorRecordCount++;
+                                        }
+                                        else
+                                        {
+                                            materialId = material.Id;
+                                            materials.Add(key, materialId);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
+                                        errorRecordCount++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                error.Append($"{errorRecordCount + 1}. Supplier {supplierName} is a {supplier.Type.ToString()} so they don't supply {record.MaterialName}.\n");
+                                errorRecordCount++;
+                            }
+                        }
+
+                        if (record.MOQ <= 0)
+                        {
+                            error.Append($"{errorRecordCount + 1}. MOQ(Minimum Order Quantity) must be higher than 0.\n");
+                            errorRecordCount++;
+                        }
+
+                        if (record.Price <= 0)
+                        {
+                            error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
+                            errorRecordCount++;
+                        }
+                        if (errorRecordCount != 0)
+                        {
+                            error.Append("(Please delete this error message cell before re-uploading!)");
+                            data.Errors[i - 1] = error.ToString();
+                            invalidRowInput++;
+                        }
+                        i++;
+                    }
+
+                    if (invalidRowInput > 0)
+                    {
+                        data.IsValidated = false;
+                        result.Result.Data = data;
+                        return result;
+                    }
+
+                    data.IsValidated = true;
+                    data.Errors = null;
+                    data.HeaderError = null;
+                    result.Result.Data = data;
+            }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, this);
+                    data.IsValidated = false;
+                }
+            return result;
+            
         }
     }
 }

@@ -9,6 +9,7 @@ namespace HCQS.BackEnd.Service.Contracts
     public interface ISupplierPriceQuotationService
     {
         public Task<IActionResult> UploadSupplierQuotationWithExcelFile(IFormFile file);
+        public Task<AppActionResult> ValidateExcelFile(IFormFile file);
 
         public Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 
