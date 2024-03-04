@@ -98,7 +98,7 @@ namespace HCQS.BackEnd.Common.Mapping
                .ForMember(desc => desc.SandMixingRatio, act => act.MapFrom(src => src.SandMixingRatio))
                .ForMember(desc => desc.StoneMixingRatio, act => act.MapFrom(src => src.StoneMixingRatio))
                .ForMember(desc => desc.CementMixingRatio, act => act.MapFrom(src => src.CementMixingRatio))
-
+               .ReverseMap()
                ;
 
                 config.CreateMap<ProjectDto, Project>()

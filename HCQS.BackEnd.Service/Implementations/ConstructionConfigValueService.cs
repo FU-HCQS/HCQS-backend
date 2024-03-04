@@ -242,8 +242,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         return BuildAppActionResultError(result, "There does not exist a config with similar parameter!");
                     }
-                    result.Result.Data = result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb); ;
-
+                    result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb);
+                    
                     
                 }
                 catch (Exception ex)
