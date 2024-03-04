@@ -3,7 +3,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 
 namespace HCQS.BackEnd.Common.Validator
 {
-    public class DeleteConstructionConfigValidator : AbstractValidator<DeleteConstructionConfigRequest>
+    public class DeleteConstructionConfigValidator : AbstractValidator<FilterConstructionConfigRequest>
     {
         public DeleteConstructionConfigValidator()
         {

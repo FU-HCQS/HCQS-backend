@@ -3,7 +3,7 @@ using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Common.Dto.Request
 {
-    public class DeleteConstructionConfigRequest
+    public class FilterConstructionConfigRequest
     {
         public ProjectConstructionType ConstructionType { get; set; }
         public int NumOfFloorMin { get; set; }

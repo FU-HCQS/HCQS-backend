@@ -16,17 +16,21 @@ namespace HCQS.BackEnd.API.Controllers
     {
         private readonly IValidator<ConstructionConfigRequest> _createValidator;
         private readonly IValidator<SearchConstructionConfigRequest> _searchValidator;
-        private readonly IValidator<DeleteConstructionConfigRequest> _deleteValidator;
+        private readonly IValidator<FilterConstructionConfigRequest> _deleteValidator;
         private readonly HandleErrorValidator _handleErrorValidator;
-        private IConstructionConfigService _constructionConfigService;
+        private IConstructionConfigValueService _constructionConfigValueService;
 
-        public ConstructionConfigController(IValidator<ConstructionConfigRequest> createValidator, IValidator<SearchConstructionConfigRequest> searchValidator, IValidator<DeleteConstructionConfigRequest> deleteValidator, HandleErrorValidator handleErrorValidator, IConstructionConfigService constructionConfigService)
+        public ConstructionConfigController(IValidator<ConstructionConfigRequest> createValidator, 
+                                            IValidator<SearchConstructionConfigRequest> searchValidator, 
+                                            IValidator<FilterConstructionConfigRequest> deleteValidator, 
+                                            HandleErrorValidator handleErrorValidator, 
+                                            IConstructionConfigValueService constructionConfigValueService)
         {
             _createValidator = createValidator;
             _searchValidator = searchValidator;
             _deleteValidator = deleteValidator;
             _handleErrorValidator = handleErrorValidator;
-            _constructionConfigService = constructionConfigService;
+            _constructionConfigValueService = constructionConfigValueService;
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
@@ -38,7 +42,7 @@ namespace HCQS.BackEnd.API.Controllers
             {
                 return _handleErrorValidator.HandleError(result);
             }
-            return await _constructionConfigService.CreateConstructionConfig(request);
+            return await _constructionConfigValueService.CreateConstructionConfig(request);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
@@ -50,32 +54,32 @@ namespace HCQS.BackEnd.API.Controllers
             {
                 return _handleErrorValidator.HandleError(result);
             }
-            return await _constructionConfigService.UpdateConstructionConfig(request);
-        }
-
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpPost("create-construction-config-by-name-and-value")]
-        public async Task<AppActionResult> CreateConstructionConfig(string name, float value)
-        {
-            return await _constructionConfigService.CreateConstructionConfig(name, value);
+            return await _constructionConfigValueService.UpdateConstructionConfig(request);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpDelete("delete-construction-config")]
-        public async Task<AppActionResult> DeleteConstructionConfig(DeleteConstructionConfigRequest request)
+        public async Task<AppActionResult> DeleteConstructionConfig(FilterConstructionConfigRequest request)
         {
             var result = await _deleteValidator.ValidateAsync(request);
             if (!result.IsValid)
             {
                 return _handleErrorValidator.HandleError(result);
             }
-            return await _constructionConfigService.DeleteConstructionConfig(request);
+            return await _constructionConfigValueService.DeleteConstructionConfig(request);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpDelete("delete-construction-config/{id}")]
+        public async Task<AppActionResult> DeleteConstructionConfigById(Guid Id)
+        {
+            return await _constructionConfigValueService.DeleteConstructionConfigById(Id);
         }
 
         [HttpDelete("delete-all-construction-config")]
         public async Task<AppActionResult> DeleteAllConstructionConfig()
         {
-            return await _constructionConfigService.DeleteAllConstructionConfig();
+            return await _constructionConfigValueService.DeleteAllConstructionConfig();
         }
 
        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
@@ -87,28 +91,28 @@ namespace HCQS.BackEnd.API.Controllers
             {
                 return _handleErrorValidator.HandleError(result);
             }
-            return await _constructionConfigService.GetConstructionConfig(request);
-        }
-
-       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpGet("get-all")]
-        public async Task<AppActionResult> GetAll()
-        {
-            return await _constructionConfigService.GetAll();
-        }
-
-       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpGet("search-construction-config/{keyword}")]
-        public async Task<AppActionResult> SearchConstructionConfig(string keyword)
-        {
-            return await _constructionConfigService.SearchConstructionConfig(keyword);
+            return await _constructionConfigValueService.GetConstructionConfig(request);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpGet("get-max-config/")]
+        [HttpGet("get-all")]
+        public async Task<AppActionResult> GetAll()
+        {
+            return await _constructionConfigValueService.GetAll();
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("search-construction-config")]
+        public async Task<AppActionResult> SearchConstructionConfig(FilterConstructionConfigRequest request)
+        {
+            return await _constructionConfigValueService.SearchConstructionConfig(request);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpGet("get-max-config")]
         public async Task<AppActionResult> GetMaxConfig()
         {
-            return await _constructionConfigService.GetMaxConfig();
+            return await _constructionConfigValueService.GetMaxConfig();
         }
     }
 }
