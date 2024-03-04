@@ -1,5 +1,4 @@
-﻿using Hangfire;
-using HCQS.BackEnd.DAL.Contracts;
+﻿using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.Implementations;
@@ -83,6 +82,11 @@ namespace HCQS.BackEnd.API.Installers
             services.AddScoped<IWorkerPriceRepository, WorkerPriceRepository>();
             services.AddScoped<IWorkerPriceService, WorkerPriceService>();
             services.AddScoped<IStatisticService, StatisticService>();
+            services.AddScoped<IContractVerificationCodeRepository, ContractVerificationCodeRepository>();
+
+            services.AddScoped<IConstructionConfigValueRepository, ConstructionConfigValueRepository>();
+            services.AddScoped<IConstructionConfigValueService, ConstructionConfigValueService>();
+            services.AddScoped<IQuotationService, QuotationService>();
         }
     }
 }

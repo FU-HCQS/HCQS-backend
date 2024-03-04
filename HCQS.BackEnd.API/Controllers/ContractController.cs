@@ -24,11 +24,13 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _contractService.SignContract(contractId, accountId, verificationCode);
         }
+
         [HttpPut("resend-verification-code-by-contractId/{contractId}")]
         public async Task<AppActionResult> ReSendVerificationCode(Guid contractId)
         {
             return await _contractService.ReSendVerificationCode(contractId);
         }
+
         [HttpGet("get-contract-by-id/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         public async Task<AppActionResult> GetContractById(Guid id)

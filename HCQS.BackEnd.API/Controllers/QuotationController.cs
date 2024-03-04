@@ -42,12 +42,14 @@ namespace HCQS.BackEnd.API.Controllers
         {
             return await _service.GetQuotationById(quotationId);
         }
+
         [HttpGet("get-list-quotation-by-status/{status}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         public async Task<AppActionResult> GetListQuotationByStatus(Quotation.Status status)
         {
             return await _service.GetListQuotationByStatus(status);
         }
+
         [HttpPost("create-quotation-dealing-request")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.CUSTOMER)]
         public async Task<AppActionResult> CreateQuotationDealingRequest(QuotationDealingDto quotationDealingDto)

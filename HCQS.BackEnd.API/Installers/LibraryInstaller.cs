@@ -2,7 +2,6 @@
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using Firebase.Storage;
-using Hangfire;
 using HCQS.BackEnd.Common.Mapping;
 using HCQS.BackEnd.Common.Util;
 using OfficeOpenXml;

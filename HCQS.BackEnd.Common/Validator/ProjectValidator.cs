@@ -13,7 +13,6 @@ namespace HCQS.BackEnd.Common.Validator
             RuleFor(x => x.Area).NotNull().NotEmpty().WithMessage("The Area must be required!");
             RuleFor(x => x.Type).NotNull().WithMessage("The ConstructionType must be required!");
             RuleFor(x => x.AddressProject).NotNull().WithMessage("The AddressProject must be required!");
-
         }
     }
 }

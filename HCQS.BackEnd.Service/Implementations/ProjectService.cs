@@ -7,8 +7,9 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService;
-using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Transactions;
+using static HCQS.BackEnd.Common.Dto.Request.ConfigProjectRequest;
 using static HCQS.BackEnd.Service.UtilityService.BuildingUtility;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -47,7 +48,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         var project = _mapper.Map<Project>(projectDto);
                         project.Id = Guid.NewGuid();
                         project.CreateDate = utility.GetCurrentDateTimeInTimeZone();
-                        project.ProjectStatus = Project.Status.Pending;
+                        project.Status = Project.ProjectStatus.Pending;
                         await _projectRepository.Insert(project);
                         await _unitOfWork.SaveChangeAsync();
 
@@ -86,6 +87,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var exportPriceMaterialRepository = Resolve<IExportPriceMaterialRepository>();
                     var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
                     var workerPriceRepository = Resolve<IWorkerPriceRepository>();
+                    var constructionConfigService = Resolve<IConstructionConfigValueService>();
                     var utility = Resolve<Utility>();
                     var projectDb = await _projectRepository.GetById(project.Id);
                     if (projectDb == null)
@@ -101,6 +103,17 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultError(result, $"The Worker Price with id {laborRequest.WorkerPriceId} not found ");
                         }
                     }
+                    var resulGetConstructionCofig = await constructionConfigService.GetConstructionConfig(new SearchConstructionConfigRequest
+                    {
+                        Area = projectDb.Area,
+                        ConstructionType = projectDb.ConstructionType,
+                        NumOfFloor = projectDb.NumOfFloor,
+                        TiledArea = project.TiledArea
+                    });
+                    if (!resulGetConstructionCofig.IsSuccess)
+                    {
+                        result = BuildAppActionResultError(result, $"The config is not existed. Please create construction config ");
+                    }
 
                     if (!BuildAppActionResultIsError(result))
                     {
@@ -109,9 +122,9 @@ namespace HCQS.BackEnd.Service.Implementations
                             Id = Guid.NewGuid(),
                             ProjectId = (Guid)project.Id,
                             QuotationStatus = Quotation.Status.Pending,
-                            FurnitureDiscount = project.FurnitureDiscount,
-                            LaborDiscount = project.LaborDiscount,
-                            RawMaterialDiscount = project.RawMaterialDiscount,
+                            FurnitureDiscount = 0,
+                            LaborDiscount = 0,
+                            RawMaterialDiscount = 0,
                             CreateDate = utility.GetCurrentDateTimeInTimeZone()
                         };
                         double totalLaborPrice = 0;
@@ -146,11 +159,14 @@ namespace HCQS.BackEnd.Service.Implementations
                             }
                         }
 
+
+                        var config = (ConstructionConfigResponse)resulGetConstructionCofig.Result.Data;
+
                         BuildingInputModel buildingInputModel = new BuildingInputModel()
                         {
-                            CementRatio = project.CementMixingRatio,
-                            SandRatio = project.SandMixingRatio,
-                            StoneRatio = project.StoneMixingRatio,
+                            CementRatio = config.CementMixingRatio,
+                            SandRatio = config.SandMixingRatio,
+                            StoneRatio = config.StoneMixingRatio,
                             WallHeight = project.WallHeight,
                             WallLength = project.WallLength
                         };
@@ -218,7 +234,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         if (!BuildAppActionResultIsError(result))
                         {
-                            projectDb.ProjectStatus = Project.Status.Processing;
+                            projectDb.Status = Project.ProjectStatus.Processing;
                             projectDb.SandMixingRatio = (int)buildingInputModel.SandRatio;
                             projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
                             projectDb.StoneMixingRatio = (int)buildingInputModel.StoneRatio;
@@ -252,12 +268,12 @@ namespace HCQS.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId)
+        public async Task<AppActionResult> GetAllProjectByAccountId(string accountId, Project.ProjectStatus status)
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                var list = await GetAllProject(accountId);
+                var list = await GetAllProject(accountId, status);
                 list.OrderByDescending(a => a.CreateDate);
                 result.Result.Data = list;
             }
@@ -269,12 +285,12 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> GetAllProject()
+        public async Task<AppActionResult> GetAllProject(Project.ProjectStatus status)
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                var list = await GetAllProject(null);
+                var list = await GetAllProject(null, status);
                 list = list.OrderByDescending(a => a.CreateDate).ToList();
                 result.Result.Data = list;
             }
@@ -286,9 +302,9 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        private async Task<List<Project>> GetAllProject(string accountId)
+        private async Task<List<Project>> GetAllProject(string accountId, Project.ProjectStatus status)
         {
-            return accountId != null ? await _projectRepository.GetAllDataByExpression(filter: a => a.AccountId == accountId, a => a.Account) : await _projectRepository.GetAllDataByExpression(filter: null, a => a.Account);
+            return accountId != null ? await _projectRepository.GetAllDataByExpression(filter: a => a.AccountId == accountId && a.Status == status, a => a.Account) : await _projectRepository.GetAllDataByExpression(filter: a => a.Status == status, a => a.Account);
         }
 
         public async Task<AppActionResult> GetProjectById(Guid id)
@@ -316,18 +332,19 @@ namespace HCQS.BackEnd.Service.Implementations
             var listQuotation = new List<Quotation>();
             if (isCustomer)
             {
-                listQuotation= await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending);
+                listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id && a.QuotationStatus != Quotation.Status.Pending);
             }
             else
             {
                 listQuotation = await quotationRepository.GetAllDataByExpression(filter: a => a.ProjectId == id);
             }
-            listQuotation= listQuotation.OrderByDescending(a => a.CreateDate).ToList();
+            listQuotation = listQuotation.OrderByDescending(a => a.CreateDate).ToList();
 
+            var listQuotationDealing = await quotationDealingRepository.GetAllDataByExpression(filter: a=> a.Quotation.ProjectId== id);
             var result = new ProjectResponse
             {
                 Project = project,
-                QuotationDealings = project != null ? await quotationDealingRepository.GetAllDataByExpression(filter: a => a.Quotation.ProjectId == id) : null,
+                QuotationDealings = listQuotationDealing,
                 Quotations = listQuotation,
                 Contract = isCustomer == true ? await contractRepository.GetByExpression(c => c.ProjectId == id && c.ContractStatus != Contract.Status.NEW) : await contractRepository.GetByExpression(c => c.ProjectId == id)
             };

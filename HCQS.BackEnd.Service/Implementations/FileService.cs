@@ -80,12 +80,14 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return null;
         }
+
         private IFormFile CreateFormFileFromBytes(byte[] content, string fileName)
         {
             var ms = new MemoryStream(content);
             return new FormFile(ms, 0, content.Length, fileName, fileName);
         }
-        public IFormFile ConvertHtmlToPdf(string content,string fileName)
+
+        public IFormFile ConvertHtmlToPdf(string content, string fileName)
         {
             var doc = new HtmlToPdfDocument()
             {
@@ -107,9 +109,9 @@ namespace HCQS.BackEnd.Service.Implementations
 
             byte[] pdfBytes = _pdfConverter.Convert(doc);
 
-
             return CreateFormFileFromBytes(pdfBytes, fileName);
         }
+
         public IActionResult GenerateExcelContent<T>(IEnumerable<T> dataList, string sheetName)
         {
             using (ExcelPackage package = new ExcelPackage())

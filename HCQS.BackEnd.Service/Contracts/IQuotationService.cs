@@ -15,6 +15,7 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> PublicQuotationForCustomer(Guid quotationId);
 
         Task<AppActionResult> GetQuotationById(Guid id);
+
         Task<AppActionResult> GetListQuotationByStatus(Quotation.Status status);
     }
 }

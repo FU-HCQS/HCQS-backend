@@ -11,6 +11,7 @@ namespace HCQS.BackEnd.DAL.Data
         public HCQSDbContext()
         {
         }
+
         public HCQSDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -19,6 +20,8 @@ namespace HCQS.BackEnd.DAL.Data
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<ProgressConstructionMaterial> ProgressConstructionMaterials { get; set; }
         public DbSet<Contract> Contracts { get; set; }
+        public DbSet<ConstructionConfigValue> ConstructionConfigValues { get; set; }
+        
         public DbSet<ContractProgressPayment> ContractProgressPayment { get; set; }
         public DbSet<ExportPriceMaterial> ExportPriceMaterials { get; set; }
         public DbSet<ImportExportInventoryHistory> ImportExportInventoryHistorys { get; set; }
@@ -38,6 +41,7 @@ namespace HCQS.BackEnd.DAL.Data
         public DbSet<WorkerForProject> WorkerForProjects { get; set; }
         public DbSet<SupplierPriceDetail> SupplierPriceDetails { get; set; }
         public DbSet<QuotationDealing> QuotationDealings { get; set; }
+        public DbSet<ContractVerificationCode> ContractVerificationCodes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

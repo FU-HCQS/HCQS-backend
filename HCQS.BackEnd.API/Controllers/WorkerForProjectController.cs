@@ -3,7 +3,6 @@ using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HCQS.BackEnd.API.Controllers
@@ -18,6 +17,7 @@ namespace HCQS.BackEnd.API.Controllers
         {
             _service = service;
         }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         [HttpGet("get-list-worker-by-quotation-id/{id}")]
         public async Task<AppActionResult> GetListWorkerByQuotationId(Guid id)

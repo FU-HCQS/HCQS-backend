@@ -34,9 +34,6 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ContractVerifyCode")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -142,6 +139,47 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.ToTable("Blogs");
                 });
 
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ConstructionConfigValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AreaMax")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AreaMin")
+                        .HasColumnType("int");
+
+                    b.Property<double>("CementMixingRatio")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ConstructionType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NumOfFloorMax")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumOfFloorMin")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SandMixingRatio")
+                        .HasColumnType("float");
+
+                    b.Property<double>("StoneMixingRatio")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("TiledAreaMax")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TiledAreaMin")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConstructionConfigValues");
+                });
+
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.Contract", b =>
                 {
                     b.Property<Guid>("Id")
@@ -223,6 +261,25 @@ namespace HCQS.BackEnd.DAL.Migrations
                         .HasFilter("[PaymentId] IS NOT NULL");
 
                     b.ToTable("ContractProgressPayment");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ContractVerificationCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VerficationCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("ContractVerificationCodes");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ExportPriceMaterial", b =>
@@ -466,10 +523,10 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Property<int>("NumberOfLabor")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectStatus")
+                    b.Property<int>("SandMixingRatio")
                         .HasColumnType("int");
 
-                    b.Property<int>("SandMixingRatio")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("StoneMixingRatio")
@@ -797,21 +854,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "e5285bd0-a9dd-4c1b-a9b8-b4627fce09d6",
+                            ConcurrencyStamp = "448eead7-0337-4ba2-bc21-6a22ea538d1b",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "87f752e9-c1f4-4fa9-8a68-81b2d6e8e3b1",
+                            ConcurrencyStamp = "25003fb1-6a1a-4585-a72c-772a05d7f6e4",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "4cc80e17-f9f2-4738-b2b3-bc6339bea7b5",
+                            ConcurrencyStamp = "f2405c6e-61fa-4607-8db6-f85b9e6cc135",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });
@@ -954,6 +1011,17 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.Navigation("Contract");
 
                     b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ContractVerificationCode", b =>
+                {
+                    b.HasOne("HCQS.BackEnd.DAL.Models.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Contract");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ExportPriceMaterial", b =>

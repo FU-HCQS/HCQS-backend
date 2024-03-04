@@ -1,6 +1,4 @@
 ﻿using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.DAL.Models;
-using System.Security.Principal;
 
 namespace HCQS.BackEnd.Common.Util
 {
@@ -68,7 +66,7 @@ namespace HCQS.BackEnd.Common.Util
         <div class=""contract-section"">
             <h3>BÊN NHẬN CUNG CẤP VẬT TƯ VÀ PHÍ XÂY DỰNG (Bên B)</h3>
             <p>Ông/bà: " + $"{dto.Account.FirstName} {dto.Account.LastName}" + @"</p>
-            <p>Địa chỉ: " +dto.Project.AddressProject +@" </p>
+            <p>Địa chỉ: " + dto.Project.AddressProject + @" </p>
             <p>Điện thoại: " + dto.Account.PhoneNumber + @".</p>
         </div>
 
@@ -78,9 +76,9 @@ namespace HCQS.BackEnd.Common.Util
         <div class=""contract-section"">
             <h3>Tổng chi phí dự tính thực hiện thi công:</h3>
             <ul>
-                <li>Tổng số tiền vật liệu thô (xi măng, cát, thép...): " + $"{utility.FormatMoney(dto.Contract.MaterialPrice)} đồng. (Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.MaterialPrice)} đồng)."  + @"</li>
-                <li>Tổng số tiền vật liệu nội thất (bồn vệ sinh, đèn điện ...): " + $"{utility.FormatMoney(dto.Contract.FurniturePrice)} đồng. (Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.FurniturePrice)} đồng)." + @"</li>
-                <li>Tổng số tiền nhân công: " + $"{utility.FormatMoney(dto.Contract.LaborPrice)} đồng. (Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.LaborPrice)} đồng)." + @"</li>
+                <li>Tổng số tiền vật liệu thô (xi măng, cát, thép...): " + $"{utility.FormatMoney(dto.Contract.MaterialPrice)} Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.MaterialPrice)}" + @"</li>
+                <li>Tổng số tiền vật liệu nội thất (bồn vệ sinh, đèn điện ...): " + $"{utility.FormatMoney(dto.Contract.FurniturePrice)} Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.FurniturePrice)}" + @"</li>
+                <li>Tổng số tiền nhân công: " + $"{utility.FormatMoney(dto.Contract.LaborPrice)} Bằng chữ: {utility.TranslateToVietnamese(dto.Contract.LaborPrice)}" + @"</li>
             </ul>
             <p>Tất cả số tiền trên là chi phí dự tính có thể sai lệch khoảng 10%. Nếu trong trường hợp sai lệch hơn thì bên A chịu trách nhiệm.</p>
         </div>
@@ -97,16 +95,16 @@ namespace HCQS.BackEnd.Common.Util
 
         <div class=""contract-section"">
             <h3>Điều 2: Khoản thanh toán theo đợt</h3>
-            <div class=""payment-schedule""> 
+            <div class=""payment-schedule"">
 ";
             int i = 1;
             foreach (var progressPayment in dto.ContractProgressPayments)
             {
-                body += "<p><strong>Đợt " + i + ":</strong> "+ $"(Ngày {utility.FormatDate(progressPayment.Date)})" +" Trước khi bắt đầu công việc - Bên B thanh toán cho Bên A " + $"{utility.FormatMoney(progressPayment.Payment.Price)} đồng. (Bằng chữ: {utility.TranslateToVietnamese(progressPayment.Payment.Price)}" + " đồng).</p> ";
+                body += "<p><strong>Đợt" + i + ":</strong> " + $"(Ngày {utility.FormatDate(progressPayment.Date)})" + " Trước khi bắt đầu công việc - Bên B thanh toán cho Bên A " + $"{utility.FormatMoney(progressPayment.Payment.Price)} Bằng chữ: {utility.TranslateToVietnamese(progressPayment.Payment.Price)}" + " đồng.</p> ";
                 i++;
             };
 
-            body += @"             
+            body += @"
             </div>
         </div>
 
@@ -150,10 +148,8 @@ namespace HCQS.BackEnd.Common.Util
   <p> Công ty Love House </p>
 ";
 
-
             body += @"
-                
-               
+
             </div>
             <div>
                 <p>ĐẠI DIỆN BÊN B</p>
@@ -167,7 +163,7 @@ namespace HCQS.BackEnd.Common.Util
                 body += "<p>Chưa kí</p>";
             }
             body += @" <p> " + $"{dto.Account.FirstName} {dto.Account.LastName}" + @" </p>
-               
+
             </div>
         </div>
     </div>

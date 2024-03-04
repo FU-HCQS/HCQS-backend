@@ -8,6 +8,7 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> GetQuotationDetailById(Guid id);
 
         Task<AppActionResult> GetAllQuotationDetailByQuotationId(Guid id);
+
         Task<AppActionResult> GetAllApprovedQuotationDetailByProjectId(Guid id);
 
         Task<AppActionResult> CreateQuotationDetail(QuotationDetailDto quotationDetail);

@@ -1,20 +1,10 @@
 ﻿using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
-using HCQS.BackEnd.Common.Dto.Request;
-using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Contract = HCQS.BackEnd.DAL.Models.Contract;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -28,6 +18,7 @@ namespace HCQS.BackEnd.Service.Implementations
         private IQuotationRepository _quotationRepository;
         private IContractRepository _contractRepository;
         private IProjectRepository _projectRepository;
+
         public StatisticService(BackEndLogger logger, IMapper mapper, IAccountRepository accountRepository, IImportExportInventoryHistoryRepository importExportInventoryHistoryRepository, IQuotationRepository quotationRepository, IContractRepository contractRepository, IProjectRepository projectRepository, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _logger = logger;
@@ -62,7 +53,6 @@ namespace HCQS.BackEnd.Service.Implementations
                         contractCountPerTimePeriod = contractDb
                                         .GroupBy(a => a.DateOfContract.Date)
                                         .ToDictionary(group => group.Key.ToString("yyyy-MM-dd"), group => group.Count());
-
                     }
                     else if (timePeriod == 2)
                     {
@@ -95,6 +85,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> getIncreaseExportInventory(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
@@ -104,7 +95,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 Dictionary<string, double> totalExportPerTimePeriod = new Dictionary<string, double>();
                 if (year > 0)
                 {
-                    exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null && a.Date.Year == year, e => e.ProgressConstructionMaterial.ExportPriceMaterial);
+                    exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null 
+                                                                                                    && a.Date.Year == year, 
+                                                                                                    e => e.ProgressConstructionMaterial.ExportPriceMaterial);
                     totalExportPerTimePeriod = exportDb
                                                 .GroupBy(a => a.Date.ToString("MMMM"))
                                                 .ToDictionary(group => group.Key, group => group.Sum(a => a.Quantity * a.ProgressConstructionMaterial.ExportPriceMaterial.Price * (1 - a.ProgressConstructionMaterial.Discount / 100)));
@@ -114,28 +107,42 @@ namespace HCQS.BackEnd.Service.Implementations
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null && a.Date.AddDays(7) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, e => e.ProgressConstructionMaterial.ExportPriceMaterial);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null 
+                                                                                                        && a.Date.AddDays(7) > DateTime.UtcNow 
+                                                                                                        && a.Date <= DateTime.UtcNow, 
+                                                                                                        e => e.ProgressConstructionMaterial.ExportPriceMaterial);
                         totalExportPerTimePeriod = exportDb
                                         .GroupBy(a => a.Date.Date)
                                         .ToDictionary(group => group.Key.ToString("yyyy-MM-dd"), group => group.Sum(a => a.Quantity * a.ProgressConstructionMaterial.ExportPriceMaterial.Price * (1 - a.ProgressConstructionMaterial.Discount / 100)));
                     }
                     else if (timePeriod == 2)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null && a.Date.AddMonths(1) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, e => e.ProgressConstructionMaterial.ExportPriceMaterial);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null 
+                                                                                                        && a.Date.Month == DateTime.UtcNow.Month 
+                                                                                                        && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                        && a.Date <= DateTime.UtcNow, 
+                                                                                                        e => e.ProgressConstructionMaterial.ExportPriceMaterial);
                         totalExportPerTimePeriod = exportDb
                             .GroupBy(a => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(a.Date, CalendarWeekRule.FirstDay, DayOfWeek.Sunday))
                             .ToDictionary(group => $"Week {group.Key}", group => group.Sum(a => a.Quantity * a.ProgressConstructionMaterial.ExportPriceMaterial.Price * (1 - a.ProgressConstructionMaterial.Discount / 100)));
                     }
                     else if (timePeriod == 3)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null && a.Date.AddMonths(6) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, e => e.ProgressConstructionMaterial.ExportPriceMaterial);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null 
+                                                                                                        && a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                        && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                        && a.Date <= DateTime.UtcNow, 
+                                                                                                        e => e.ProgressConstructionMaterial.ExportPriceMaterial);
                         totalExportPerTimePeriod = exportDb
                                                 .GroupBy(a => a.Date.ToString("MMMM"))
                                                 .ToDictionary(group => group.Key, group => group.Sum(a => a.Quantity * a.ProgressConstructionMaterial.ExportPriceMaterial.Price * (1 - a.ProgressConstructionMaterial.Discount / 100)));
                     }
                     else
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null && a.Date.AddYears(1) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, e => e.ProgressConstructionMaterial.ExportPriceMaterial);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.ProgressConstructionMaterialId != null 
+                                                                                                        && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                        && a.Date <= DateTime.UtcNow, 
+                                                                                                        e => e.ProgressConstructionMaterial.ExportPriceMaterial);
                         totalExportPerTimePeriod = exportDb
                                                 .GroupBy(a => a.Date.ToString("MMMM"))
                                                 .ToDictionary(group => group.Key, group => group.Sum(a => a.Quantity * a.ProgressConstructionMaterial.ExportPriceMaterial.Price * (1 - a.ProgressConstructionMaterial.Discount / 100)));
@@ -150,6 +157,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> getIncreaseImportInventory(int year = -1, int timePeriod = 1)
         {
             //Stopwatch stopwatch = new Stopwatch();
@@ -171,28 +179,38 @@ namespace HCQS.BackEnd.Service.Implementations
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null && a.Date.AddDays(7) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, i => i.SupplierPriceDetail);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null 
+                                                                                                            && a.Date.AddDays(7) > DateTime.UtcNow 
+                                                                                                            && a.Date <= DateTime.UtcNow, 
+                                                                                                            i => i.SupplierPriceDetail);
                         totalImportPerTimePeriod = importDb
                                         .GroupBy(a => a.Date.Date)
                                         .ToDictionary(group => group.Key.ToString("yyyy-MM-dd"), group => group.Sum(a => a.Quantity * a.SupplierPriceDetail.Price));
                     }
                     else if (timePeriod == 2)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null && a.Date.AddMonths(1) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, i => i.SupplierPriceDetail);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null
+                                                                                                        && a.Date.Month == DateTime.UtcNow.Month
+                                                                                                        && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                        && a.Date <= DateTime.UtcNow, 
+                                                                                                        i => i.SupplierPriceDetail);
                         totalImportPerTimePeriod = importDb
                             .GroupBy(a => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(a.Date, CalendarWeekRule.FirstDay, DayOfWeek.Sunday))
                             .ToDictionary(group => $"Week {group.Key % 4}", group => group.Sum(a => a.Quantity * a.SupplierPriceDetail.Price));
                     }
                     else if (timePeriod == 3)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null && a.Date.AddMonths(6) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, i => i.SupplierPriceDetail);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null 
+                                                                                                        && a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                        && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                        && a.Date <= DateTime.UtcNow, i => i.SupplierPriceDetail);
                         totalImportPerTimePeriod = importDb
                                          .GroupBy(a => a.Date.ToString("MMMM"))
                                          .ToDictionary(group => group.Key, group => group.Sum(a => a.Quantity * a.SupplierPriceDetail.Price));
                     }
                     else
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null && a.Date.AddYears(1) > DateTime.UtcNow && a.Date <= DateTime.UtcNow, i => i.SupplierPriceDetail);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.SupplierPriceDetailId != null && a.Date.Year == DateTime.UtcNow.Year && a.Date <= DateTime.UtcNow, i => i.SupplierPriceDetail);
                         totalImportPerTimePeriod = importDb
                                          .GroupBy(a => a.Date.ToString("MMMM"))
                                          .ToDictionary(group => group.Key, group => group.Sum(a => a.Quantity * a.SupplierPriceDetail.Price));
@@ -209,6 +227,7 @@ namespace HCQS.BackEnd.Service.Implementations
             //result.Messages.Add(stopwatch.Elapsed.ToString());
             return result;
         }
+
         public async Task<AppActionResult> getIncreaseProject(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
@@ -228,31 +247,36 @@ namespace HCQS.BackEnd.Service.Implementations
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddDays(7) > DateTime.UtcNow && a.CreateDate <= DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddDays(7) > DateTime.UtcNow
+                                                                                         && a.CreateDate <= DateTime.UtcNow);
                         projectCountPerTimePeriod = projectDb
                                         .GroupBy(a => a.CreateDate.Date)
                                         .ToDictionary(group => group.Key.ToString("yyyy-MM-dd"), group => group.Count());
-
                     }
                     else if (timePeriod == 2)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(1) > DateTime.UtcNow && a.CreateDate <= DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Month == DateTime.UtcNow.Month
+                                                                                      && a.CreateDate.Year == DateTime.UtcNow.Year
+                                                                                      && a.CreateDate <= DateTime.UtcNow);
                         projectCountPerTimePeriod = projectDb
                             .GroupBy(a => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(a.CreateDate, CalendarWeekRule.FirstDay, DayOfWeek.Sunday))
                             .ToDictionary(group => $"Week {group.Key}", group => group.Count());
                     }
                     else if (timePeriod == 3)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(6) > DateTime.UtcNow && a.CreateDate <= DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Month + 6 > DateTime.UtcNow.Month
+                                                                                         && a.CreateDate.Year == DateTime.UtcNow.Year
+                                                                                         && a.CreateDate <= DateTime.UtcNow, null);
                         projectCountPerTimePeriod = projectDb
-                                                .GroupBy(a => a.CreateDate.ToString("MMMM"))
+                                                .GroupBy(a => a.CreateDate.ToString("MMM"))
                                                 .ToDictionary(group => group.Key, group => group.Count());
                     }
                     else
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddYears(1) > DateTime.UtcNow && a.CreateDate <= DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Year == DateTime.UtcNow.Year 
+                                                                                    && a.CreateDate <= DateTime.UtcNow, null);
                         projectCountPerTimePeriod = projectDb
-                                                .GroupBy(a => a.CreateDate.ToString("MMMM"))
+                                                .GroupBy(a => a.CreateDate.ToString("MMM"))
                                                 .ToDictionary(group => group.Key, group => group.Count());
                     }
                 }
@@ -288,6 +312,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> GetTotalContract()
         {
             AppActionResult result = new AppActionResult();
@@ -310,6 +335,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> getTotalImport()
         {
             AppActionResult result = new AppActionResult();
@@ -334,6 +360,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> getTotalExport()
         {
             AppActionResult result = new AppActionResult();
@@ -358,6 +385,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> GetTotalProject()
         {
             AppActionResult result = new AppActionResult();
@@ -376,6 +404,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> GetTotalQuotationRequest()
         {
             AppActionResult result = new AppActionResult();
@@ -446,6 +475,7 @@ namespace HCQS.BackEnd.Service.Implementations
             //result.Messages.Add(stopwatch.Elapsed.ToString());
             return result;
         }
+
         public async Task<AppActionResult> getProjectContructionTypeRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch stopwatch = new Stopwatch();
@@ -465,19 +495,24 @@ namespace HCQS.BackEnd.Service.Implementations
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddDays(7) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddDays(7) > DateTime.UtcNow
+                                                                                         && a.CreateDate <= DateTime.UtcNow, null);
                     }
                     else if (timePeriod == 2)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(1) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Month == DateTime.UtcNow.Month
+                                                                                      && a.CreateDate.Year == DateTime.UtcNow.Year
+                                                                                      && a.CreateDate <= DateTime.UtcNow);
                     }
                     else if (timePeriod == 3)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(6) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Month + 6 > DateTime.UtcNow.Month
+                                                                                         && a.CreateDate.Year == DateTime.UtcNow.Year
+                                                                                         && a.CreateDate <= DateTime.UtcNow, null);
                     }
                     else
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddYears(1) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Year == DateTime.UtcNow.Year, null);
                     }
                 }
 
@@ -509,6 +544,7 @@ namespace HCQS.BackEnd.Service.Implementations
             //result.Messages.Add(stopwatch.Elapsed.ToString());
             return result;
         }
+
         public async Task<AppActionResult> getProjectStatusRatio(int year = -1, int timePeriod = 1)
 
         {
@@ -529,19 +565,24 @@ namespace HCQS.BackEnd.Service.Implementations
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddDays(7) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddDays(7) > DateTime.UtcNow
+                                                                                         && a.CreateDate <= DateTime.UtcNow, null);
                     }
                     else if (timePeriod == 2)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(1) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Month == DateTime.UtcNow.Month
+                                                                                      && a.CreateDate.Year == DateTime.UtcNow.Year
+                                                                                      && a.CreateDate <= DateTime.UtcNow);
                     }
                     else if (timePeriod == 3)
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddMonths(6) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Month + 6 > DateTime.UtcNow.Month
+                                                                                         && a.CreateDate.Year == DateTime.UtcNow.Year
+                                                                                         && a.CreateDate <= DateTime.UtcNow, null);
                     }
                     else
                     {
-                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.AddYears(1) > DateTime.UtcNow, null);
+                        projectDb = await _projectRepository.GetAllDataByExpression(a => a.CreateDate.Year == DateTime.UtcNow.Year, null);
                     }
                 }
 
@@ -551,7 +592,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     string key = null;
                     projectDb.ForEach(p =>
                     {
-                        key = SD.EnumType.ProjectStatus[p.ProjectStatus];
+                        key = SD.EnumType.ProjectStatus[p.Status];
                         if (projectDistribution.ContainsKey(key))
                         {
                             projectDistribution[key]++;
@@ -573,6 +614,7 @@ namespace HCQS.BackEnd.Service.Implementations
             //result.Messages.Add(stopwatch.Elapsed.ToString());
             return result;
         }
+
         public async Task<AppActionResult> getContractRatio(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
@@ -604,7 +646,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                 }
 
-
                 Dictionary<string, int> contractDistribution = new Dictionary<string, int>();
                 if (contractDb != null)
                 {
@@ -631,6 +672,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> getTotalImportBySupplierRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
@@ -641,29 +683,41 @@ namespace HCQS.BackEnd.Service.Implementations
                 List<ImportExportInventoryHistory> importDb = null;
                 if (year > 0)
                 {
-                    importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
+                    importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year 
+                                                                                                        && a.SupplierPriceDetailId != null, 
+                                                                                                        a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                 }
                 else
                 {
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.SupplierPriceDetailId != null, 
+                                                                                                         a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                     }
                     else if (timePeriod == 2)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(1) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month == DateTime.UtcNow.Month
+                                                                                                          && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                          && a.Date <= DateTime.UtcNow
+                                                                                                          && a.SupplierPriceDetailId != null, 
+                                                                                                          a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                     }
                     else if (timePeriod == 3)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(6) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                             && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                             && a.Date <= DateTime.UtcNow 
+                                                                                                             && a.SupplierPriceDetailId != null, 
+                                                                                                             a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                     }
                     else
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddYears(1) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == DateTime.UtcNow.Year && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                     }
                 }
-
 
                 Dictionary<string, double> importDistribution = new Dictionary<string, double>();
                 if (importDb != null)
@@ -693,6 +747,7 @@ namespace HCQS.BackEnd.Service.Implementations
             //result.Messages.Add(sw.Elapsed.ToString());
             return result;
         }
+
         public async Task<AppActionResult> getTotalImportByMaterialRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
@@ -703,29 +758,40 @@ namespace HCQS.BackEnd.Service.Implementations
                 List<ImportExportInventoryHistory> importDb = null;
                 if (year > 0)
                 {
-                    importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                    importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year 
+                                                                                                        && a.SupplierPriceDetailId != null, 
+                                                                                                        a => a.SupplierPriceDetail.Material);
                 }
                 else
                 {
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.SupplierPriceDetailId != null, 
+                                                                                                         a => a.SupplierPriceDetail.Material);
                     }
                     else if (timePeriod == 2)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(1) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month == DateTime.UtcNow.Month
+                                                                                                          && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                          && a.Date <= DateTime.UtcNow 
+                                                                                                          && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
                     }
                     else if (timePeriod == 3)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(6) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                         && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.SupplierPriceDetailId != null, 
+                                                                                                         a => a.SupplierPriceDetail.Material);
                     }
                     else
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddYears(1) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == DateTime.UtcNow.Year && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
                     }
                 }
-
 
                 Dictionary<string, double> exportDistribution = new Dictionary<string, double>();
                 if (importDb != null)
@@ -755,9 +821,10 @@ namespace HCQS.BackEnd.Service.Implementations
             //result.Messages.Add(sw.Elapsed.ToString());
             return result;
         }
+
         public async Task<AppActionResult> getTotalExportByMaterialRatio(int year = -1, int timePeriod = 1)
         {
-           //Stopwatch sw = Stopwatch.StartNew();
+            //Stopwatch sw = Stopwatch.StartNew();
             //sw.Start();
             AppActionResult result = new AppActionResult();
             try
@@ -765,29 +832,40 @@ namespace HCQS.BackEnd.Service.Implementations
                 List<ImportExportInventoryHistory> exportDb = null;
                 if (year > 0)
                 {
-                    exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                    exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year 
+                                                                                                        && a.ProgressConstructionMaterialId != null, 
+                                                                                                        a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                 }
                 else
                 {
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow
+                                                                                         && a.Date <= DateTime.UtcNow
+                                                                                        && a.ProgressConstructionMaterialId != null, 
+                                                                                        a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                     else if (timePeriod == 2)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(1) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month == DateTime.UtcNow.Month
+                                                                                                          && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                          && a.Date <= DateTime.UtcNow 
+                                                                                                          && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                     else if (timePeriod == 3)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(6) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                         && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.ProgressConstructionMaterialId != null, 
+                                                                                                         a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                     else
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddYears(1) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == DateTime.UtcNow.Year && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                 }
-
 
                 Dictionary<string, double> exportDistribution = new Dictionary<string, double>();
                 if (exportDb != null)
@@ -828,29 +906,40 @@ namespace HCQS.BackEnd.Service.Implementations
                 List<ImportExportInventoryHistory> importDb = null;
                 if (year > 0)
                 {
-                    importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                    importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year 
+                                                                                                        && a.SupplierPriceDetailId != null, 
+                                                                                                        a => a.SupplierPriceDetail.Material);
                 }
                 else
                 {
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow
+                                                                                                             && a.Date <= DateTime.UtcNow
+                                                                                                            && a.SupplierPriceDetailId != null, 
+                                                                                                            a => a.SupplierPriceDetail.Material);
                     }
                     else if (timePeriod == 2)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(1) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month == DateTime.UtcNow.Month
+                                                                                                          && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                          && a.Date <= DateTime.UtcNow 
+                                                                                                          && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
                     }
                     else if (timePeriod == 3)
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(6) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                         && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.SupplierPriceDetailId != null, 
+                                                                                                         a => a.SupplierPriceDetail.Material);
                     }
                     else
                     {
-                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddYears(1) > DateTime.UtcNow && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
+                        importDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == DateTime.UtcNow.Year && a.SupplierPriceDetailId != null, a => a.SupplierPriceDetail.Material);
                     }
                 }
-
 
                 Dictionary<string, double> exportDistribution = new Dictionary<string, double>();
                 if (importDb != null)
@@ -891,29 +980,43 @@ namespace HCQS.BackEnd.Service.Implementations
                 List<ImportExportInventoryHistory> exportDb = null;
                 if (year > 0)
                 {
-                    exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                    exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == year 
+                                                                                                        && a.ProgressConstructionMaterialId != null, 
+                                                                                                        a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                 }
                 else
                 {
                     year = DateTime.Now.Year;
                     if (timePeriod == 1)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddDays(7) > DateTime.UtcNow
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.ProgressConstructionMaterialId != null, 
+                                                                                                         a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                     else if (timePeriod == 2)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(1) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month == DateTime.UtcNow.Month
+                                                                                                          && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                          && a.Date <= DateTime.UtcNow 
+                                                                                                          && a.ProgressConstructionMaterialId != null, 
+                                                                                                          a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                     else if (timePeriod == 3)
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddMonths(6) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Month + 6 > DateTime.UtcNow.Month
+                                                                                                         && a.Date.Year == DateTime.UtcNow.Year
+                                                                                                         && a.Date <= DateTime.UtcNow 
+                                                                                                         && a.ProgressConstructionMaterialId != null, 
+                                                                                                         a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                     else
                     {
-                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.AddYears(1) > DateTime.UtcNow && a.ProgressConstructionMaterialId != null, a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
+                        exportDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(a => a.Date.Year == DateTime.UtcNow.Year 
+                                                                                                        && a.ProgressConstructionMaterialId != null, 
+                                                                                                        a => a.ProgressConstructionMaterial.ExportPriceMaterial.Material);
                     }
                 }
-
 
                 Dictionary<string, double> exportDistribution = new Dictionary<string, double>();
                 if (exportDb != null)

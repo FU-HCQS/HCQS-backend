@@ -11,8 +11,6 @@ namespace HCQS.BackEnd.DAL.Models
         public bool IsDeleted { get; set; } = false;
         public bool IsVerified { get; set; } = false;
         public string? VerifyCode { get; set; }
-        public string? ContractVerifyCode { get; set; }
-
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
     }
