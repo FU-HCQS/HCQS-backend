@@ -80,8 +80,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     colidedConfig = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
                                                                 c.TiledAreaMax > request.TiledAreaMin
                                                              && c.TiledAreaMin < request.TiledAreaMax
-                                                             && !(c.TiledAreaMin != request.TiledAreaMin
-                                                             && c.TiledAreaMax != request.TiledAreaMax));
+                                                             && !(c.TiledAreaMin == request.TiledAreaMin
+                                                             && c.TiledAreaMax == request.TiledAreaMax));
                     if (colidedConfig != null && colidedConfig.Count > 0)
                     {
                         isCollided = true;
