@@ -81,6 +81,19 @@ namespace HCQS.BackEnd.Common.Mapping
                .ForMember(desc => desc.StaticFileType, act => act.MapFrom(src => src.StaticFileType))
                ;
 
+                config.CreateMap<ConstructionConfigRequest, ConstructionConfigValue>()
+               .ForMember(desc => desc.SandMixingRatio, act => act.MapFrom(src => src.SandMixingRatio))
+               .ForMember(desc => desc.StoneMixingRatio, act => act.MapFrom(src => src.StoneMixingRatio))
+               .ForMember(desc => desc.CementMixingRatio, act => act.MapFrom(src => src.CementMixingRatio))
+               .ForMember(desc => desc.ConstructionType, act => act.MapFrom(src => src.ConstructionType))
+               .ForMember(desc => desc.NumOfFloorMin, act => act.MapFrom(src => src.NumOfFloorMin))
+               .ForMember(desc => desc.NumOfFloorMax, act => act.MapFrom(src => src.NumOfFloorMax))
+               .ForMember(desc => desc.AreaMin, act => act.MapFrom(src => src.AreaMin))
+               .ForMember(desc => desc.AreaMax, act => act.MapFrom(src => src.AreaMax))
+               .ForMember(desc => desc.TiledAreaMin, act => act.MapFrom(src => src.TiledAreaMin))
+               .ForMember(desc => desc.TiledAreaMax, act => act.MapFrom(src => src.TiledAreaMax))
+               ;
+
                 config.CreateMap<ProjectDto, Project>()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                .ForMember(desc => desc.NumOfFloor, act => act.MapFrom(src => src.NumOfFloor))

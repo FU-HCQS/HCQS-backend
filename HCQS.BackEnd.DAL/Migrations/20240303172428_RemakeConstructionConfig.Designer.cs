@@ -4,6 +4,7 @@ using HCQS.BackEnd.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HCQS.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(HCQSDbContext))]
-    partial class HCQSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240303172428_RemakeConstructionConfig")]
+    partial class RemakeConstructionConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,6 +139,24 @@ namespace HCQS.BackEnd.DAL.Migrations
                     b.HasIndex("AccountId");
 
                     b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ConstructionConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Value")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConstructionConfigs");
                 });
 
             modelBuilder.Entity("HCQS.BackEnd.DAL.Models.ConstructionConfigValue", b =>
@@ -854,21 +874,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "448eead7-0337-4ba2-bc21-6a22ea538d1b",
+                            ConcurrencyStamp = "ff4ab8b1-b7ce-427f-866d-3750e3b35e13",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "25003fb1-6a1a-4585-a72c-772a05d7f6e4",
+                            ConcurrencyStamp = "0e7f2c44-5188-42bc-96a7-dca1eb6ee966",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "f2405c6e-61fa-4607-8db6-f85b9e6cc135",
+                            ConcurrencyStamp = "f5eb5ca7-dce4-4b3a-9921-c1e02c5949c7",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });

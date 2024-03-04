@@ -87,7 +87,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     var exportPriceMaterialRepository = Resolve<IExportPriceMaterialRepository>();
                     var workerForProjectRepository = Resolve<IWorkerForProjectRepository>();
                     var workerPriceRepository = Resolve<IWorkerPriceRepository>();
-                    var constructionConfigService = Resolve<IConstructionConfigService>();
+                    var constructionConfigService = Resolve<IConstructionConfigValueService>();
                     var utility = Resolve<Utility>();
                     var projectDb = await _projectRepository.GetById(project.Id);
                     if (projectDb == null)

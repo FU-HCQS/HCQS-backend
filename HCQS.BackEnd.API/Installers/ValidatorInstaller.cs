@@ -21,7 +21,7 @@ namespace HCQS.BackEnd.API.Installers
             services.AddValidatorsFromAssemblyContaining<ContractProgressPaymentDto>();
             services.AddValidatorsFromAssemblyContaining<ConstructionConfigRequest>();
             services.AddValidatorsFromAssemblyContaining<SearchConstructionConfigRequest>();
-            services.AddValidatorsFromAssemblyContaining<DeleteConstructionConfigRequest>();
+            services.AddValidatorsFromAssemblyContaining<FilterConstructionConfigRequest>();
         }
     }
 }
