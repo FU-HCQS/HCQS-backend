@@ -55,35 +55,41 @@ namespace HCQS.BackEnd.Service.Implementations
                     StringBuilder sb = new StringBuilder();
                     sb.Append("Collided range of ");
                     bool isCollided = false;
-                    var colidedConfig = await _constructionConfigValueRepository.GetByExpression(c =>
+                    var colidedConfig = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
                                                                 c.NumOfFloorMax > request.NumOfFloorMin
-                                                             && c.NumOfFloorMin < request.NumOfFloorMax);
-                    if (colidedConfig != null)
+                                                             && c.NumOfFloorMin < request.NumOfFloorMax
+                                                             && !(c.NumOfFloorMin == request.NumOfFloorMin
+                                                             && c.NumOfFloorMax == request.NumOfFloorMax));
+                    if (colidedConfig != null && colidedConfig.Count > 0)
                     {
                         isCollided = true;
                         sb.Append($"Number of floors: {request.NumOfFloorMin}-{request.NumOfFloorMax}, ");
                     }
 
-                    colidedConfig = await _constructionConfigValueRepository.GetByExpression(c =>
+                    colidedConfig = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
                                                                 c.AreaMax > request.AreaMin
-                                                             && c.AreaMin < request.AreaMax);
-                    if (colidedConfig != null)
+                                                             && c.AreaMin < request.AreaMax
+                                                             && !(c.AreaMax == request.AreaMax
+                                                             && c.AreaMin == request.AreaMin));
+                    if (colidedConfig != null && colidedConfig.Count > 0)
                     {
                         isCollided = true;
                         sb.Append($"Area: {request.AreaMin}-{request.AreaMax}, ");
                     }
 
-                    colidedConfig = await _constructionConfigValueRepository.GetByExpression(c =>
+                    colidedConfig = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
                                                                 c.TiledAreaMax > request.TiledAreaMin
-                                                             && c.TiledAreaMin < request.TiledAreaMax);
-                    if (colidedConfig != null)
+                                                             && c.TiledAreaMin < request.TiledAreaMax
+                                                             && !(c.TiledAreaMin != request.TiledAreaMin
+                                                             && c.TiledAreaMax != request.TiledAreaMax));
+                    if (colidedConfig != null && colidedConfig.Count > 0)
                     {
                         isCollided = true;
                         sb.Append($"Tiled area: {request.TiledAreaMin}-{request.TiledAreaMax}, ");
                     }
                     if (isCollided)
                     {
-                        result = BuildAppActionResultError(result, sb.Remove(sb.Length - 3, 2).ToString());
+                        result = BuildAppActionResultError(result, sb.Remove(sb.Length - 2, 2).ToString());
                     }
                     else
                     {
@@ -234,9 +240,9 @@ namespace HCQS.BackEnd.Service.Implementations
                                                              && c.ConstructionType == request.ConstructionType);
                     if (configDb == null)
                     {
-                        return BuildAppActionResultError(result, "There does not exist a config with same parameter!");
+                        return BuildAppActionResultError(result, "There does not exist a config with similar parameter!");
                     }
-                    result.Result.Data = configDb;
+                    result.Result.Data = result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb); ;
 
                     
                 }

@@ -70,7 +70,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpDelete("delete-construction-config/{id}")]
+        [HttpDelete("delete-construction-config/{Id}")]
         public async Task<AppActionResult> DeleteConstructionConfigById(Guid Id)
         {
             return await _constructionConfigValueService.DeleteConstructionConfigById(Id);
