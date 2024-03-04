@@ -110,7 +110,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         NumOfFloor = projectDb.NumOfFloor,
                         TiledArea = project.TiledArea
                     });
-                    if (!resulGetConstructionCofig.IsSuccess)
+                    if (!resulGetConstructionCofig.IsSuccess || resulGetConstructionCofig.Result.Data == null)
                     {
                         result = BuildAppActionResultError(result, $"The config is not existed. Please create construction config ");
                     }

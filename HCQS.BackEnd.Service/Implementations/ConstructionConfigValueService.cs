@@ -80,8 +80,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     colidedConfig = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
                                                                 c.TiledAreaMax > request.TiledAreaMin
                                                              && c.TiledAreaMin < request.TiledAreaMax
-                                                             && !(c.TiledAreaMin != request.TiledAreaMin
-                                                             && c.TiledAreaMax != request.TiledAreaMax));
+                                                             && !(c.TiledAreaMin == request.TiledAreaMin
+                                                             && c.TiledAreaMax == request.TiledAreaMax));
                     if (colidedConfig != null && colidedConfig.Count > 0)
                     {
                         isCollided = true;
@@ -242,8 +242,8 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         return BuildAppActionResultError(result, "There does not exist a config with similar parameter!");
                     }
-                    result.Result.Data = result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb); ;
-
+                    result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb);
+                    
                     
                 }
                 catch (Exception ex)
