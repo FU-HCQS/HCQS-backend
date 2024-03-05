@@ -6,6 +6,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -477,6 +478,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             SupplierMaterialQuotationRecord record = new SupplierMaterialQuotationRecord()
                             {
                                 Id = Guid.NewGuid(),
+                                No = (worksheet.Cells[row, 1].Value == null) ? 0 : int.Parse(worksheet.Cells[row, 1].Value.ToString()),
                                 MaterialName = (worksheet.Cells[row, 2].Value == null) ? "" : worksheet.Cells[row, 2].Value.ToString(),
                                 Unit = (worksheet.Cells[row, 3].Value == null) ? "" : worksheet.Cells[row, 3].Value.ToString(),
                                 MOQ = (worksheet.Cells[row, 4].Value == null) ? 0 : int.Parse(worksheet.Cells[row, 4].Value.ToString()),
@@ -513,17 +515,20 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
 
-                        int colCount = worksheet.Dimension.Columns;
-                        if (colCount != headerTemplate.Count) return "The number of columns is different from template's!";
+                        int colCount = worksheet.Columns.Count();
+                        if (colCount != headerTemplate.Count && worksheet.Cells[1, colCount].Value != null)
+                        {
+                            return "Difference in column names";
+                        }
                         StringBuilder sb = new StringBuilder();
                         sb.Append("Incorrect column names: ");
                         bool containsError = false;
-                        for (int col = 1; col <= colCount; col++) // Assuming header is in the first row
+                        for (int col = 1; col <= Math.Min(5, worksheet.Columns.Count()); col++) // Assuming header is in the first row
                         {
                             if (!worksheet.Cells[1, col].Value.Equals(headerTemplate[col - 1]))
                             {
                                 if(!containsError) containsError = true;
-                                sb.Append($"{worksheet.Cells[1, col].Value}, ");
+                                sb.Append($"{worksheet.Cells[1, col].Value}(Correct: {headerTemplate[col - 1]}), ");
                             }
                         }
                         if (containsError)
@@ -607,8 +612,9 @@ namespace HCQS.BackEnd.Service.Implementations
             if (file == null || file.Length == 0)
             {
                 data.IsValidated = false;
-                data.HeaderError = "Unable to load excel file. Please restart!";
+                data.HeaderError = "Unable to validate excel file. Please restart!";
                 result.Result.Data = data;
+                return result;
             }
                 try
                 {
@@ -624,7 +630,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         data.HeaderError = "Invalid file name. Please follow format: SupplierName_ddMMyyyy";
                         result.Result.Data = data;
                         return result;
-                    }
+                }
                     string supplierName = supplierInfo[0];
                     if (supplierInfo[1].Length < 8)
                     {
@@ -632,7 +638,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         data.HeaderError = "Invalid date. Please follow date format: ddMMyyyy";
                         result.Result.Data = data;
                         return result;
-                    }
+                }
 
                     string dateString = supplierInfo[1].Substring(0, 8);
                     if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
@@ -641,7 +647,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         data.HeaderError = $"{dateString} is not in format: ddMMyyyy";
                         result.Result.Data = data;
                         return result;
-                    }
+                }
                     string errorHeader = await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL);
                     if (!string.IsNullOrEmpty(errorHeader))
                     {
@@ -660,11 +666,10 @@ namespace HCQS.BackEnd.Service.Implementations
                         return result;
                     }
 
-                    Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                    Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
+                    Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
                     List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
-                    List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
                     var materialRepository = Resolve<IMaterialRepository>();
-                    var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                     int errorRecordCount = 0;
                     SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
                     int i = 2;
@@ -676,6 +681,12 @@ namespace HCQS.BackEnd.Service.Implementations
                         StringBuilder error = new StringBuilder();
                         errorRecordCount = 0;
                         Guid materialId = Guid.Empty;
+                        if(record.No != i- 1)
+                        {
+                            error.Append($"{errorRecordCount + 1}. No should be {i-1}.\n");
+                            errorRecordCount++;
+                        }
+
                         if (string.IsNullOrEmpty(record.MaterialName) || string.IsNullOrEmpty(record.Unit))
                         {
                             error.Append($"{errorRecordCount + 1}. Material Name or Unit cell is empty.\n");
@@ -687,7 +698,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
                             {
                                 key = record.MaterialName + '-' + record.Unit;
-                                if (materials.ContainsKey(key)) materialId = materials[key];
+                                if (materials.ContainsKey(key))  materialId = materials[key];
                                 else
                                 {
                                     bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
@@ -703,6 +714,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         {
                                             materialId = material.Id;
                                             materials.Add(key, materialId);
+                                        
                                         }
                                     }
                                     else
@@ -730,6 +742,17 @@ namespace HCQS.BackEnd.Service.Implementations
                             error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
                             errorRecordCount++;
                         }
+
+                        string duplicatedKey = $"{record.MaterialName}-{record.MOQ}";
+                        if (duplicatedQuotation.ContainsKey(duplicatedKey))
+                        {
+                            error.Append($"{errorRecordCount + 1}. Duplicated material name and MOQ with row {duplicatedQuotation[duplicatedKey]}.\n");
+                            errorRecordCount++;
+                        }
+                        else
+                        {
+                        duplicatedQuotation.Add(duplicatedKey, i - 1);
+                    }
                         if (errorRecordCount != 0)
                         {
                             error.Append("(Please delete this error message cell before re-uploading!)");
@@ -759,5 +782,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
             
         }
+
+        
     }
 }

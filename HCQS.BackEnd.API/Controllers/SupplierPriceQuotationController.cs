@@ -30,7 +30,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _supplierPriceQuotationService.UploadSupplierQuotationWithExcelFile(file);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("valid-excel-file")]
         public async Task<AppActionResult> ValidateExcelFile(IFormFile file)
 

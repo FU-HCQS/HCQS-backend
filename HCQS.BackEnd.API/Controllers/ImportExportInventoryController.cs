@@ -5,6 +5,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Validator;
 using HCQS.BackEnd.DAL.Common;
 using HCQS.BackEnd.Service.Contracts;
+using HCQS.BackEnd.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -86,11 +87,19 @@ namespace HCQS.BackEnd.API.Controllers
             return await _importExportInventoryHistoryService.UpdateInventory(request);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("import-material-with-excel")]
         public async Task<IActionResult> ImportMaterialWithExcel(IFormFile file)
         {
             return await _importExportInventoryHistoryService.ImportMaterialWithExcel(file);
+        }
+
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("valid-excel-file")]
+        public async Task<AppActionResult> ValidateExcelFile(IFormFile file)
+
+        {
+            return await _importExportInventoryHistoryService.ValidateExcel(file);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
