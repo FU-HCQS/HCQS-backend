@@ -137,7 +137,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 }
                             );
                         await _unitOfWork.SaveChangeAsync();
-                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.CONTRACT_CODE, code, account.FirstName));
 
                         scope.Complete();
                     }

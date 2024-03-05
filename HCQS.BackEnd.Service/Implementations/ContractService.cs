@@ -83,7 +83,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (!BuildAppActionResultIsError(result))
                     {
                         await contractVerificationCodeRepository.Update(verificationCodeDb);
-                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, code);
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.CONTRACT_CODE,code,account.FirstName));
                         await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
                     }

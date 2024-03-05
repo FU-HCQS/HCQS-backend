@@ -25,6 +25,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 message.From.Add(new MailboxAddress("QK Back End Project", _emailConfiguration.User));
                 message.To.Add(new MailboxAddress("Customer", recipient));
                 message.Subject = subject;
+                message.Importance = MessageImportance.High;
 
                 var bodyBuilder = new BodyBuilder();
                 bodyBuilder.HtmlBody = body;
