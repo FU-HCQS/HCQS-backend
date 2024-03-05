@@ -31,6 +31,14 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("valid-excel-file")]
+        public async Task<AppActionResult> ValidateExcelFile(IFormFile file)
+
+        {
+            return await _supplierPriceQuotationService.ValidateExcelFile(file);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpDelete("delete-supplier-quotation-by-id")]
         public async Task<AppActionResult> DeleteSupplierQuotationById(Guid Id)
         {

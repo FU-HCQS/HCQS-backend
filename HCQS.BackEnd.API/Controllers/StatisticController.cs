@@ -42,91 +42,97 @@ namespace HCQS.BackEnd.API.Controllers
         [HttpPost("get-total-import")]
         public async Task<AppActionResult> GetTotalImport()
         {
-            return await _statisticService.getTotalImport();
+            return await _statisticService.GetTotalImport();
         }
 
         [HttpPost("get-total-export")]
         public async Task<AppActionResult> GetTotalExport()
         {
-            return await _statisticService.getTotalExport();
+            return await _statisticService.GetTotalExport();
         }
 
         [HttpPost("get-increase-project")]
         public async Task<AppActionResult> GetIncreaseProject(int year, int timePeriod)
         {
-            return await _statisticService.getIncreaseProject(year, timePeriod);
+            return await _statisticService.GetIncreaseProject(year, timePeriod);
         }
 
         [HttpPost("get-increase-contract")]
         public async Task<AppActionResult> GetIncreaseContract(int year, int timePeriod)
         {
-            return await _statisticService.getIncreaseContract(year, timePeriod);
+            return await _statisticService.GetIncreaseContract(year, timePeriod);
         }
 
         [HttpPost("get-increase-import")]
         public async Task<AppActionResult> GetIncreaseImport(int year, int timePeriod)
         {
-            return await _statisticService.getIncreaseImportInventory(year, timePeriod);
+            return await _statisticService.GetIncreaseImportInventory(year, timePeriod);
         }
 
         [HttpPost("get-increase-export")]
         public async Task<AppActionResult> GetIncreaseExport(int year, int timePeriod)
         {
-            return await _statisticService.getIncreaseExportInventory(year, timePeriod);
+            return await _statisticService.GetIncreaseExportInventory(year, timePeriod);
+        }
+
+        [HttpPost("get-increase-import-export")]
+        public async Task<AppActionResult> GetIncreaseImportExport(int year, int timePeriod)
+        {
+            return await _statisticService.GetIncreaseImportExportInventory(year, timePeriod);
         }
 
         [HttpPost("get-account-ratio")]
         public async Task<AppActionResult> GetAccountRatio()
         {
-            return await _statisticService.getAccountRatio();
+            return await _statisticService.GetAccountRatio();
         }
 
         [HttpPost("get-project-construction-type-ratio")]
         public async Task<AppActionResult> GetProjectConstructionTypeRatio(int year, int timePeriod)
         {
-            return await _statisticService.getProjectContructionTypeRatio(year, timePeriod);
+            return await _statisticService.GetProjectContructionTypeRatio(year, timePeriod);
         }
 
         [HttpPost("get-project-status-ratio")]
         public async Task<AppActionResult> GetProjectStatusRatio(int year, int timePeriod)
         {
-            return await _statisticService.getProjectStatusRatio(year, timePeriod);
+            return await _statisticService.GetProjectStatusRatio(year, timePeriod);
         }
 
         [HttpPost("get-contract-ratio")]
         public async Task<AppActionResult> GetContractRatio(int year, int timePeriod)
         {
-            return await _statisticService.getContractRatio(year, timePeriod);
+            return await _statisticService.GetContractRatio(year, timePeriod);
         }
 
         [HttpPost("get-total-import-by-supplier-ratio")]
         public async Task<AppActionResult> getTotalImportBySupplierRatio(int year, int timePeriod)
         {
-            return await _statisticService.getTotalImportBySupplierRatio(year, timePeriod);
+            return await _statisticService.GetTotalImportBySupplierRatio(year, timePeriod);
         }
 
         [HttpPost("get-total-import-by-material-ratio")]
         public async Task<AppActionResult> getTotalImportByMaterialRatio(int year, int timePeriod)
         {
-            return await _statisticService.getTotalImportByMaterialRatio(year, timePeriod);
+            return await _statisticService.GetTotalImportByMaterialRatio(year, timePeriod);
         }
 
         [HttpPost("get-total-export-by-material-ratio")]
         public async Task<AppActionResult> getTotalExportByMaterialRatio(int year, int timePeriod)
         {
-            return await _statisticService.getTotalExportByMaterialRatio(year, timePeriod);
+            return await _statisticService.GetTotalExportByMaterialRatio(year, timePeriod);
         }
 
         [HttpPost("get-quantity-import-by-material-ratio")]
         public async Task<AppActionResult> getQuantityImportByMaterialRatio(int year, int timePeriod)
         {
-            return await _statisticService.getQuantityImportByMaterialRatio(year, timePeriod);
+            return await _statisticService.GetQuantityImportByMaterialRatio(year, timePeriod);
         }
 
         [HttpPost("get-quantity-export-by-material-ratio")]
         public async Task<AppActionResult> getQuantityExportByMaterialRatio(int year, int timePeriod)
         {
-            return await _statisticService.getQuantityExportByMaterialRatio(year, timePeriod);
+            return await _statisticService.GetQuantityExportByMaterialRatio(year, timePeriod);
         }
     }
 }

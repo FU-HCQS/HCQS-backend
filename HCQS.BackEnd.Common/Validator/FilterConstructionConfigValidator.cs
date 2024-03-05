@@ -3,9 +3,9 @@ using HCQS.BackEnd.Common.Dto.Request;
 
 namespace HCQS.BackEnd.Common.Validator
 {
-    public class DeleteConstructionConfigValidator : AbstractValidator<FilterConstructionConfigRequest>
+    public class FilterConstructionConfigValidator : AbstractValidator<FilterConstructionConfigRequest>
     {
-        public DeleteConstructionConfigValidator()
+        public FilterConstructionConfigValidator()
         {
             RuleFor(x => x.NumOfFloorMin)
             .NotNull().NotEmpty().GreaterThan(0)

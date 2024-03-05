@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
+using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using NPOI.POIFS.Storage;
 using System.Globalization;
 using Contract = HCQS.BackEnd.DAL.Models.Contract;
 
@@ -30,7 +32,7 @@ namespace HCQS.BackEnd.Service.Implementations
             _importExportInventoryHistoryRepository = importExportInventoryHistoryRepository;
         }
 
-        public async Task<AppActionResult> getIncreaseContract(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetIncreaseContract(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
             try
@@ -85,8 +87,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
-
-        public async Task<AppActionResult> getIncreaseExportInventory(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetIncreaseExportInventory(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
             try
@@ -157,8 +158,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
-
-        public async Task<AppActionResult> getIncreaseImportInventory(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetIncreaseImportInventory(int year = -1, int timePeriod = 1)
         {
             //Stopwatch stopwatch = new Stopwatch();
             //stopwatch.Start();
@@ -196,7 +196,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                                                                                         i => i.SupplierPriceDetail);
                         totalImportPerTimePeriod = importDb
                             .GroupBy(a => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(a.Date, CalendarWeekRule.FirstDay, DayOfWeek.Sunday))
-                            .ToDictionary(group => $"Week {group.Key % 4}", group => group.Sum(a => a.Quantity * a.SupplierPriceDetail.Price));
+                            .ToDictionary(group => $"Week {group.Key}", group => group.Sum(a => a.Quantity * a.SupplierPriceDetail.Price));
                     }
                     else if (timePeriod == 3)
                     {
@@ -228,7 +228,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getIncreaseProject(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetIncreaseProject(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
             try
@@ -336,7 +336,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getTotalImport()
+        public async Task<AppActionResult> GetTotalImport()
         {
             AppActionResult result = new AppActionResult();
             try
@@ -361,7 +361,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getTotalExport()
+        public async Task<AppActionResult> GetTotalExport()
         {
             AppActionResult result = new AppActionResult();
             try
@@ -424,7 +424,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getAccountRatio()
+        public async Task<AppActionResult> GetAccountRatio()
         {
             //Stopwatch stopwatch = new Stopwatch();
             // Start the stopwatch
@@ -476,7 +476,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getProjectContructionTypeRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetProjectContructionTypeRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch stopwatch = new Stopwatch();
 
@@ -545,7 +545,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getProjectStatusRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetProjectStatusRatio(int year = -1, int timePeriod = 1)
 
         {
             //Stopwatch stopwatch = new Stopwatch();
@@ -615,7 +615,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getContractRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetContractRatio(int year = -1, int timePeriod = 1)
         {
             AppActionResult result = new AppActionResult();
             try
@@ -673,7 +673,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getTotalImportBySupplierRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetTotalImportBySupplierRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
             //sw.Start();
@@ -748,7 +748,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getTotalImportByMaterialRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetTotalImportByMaterialRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
             //sw.Start();
@@ -822,7 +822,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getTotalExportByMaterialRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetTotalExportByMaterialRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
             //sw.Start();
@@ -896,7 +896,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getQuantityImportByMaterialRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetQuantityImportByMaterialRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
             //sw.Start();
@@ -970,7 +970,7 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> getQuantityExportByMaterialRatio(int year = -1, int timePeriod = 1)
+        public async Task<AppActionResult> GetQuantityExportByMaterialRatio(int year = -1, int timePeriod = 1)
         {
             //Stopwatch sw = Stopwatch.StartNew();
             //sw.Start();
@@ -1044,6 +1044,62 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             //sw.Stop();
             //result.Messages.Add(sw.Elapsed.ToString());
+            return result;
+        }
+
+        public async Task<AppActionResult> GetIncreaseImportExportInventory(int year = -1, int timePeriod = 1)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var increaseImportDb = await GetIncreaseImportInventory(year, timePeriod);
+                var increaseExportDb = await GetIncreaseExportInventory(year, timePeriod);
+                var increaseImport = (Dictionary<string, double>)increaseImportDb.Result.Data;
+                var increaseExport = (Dictionary<string, double>)increaseExportDb.Result.Data;
+                var keySet = new HashSet<string>();
+                if(increaseImport != null)
+                {
+                    foreach(var key in increaseImport.Keys)
+                    {
+                        keySet.Add(key);
+                    }
+                }
+                else
+                {
+                    increaseImport = new Dictionary<string, double>();
+                }
+                if(increaseExport != null)
+                {
+                    foreach (var key in increaseExport.Keys)
+                    {
+                        keySet.Add(key);
+                    }
+                }
+                else
+                {
+                    increaseExport = new Dictionary<string, double>();
+                }
+                List<ImportExportIncreaseResponse> data = new List<ImportExportIncreaseResponse>();
+                bool importExist = false;
+                bool exportExist = false;
+                foreach (var key in keySet)
+                {
+                    importExist = increaseImport.TryGetValue(key, out double importValue);
+                    exportExist = increaseExport.TryGetValue(key, out double exportValue);
+                    data.Add(
+                        new ImportExportIncreaseResponse
+                        {
+                            Date = key,
+                            ExportIncrease = exportExist?exportValue:0,
+                            ImportIncrease = importExist?importValue:0
+                        });
+                }
+                result.Result.Data = data;
+            } catch(Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
             return result;
         }
     }

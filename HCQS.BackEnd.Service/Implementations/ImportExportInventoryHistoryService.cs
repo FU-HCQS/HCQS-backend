@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
+using FirebaseAdmin.Messaging;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
 using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.SS.Formula.Functions;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Text;
@@ -348,37 +351,38 @@ namespace HCQS.BackEnd.Service.Implementations
                     try
                     {
                         //Format: ddMMyyyy
-                        string dateString = file.FileName;
-                        if (dateString.Contains('_'))
+                        string datestring = file.FileName;
+                        if (datestring.Contains('_'))
                         {
                             return new ObjectResult("Invalid file name. Please follow format: ddMMyyyy") { StatusCode = 200 };
                         }
                         if (file.FileName.Contains("(ErrorColor)"))
-                            dateString = dateString.Substring("(ErrorColor)".Length);
-                        if (dateString.Length < 8)
+                            datestring = datestring.Substring("(ErrorColor)".Length);
+                        if (datestring.Length < 8)
                         {
                             return new ObjectResult("Invalid date. Please follow date format: ddMMyyyy") { StatusCode = 200 };
                         }
-                        dateString = dateString.Substring(0, 8);
-                        if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                        datestring = datestring.Substring(0, 8);
+                        if (!DateTime.TryParseExact(datestring, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
                             isSuccessful = false;
-                            _logger.LogError($"{dateString} is not in format: ddMMyyyy", this);
-                            message = $"{dateString} is not in format: ddMMyyyy";
+                            _logger.LogError($"{datestring} is not in format: ddMMyyyy", this);
+                            message = $"{datestring} is not in format: ddMMyyyy";
                         }
                         else
                         {
-                            if (!(await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY)))
+                            string errorHeader = await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY);
+                            if (!string.IsNullOrEmpty(errorHeader))
                             {
                                 isSuccessful = false;
-                                _logger.LogError($"Incompatible header to import material template", this);
-                                message = $"Incompatible header to import material template";
+                                _logger.LogError(errorHeader, this);
+                                message = errorHeader;
                             }
                             else
                             {
-                                Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                                Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
                                 Dictionary<Guid, int> materialImport = new Dictionary<Guid, int>();
-                                Dictionary<String, Guid> suppliers = new Dictionary<String, Guid>();
+                                Dictionary<string, Guid> suppliers = new Dictionary<string, Guid>();
                                 List<ImportInventoryRecord> records = await GetImportListFromExcel(file);
                                 List<ImportExportInventoryHistory> importInventoryList = new List<ImportExportInventoryHistory>();
                                 var materialRepository = Resolve<IMaterialRepository>();
@@ -472,16 +476,16 @@ namespace HCQS.BackEnd.Service.Implementations
 
                                 if (invalidRowInput.Count > 0)
                                 {
-                                    List<List<string>> recordDataString = new List<List<string>>();
+                                    List<List<string>> recordDatastring = new List<List<string>>();
                                     int j = 1;
                                     foreach (var record in records)
                                     {
-                                        recordDataString.Add(new List<string>
+                                        recordDatastring.Add(new List<string>
                                         {
                                             j++.ToString(), record.MaterialName, record.SupplierName, record.Quantity.ToString()
                                         });
                                     }
-                                    result = _fileService.ReturnErrorColored<ImportInventoryRecord>(SD.ExcelHeaders.IMPORT_INVENTORY, recordDataString, invalidRowInput, dateString);
+                                    result = _fileService.ReturnErrorColored<ImportInventoryRecord>(SD.ExcelHeaders.IMPORT_INVENTORY, recordDatastring, invalidRowInput, datestring);
                                     isSuccessful = false;
                                 }
 
@@ -602,6 +606,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             ImportInventoryRecord record = new ImportInventoryRecord()
                             {
                                 Id = Guid.NewGuid(),
+                                No = (worksheet.Cells[row, 1].Value == null) ? 0 : int.Parse(worksheet.Cells[row, 1].Value.ToString()),
                                 MaterialName = (worksheet.Cells[row, 2].Value == null) ? "" : worksheet.Cells[row, 2].Value.ToString(),
                                 SupplierName = (worksheet.Cells[row, 3].Value == null) ? "" : worksheet.Cells[row, 3].Value.ToString(),
                                 Quantity = (worksheet.Cells[row, 4].Value == null) ? 0 : int.Parse(worksheet.Cells[row, 4].Value.ToString())
@@ -619,11 +624,11 @@ namespace HCQS.BackEnd.Service.Implementations
             return null;
         }
 
-        private async Task<bool> CheckHeader(IFormFile file, List<string> headerTemplate)
+        private async Task<string> CheckHeader(IFormFile file, List<string> headerTemplate)
         {
             if (file == null || file.Length == 0)
             {
-                return false;
+                return "File not found";
             }
 
             try
@@ -637,15 +642,26 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
 
-                        int colCount = worksheet.Dimension.Columns;
-                        if (colCount != headerTemplate.Count) return false;
-
-                        for (int col = 1; col <= colCount; col++) // Assuming header is in the first row
+                        int colCount = worksheet.Columns.Count();
+                        if(colCount != headerTemplate.Count && worksheet.Cells[1, colCount].Value != null)
+                        {
+                            return "Difference in column names";
+                        }
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Incorrect column names: ");
+                        bool containsError = false;
+                        for (int col = 1; col <= Math.Min(4, worksheet.Columns.Count()); col++) // Assuming header is in the first row
                         {
                             if (!worksheet.Cells[1, col].Value.Equals(headerTemplate[col - 1]))
-                                return false;
+                            {
+                                if (!containsError) containsError = true;
+                                sb.Append($"{worksheet.Cells[1, col].Value}(Correct: {headerTemplate[col - 1]}), ");
+                            }
                         }
-                        return true;
+                        if (containsError)
+                        {
+                            return sb.Remove(sb.Length - 2, 2).ToString();
+                        }
                     }
                 }
             }
@@ -653,7 +669,7 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 _logger.LogError(ex.Message, this);
             }
-            return false;
+            return string.Empty;
         }
 
         private async Task<Guid> GetSupplierQuationDetail(Guid materialId, Guid supplierId, int quantity)
@@ -677,6 +693,171 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return Guid.Empty;
+        }
+
+        public async Task<AppActionResult> ValidateExcel(IFormFile file)
+        {
+            AppActionResult result = new AppActionResult();
+            ExcelValidatingResponse data = new ExcelValidatingResponse();
+            if (file == null || file.Length == 0)
+            {
+                data.IsValidated = false;
+                data.HeaderError = "Unable to validate excel file. Please restart!";
+                result.Result.Data = data;
+                return result;
+            }
+            try
+            {
+                //Format: Name_ddmmyyy
+                //Format: ddMMyyyy
+                string nameDatestring = file.FileName;
+                if (file.FileName.Contains("(ErrorColor)"))
+                    nameDatestring = nameDatestring.Substring("(ErrorColor)".Length);
+                if (nameDatestring.Contains('_') || nameDatestring.Length < 8)
+                {
+                    data.IsValidated = false;
+                    data.HeaderError = "Invalid file name. Please follow format: ddMMyyyy";
+                    result.Result.Data = data;
+                    return result;
+                }
+                nameDatestring = nameDatestring.Substring(0, 8);
+                if (!DateTime.TryParseExact(nameDatestring, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                {                  
+                    data.IsValidated = false;
+                    data.HeaderError = $"{nameDatestring} is not in format: ddMMyyyy";
+                    result.Result.Data = data;
+                    return result;
+                }
+
+                string errorHeader = await CheckHeader(file, SD.ExcelHeaders.IMPORT_INVENTORY);
+                if (!string.IsNullOrEmpty(errorHeader))
+                {
+                    data.IsValidated = false;
+                    data.HeaderError = errorHeader;
+                    result.Result.Data = data;
+                    return result;
+                }
+
+
+                Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
+                Dictionary<Guid, int> materialImport = new Dictionary<Guid, int>();
+                Dictionary<string, int> duplicated = new Dictionary<string, int>();
+                Dictionary<string, Guid> suppliers = new Dictionary<string, Guid>();
+                List<ImportInventoryRecord> records = await GetImportListFromExcel(file);
+                var materialRepository = Resolve<IMaterialRepository>();
+                var supplierRepository = Resolve<ISupplierRepository>();
+                int invalidRowInput = 0;
+                int errorRecordCount = 0;
+                int i = 2;
+                data.Errors = new string[records.Count + 1];
+                foreach (ImportInventoryRecord record in records)
+                {
+                    StringBuilder error = new StringBuilder();
+                    errorRecordCount = 0;
+                    Guid materialId = Guid.Empty;
+                    Guid supplierId = Guid.Empty;
+                    if (record.No != i - 1)
+                    {
+                        error.Append($"{errorRecordCount + 1}. No should be {i - 1}.\n");
+                        errorRecordCount++;
+                    }
+                    if (!string.IsNullOrEmpty(record.MaterialName) && !string.IsNullOrEmpty(record.SupplierName))
+                    {
+                        if (materials.ContainsKey(record.MaterialName))
+                        {
+                            materialId = materials[record.MaterialName];
+                            materialImport[materialId] += record.Quantity;
+                        }
+                        else
+                        {
+                            var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));
+                            if (material == null)
+                            {
+                                error.Append($"{errorRecordCount + 1}. Material with name {record.MaterialName} does not exist.\n");
+                                errorRecordCount++;
+                            }
+                            else
+                            {
+                                materialId = material.Id;
+                                materials.Add(record.MaterialName, materialId);
+                                materialImport.Add(material.Id, record.Quantity);
+                            }
+                        }
+
+                        if (suppliers.ContainsKey(record.SupplierName)) supplierId = suppliers[record.SupplierName];
+                        else
+                        {
+                            var supplier = await supplierRepository.GetByExpression(m => m.SupplierName.Equals(record.SupplierName));
+                            if (supplier == null)
+                            {
+                                error.Append($"{errorRecordCount + 1}. Supplier with name {record.SupplierName} does not exist.\n");
+                                errorRecordCount++;
+                            }
+                            else
+                            {
+                                supplierId = supplier.Id;
+                                suppliers.Add(record.SupplierName, supplierId);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        error.Append($"{errorRecordCount + 1}. Cell Material name or Supplier name is empty.\n");
+                        errorRecordCount++;
+                    }
+
+                    if (record.Quantity <= 0)
+                    {
+                        error.Append($"{errorRecordCount + 1}. Quantity must be higher than 0.\n");
+                        errorRecordCount++;
+                    }
+
+                    var supplierPriceDetailId = await GetSupplierQuationDetail(materialId, supplierId, record.Quantity);
+                    if (supplierPriceDetailId == Guid.Empty)
+                    {
+                        error.Append($"{errorRecordCount + 1}. Unable to find compatible supplier price quotation detail.\n");
+                        errorRecordCount++;
+                    }
+
+                    string duplicatedKey = $"{record.MaterialName}-{record.SupplierName}";
+                    if (duplicated.ContainsKey(duplicatedKey))
+                    {
+                        error.Append($"{errorRecordCount + 1}. Duplicated material from supplier with row {duplicated[duplicatedKey]}.\n");
+                        errorRecordCount++;
+                    }
+                    else
+                    {
+                        duplicated.Add(duplicatedKey, i - 1);
+                    }
+
+                    if (errorRecordCount > 0)
+                    {
+                    
+                        error.Append("(Please delete this error message cell before re-uploading!)");
+                        data.Errors[i - 1] = error.ToString();
+                        invalidRowInput++;
+                    }
+                    i++;
+                }
+
+                if (invalidRowInput > 0)
+                {
+                    data.IsValidated = false;
+                    result.Result.Data = data;
+                    return result;
+                }
+
+                data.IsValidated = true;
+                data.Errors = null;
+                data.HeaderError = null;
+                result.Result.Data = data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+                data.IsValidated = false;
+            }
+            return result;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> FulfillMatertial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
 
         public Task<IActionResult> ImportMaterialWithExcel(IFormFile file);
+        public Task<AppActionResult> ValidateExcel(IFormFile file);
 
         public Task<AppActionResult> FulfillMaterialWithExcel(IFormFile file);
 
