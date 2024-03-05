@@ -749,7 +749,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 int invalidRowInput = 0;
                 int errorRecordCount = 0;
                 int i = 2;
-                data.Errors = new string[records.Count + 1];
+                data.Errors = new string[records.Count];
                 foreach (ImportInventoryRecord record in records)
                 {
                     StringBuilder error = new StringBuilder();
@@ -833,8 +833,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (errorRecordCount > 0)
                     {
                     
-                        error.Append("(Please delete this error message cell before re-uploading!)");
-                        data.Errors[i - 1] = error.ToString();
+                        data.Errors[i - 2] = error.ToString();
                         invalidRowInput++;
                     }
                     i++;
