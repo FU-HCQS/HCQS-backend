@@ -87,14 +87,14 @@ namespace HCQS.BackEnd.API.Controllers
             return await _importExportInventoryHistoryService.UpdateInventory(request);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("import-material-with-excel")]
         public async Task<IActionResult> ImportMaterialWithExcel(IFormFile file)
         {
             return await _importExportInventoryHistoryService.ImportMaterialWithExcel(file);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("valid-excel-file")]
         public async Task<AppActionResult> ValidateExcelFile(IFormFile file)
 
