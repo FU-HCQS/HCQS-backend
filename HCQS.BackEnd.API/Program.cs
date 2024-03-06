@@ -1,6 +1,8 @@
 using Hangfire;
+using HCQS.BackEnd.API.Attributes;
 using HCQS.BackEnd.API.Installers;
 using HCQS.BackEnd.Service.Implementations;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -34,7 +36,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseHangfireDashboard("/hangfire");
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new DashboardNoAuthorizationFilter() }
+}); ;
 
 using (var scope = app.Services.CreateScope())
 {
