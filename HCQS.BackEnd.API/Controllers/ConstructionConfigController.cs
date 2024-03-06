@@ -101,10 +101,15 @@ namespace HCQS.BackEnd.API.Controllers
             return await _constructionConfigValueService.GetAll();
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("search-construction-config")]
         public async Task<AppActionResult> SearchConstructionConfig(FilterConstructionConfigRequest request)
         {
+            var result = await _deleteValidator.ValidateAsync(request);
+            if (!result.IsValid)
+            {
+                return _handleErrorValidator.HandleError(result);
+            }
             return await _constructionConfigValueService.SearchConstructionConfig(request);
         }
 
