@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
+using Firebase.Auth;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using NPOI.POIFS.Properties;
+using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -146,7 +150,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 }
                             );
                         await _unitOfWork.SaveChangeAsync();
-                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.CONTRACT_CODE, code, account.FirstName));
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, TemplateMappingHelper.GetTemplateOTPEmail(TemplateMappingHelper.ContentEmailType.CONTRACT_CODE, code, account.FirstName));
 
                         scope.Complete();
                     }
@@ -209,5 +213,51 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
+        public async Task SendPaymentRemindEmail()
+        {
+            try
+            {
+                var utility = Resolve<Utility>();
+                var emailService = Resolve<IEmailService>();
+                var currentDate = utility.GetCurrentDateTimeInTimeZone().Date;
+
+                // Retrieve contract progress payments with related entities
+                var contractProgressPayments = await _repository.GetAllDataByExpression(
+                    cp => cp.Date < currentDate,
+                    cp => cp.Contract.Project.Account,
+                    cp => cp.Payment
+                );
+
+                var filteredPayments = contractProgressPayments
+                    .Where(p => p.Payment.PaymentStatus == Payment.Status.Pending)
+                    .ToList();
+
+                var groupedPayments = filteredPayments
+                    .GroupBy(cp => cp.ContractId);
+
+                foreach (var group in groupedPayments)
+                {
+                    var contractId = group.Key;
+                    var paymentsForContract = group.ToList(); 
+
+                    var account = paymentsForContract.FirstOrDefault()?.Contract.Project.Account;
+
+                    if (account != null)
+                    {
+                        emailService.SendEmail(
+                            account.Email,
+                            "Love House: Payment Reminder",
+                            TemplateMappingHelper.GetTemplatePaymentReminder(paymentsForContract, account.FirstName)
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+            }
+        }
+
     }
 }

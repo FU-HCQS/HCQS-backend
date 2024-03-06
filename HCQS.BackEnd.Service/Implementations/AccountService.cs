@@ -191,7 +191,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             result = BuildAppActionResultSuccess(result, $"{SD.ResponseMessage.CREATE_SUCCESSFUL} USER");
                             if (!isGoogle)
                             {
-                                emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.VERIFICATION_CODE, verifyCode, user.FirstName));
+                                emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, TemplateMappingHelper.GetTemplateOTPEmail(TemplateMappingHelper.ContentEmailType.VERIFICATION_CODE, verifyCode, user.FirstName));
                             }
                         }
                         else
@@ -662,7 +662,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var emailService = Resolve<IEmailService>();
                     string code = await GenerateVerifyCode(user.Email, true);
-                    emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.FORGOTPASSWORD,code, user.FirstName));
+                    emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, TemplateMappingHelper.GetTemplateOTPEmail(TemplateMappingHelper.ContentEmailType.FORGOTPASSWORD,code, user.FirstName));
                 }
             }
             catch (Exception ex)
@@ -689,7 +689,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 {
                     var emailService = Resolve<IEmailService>();
                     string code = await GenerateVerifyCode(user.Email, false);
-                    emailService.SendEmail(email, SD.SubjectMail.VERIFY_ACCOUNT, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.VERIFICATION_CODE,code,user.FirstName));
+                    emailService.SendEmail(email, SD.SubjectMail.VERIFY_ACCOUNT, TemplateMappingHelper.GetTemplateOTPEmail(TemplateMappingHelper.ContentEmailType.VERIFICATION_CODE,code,user.FirstName));
                 }
             }
             catch (Exception ex)

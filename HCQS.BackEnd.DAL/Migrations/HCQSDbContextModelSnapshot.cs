@@ -854,21 +854,21 @@ namespace HCQS.BackEnd.DAL.Migrations
                         new
                         {
                             Id = "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
-                            ConcurrencyStamp = "448eead7-0337-4ba2-bc21-6a22ea538d1b",
+                            ConcurrencyStamp = "62f7a9d8-5263-4ab3-a5d6-38b73c9f6416",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
                             Id = "2f28c722-04c9-41fd-85e4-eaa506acda38",
-                            ConcurrencyStamp = "25003fb1-6a1a-4585-a72c-772a05d7f6e4",
+                            ConcurrencyStamp = "3e84a7bd-549a-4229-9883-b6e19d0a7f54",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
                             Id = "5f1c676b-50f6-4b6f-9b7e-f59a0c135c0f",
-                            ConcurrencyStamp = "f2405c6e-61fa-4607-8db6-f85b9e6cc135",
+                            ConcurrencyStamp = "3ae70949-081d-4971-9d7a-7f4ccfe311de",
                             Name = "CUSTOMER",
                             NormalizedName = "customer"
                         });

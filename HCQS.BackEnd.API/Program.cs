@@ -1,4 +1,6 @@
+using Hangfire;
 using HCQS.BackEnd.API.Installers;
+using HCQS.BackEnd.Service.Implementations;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -32,6 +34,14 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseHangfireDashboard("/hangfire");
+
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    var workerService = serviceProvider.GetRequiredService<WorkerService>();
+    workerService.Start();
+}
 
 app.Run();
 
