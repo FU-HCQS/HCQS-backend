@@ -11,6 +11,8 @@ namespace HCQS.BackEnd.Common.Validator
             RuleFor(x => x.ContractId).NotNull().NotEmpty().WithMessage("The ContractId must be required!");
             RuleFor(x => x.Content).NotNull().NotEmpty().WithMessage("The Content must be required!");
             RuleFor(x => x.Name).NotNull().NotEmpty().WithMessage("The Name must be required!");
+            RuleFor(x => x.EndDate).NotNull().NotEmpty().WithMessage("The EndDate must be required!");
+
         }
     }
 }
