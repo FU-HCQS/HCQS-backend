@@ -3,6 +3,7 @@ using HCQS.BackEnd.DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace HCQS.BackEnd.DAL.Data
 {
@@ -45,7 +46,15 @@ namespace HCQS.BackEnd.DAL.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=SQL5063.site4now.net;Initial Catalog=db_aa45b3_hcqsbe01;User Id=db_aa45b3_hcqsbe01_admin;Password=qkPw@123;MultipleActiveResultSets=True;TrustServerCertificate=True");
+            IConfiguration config = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json", true, true)
+                            .Build();
+            string cs = config["ConnectionStrings:Host"];
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(cs);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

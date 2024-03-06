@@ -5,7 +5,9 @@ using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using System.Diagnostics.Contracts;
 using System.Transactions;
+using Contract = HCQS.BackEnd.DAL.Models.Contract;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -169,6 +171,31 @@ namespace HCQS.BackEnd.Service.Implementations
                     _logger.LogError(ex.Message, this);
                 }
                 return result;
+            }
+        }
+
+        public async Task UpadateContractStatus()
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                   var contractDb = await _contractRepository.GetAllDataByExpression(c => c.EndDate <= DateTime.UtcNow);
+                    if( contractDb != null && contractDb.Count > 0) {
+                        foreach(var contract in  contractDb)
+                        {
+                            contract.ContractStatus = Contract.Status.IN_ACTIVE;
+                            await _contractRepository.Update(contract);
+                        }
+                        await _unitOfWork.SaveChangeAsync();
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, this);
+                }
+                Task.CompletedTask.Wait();
             }
         }
     }

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Firebase.Auth;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
+using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -199,6 +201,33 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
             return result;
+        }
+
+        public async Task SendPaymentRemindEmail()
+        {
+            try
+            {
+                var paymentDb = await _repository.GetAllDataByExpression(p => p.Date.AddDays(3) >= DateTime.Now, p => p.Contract.Project.Account);
+                if(paymentDb != null && paymentDb.Count() > 0)
+                {
+                    var emailService = Resolve<IEmailService>();
+                    foreach (var payment in paymentDb)
+                    {
+                        var account = payment.Contract.Project.Account;
+                        if(account != null)
+                        {
+                            emailService.SendEmail(account.Email, 
+                                "Love House: Payment Reminder", 
+                                $"Hi, {account.FirstName}, your payment {payment.Id} should be paid with in the next {payment.Date.Hour - DateTime.Now.Hour}");
+                        }
+                    }
+                }
+
+            } catch(Exception ex)
+            {
+                _logger.LogError(ex.Message, this);
+            }
+            Task.CompletedTask.Wait();
         }
     }
 }
