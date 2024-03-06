@@ -6,6 +6,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using NPOI.POIFS.Storage;
+using NPOI.XWPF.UserModel;
 using System.Globalization;
 using Contract = HCQS.BackEnd.DAL.Models.Contract;
 
@@ -442,22 +443,59 @@ namespace HCQS.BackEnd.Service.Implementations
                     var roleDb = await roleRepository.GetAllDataByExpression(null, null);
                     foreach (var role in roleDb)
                     {
-                        roles.Add(role.Id, role.Name);
+                        roles.Add(role.Name, role.Id);
                     }
+
+                    int sumRole = 0;
+
                     foreach (var account in accountDb)
                     {
                         var userRoles = await userRoleRepository.GetAllDataByExpression(u => u.UserId == account.Id, null);
+                        sumRole = 0;
                         userRoles.ForEach(u =>
                         {
-                            if (accountDistribution.ContainsKey(roles[u.RoleId]))
+                            if (u.RoleId == roles["ADMIN"])
                             {
-                                accountDistribution[roles[u.RoleId]]++;
+                                sumRole += 2;
+                            }
+                            else if(u.RoleId == roles["STAFF"])
+                            {
+                                sumRole += 1;
+                            }
+                        });
+
+                        if (sumRole >= 2)
+                        {
+                            if (accountDistribution.ContainsKey("ADMIN"))
+                            {
+                                accountDistribution["ADMIN"]++;
                             }
                             else
                             {
-                                accountDistribution.Add(roles[u.RoleId], 1);
+                                accountDistribution.Add("ADMIN", 1);
                             }
-                        });
+                        }
+                        else if (sumRole >= 1) {
+                            if (accountDistribution.ContainsKey("STAFF"))
+                            {
+                                accountDistribution["STAFF"]++;
+                            }
+                            else
+                            {
+                                accountDistribution.Add("STAFF", 1);
+                            }
+                        }
+                        else
+                        {
+                            if (accountDistribution.ContainsKey("CUSTOMER"))
+                            {
+                                accountDistribution["CUSTOMER"]++;
+                            }
+                            else
+                            {
+                                accountDistribution.Add("CUSTOMER", 1);
+                            }
+                        }                                                     
                     }
                     result.Result.Data = accountDistribution;
                 }
