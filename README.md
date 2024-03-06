@@ -1,4 +1,3 @@
-[![Build .NET](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/build.yml/badge.svg)](https://github.com/duong-hong-quan/HCQS-backend/actions/workflows/build.yml)
 # House Construction Quotation System - Back End Repository
 
 ## Overview
@@ -14,10 +13,7 @@ Once a quote is accepted, the system facilitates the creation and management of 
 3. Construction Inventory Management
 The system includes a module for inventory management, enabling users to keep track of construction materials, tools, and equipment. This feature helps prevent delays due to material shortages, ensures proper resource allocation, and optimizes inventory levels.
 
-4. Project Execution Tracking
-The system provides real-time tracking of construction progress, allowing project managers to monitor milestones, identify potential delays, and make informed decisions to keep the project on schedule. This feature enhances communication and collaboration among team members.
-
-5. User Access Control
+4. User Access Control
 To ensure data security and privacy, the system implements user access control mechanisms. Different user roles (e.g., administrator, project manager, site supervisor) have varying levels of access to the system's functionalities, ensuring that sensitive information is only accessible to authorized personnel.
 
 ## Installation
@@ -29,14 +25,10 @@ To ensure data security and privacy, the system implements user access control m
 ### Installation Steps
 1. Clone the repository: git clone https://github.com/duong-hong-quan/HCQS-backend.git.
 2. Configure the database connection in the appsettings.json file.
-3. Install dependencies: composer install.
-4. Run migrations to set up the database: db migration with entity framework.
-## Usage
-1. Access the system through the web browser.
-2. Register an account or log in with existing credentials.
-3. Navigate through the different modules (Quotation, Contract Management, Inventory, Project Tracking).
-4. Follow the intuitive user interface to perform various tasks within each module.
+3. Install dependencies: Ctrl + Shift + B.
+4. Run migrations to set up the database: db migration with entity framework. (Nuget Console: update-database)
 5. Refer to the documentation for detailed instructions on using specific features.
+
 ## Documentation
 For detailed information on using the House Construction Quotation System, refer to the documentation included with the repository. The documentation covers installation, configuration, and usage guidelines.
 
