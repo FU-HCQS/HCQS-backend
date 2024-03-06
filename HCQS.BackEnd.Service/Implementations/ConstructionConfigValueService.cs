@@ -284,13 +284,19 @@ namespace HCQS.BackEnd.Service.Implementations
             AppActionResult result = new AppActionResult();
             try
             {
-                var configDb = await _constructionConfigValueRepository.GetByExpression(c =>
-                                                                c.NumOfFloorMin <= request.NumOfFloorMin
-                                                             && c.NumOfFloorMax >= request.NumOfFloorMax
-                                                             && c.AreaMin <= request.AreaMin
-                                                             && c.AreaMax >= request.AreaMax
-                                                             && c.TiledAreaMin <= request.TiledAreaMin
-                                                             && c.TiledAreaMax >= request.TiledAreaMax
+                var configDb = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
+                                                                ((request.NumOfFloorMin +  request.NumOfFloorMax == 0)                                                            
+                                                             || (c.NumOfFloorMin >= request.NumOfFloorMin
+                                                             && c.NumOfFloorMax <= request.NumOfFloorMax))
+
+                                                             && ((request.AreaMin + request.AreaMax == 0)
+                                                             || (c.AreaMin >= request.AreaMin
+                                                             && c.AreaMax <= request.AreaMax))
+
+                                                             && ((request.TiledAreaMin + request.TiledAreaMax == 0)
+                                                             || (c.TiledAreaMin >= request.TiledAreaMin
+                                                             && c.TiledAreaMax <= request.TiledAreaMax))
+
                                                              && c.ConstructionType == request.ConstructionType);
                 result.Result.Data = configDb;
             } catch(Exception ex)

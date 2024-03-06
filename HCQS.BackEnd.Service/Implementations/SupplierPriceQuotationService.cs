@@ -675,7 +675,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     int i = 2;
                     int invalidRowInput = 0;
                     string key = "";
-                    data.Errors = new string[records.Count + 1];
+                    data.Errors = new string[records.Count];
                     foreach (SupplierMaterialQuotationRecord record in records)
                     {
                         StringBuilder error = new StringBuilder();
@@ -755,8 +755,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                         if (errorRecordCount != 0)
                         {
-                            error.Append("(Please delete this error message cell before re-uploading!)");
-                            data.Errors[i - 1] = error.ToString();
+                            data.Errors[i - 2] = error.ToString();
                             invalidRowInput++;
                         }
                         i++;
