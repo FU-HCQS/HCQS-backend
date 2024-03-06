@@ -1,4 +1,5 @@
 ﻿using HCQS.BackEnd.Common.Dto.Request;
+using HCQS.BackEnd.DAL.Models;
 
 namespace HCQS.BackEnd.Common.Util
 {
@@ -179,7 +180,7 @@ namespace HCQS.BackEnd.Common.Util
             FORGOTPASSWORD,
             CONTRACT_CODE
         }
-        public static string GetTemplateEmail(ContentEmailType type, string body, string name)
+        public static string GetTemplateOTPEmail(ContentEmailType type, string body, string name)
         {
             string content = "";
             switch (type)
@@ -313,7 +314,7 @@ namespace HCQS.BackEnd.Common.Util
         </p>
         <p class=""emailBody"">
           Below is your OTP information:
-          <b><i> " + body +@"</i></b>
+          <b><i> " + body + @"</i></b>
         </p>
 
         <p class=""emailBody"">
@@ -346,7 +347,7 @@ namespace HCQS.BackEnd.Common.Util
 ";
                     break;
 
-                    case ContentEmailType.CONTRACT_CODE:
+                case ContentEmailType.CONTRACT_CODE:
                     content = @"
 <html>
   <head>
@@ -506,8 +507,8 @@ namespace HCQS.BackEnd.Common.Util
 </html>
 
 ";
-                    break ;
-                    case ContentEmailType.FORGOTPASSWORD:
+                    break;
+                case ContentEmailType.FORGOTPASSWORD:
                     content = @"
 <html>
   <head>
@@ -672,6 +673,175 @@ namespace HCQS.BackEnd.Common.Util
             }
 
             return content;
+        }
+
+        public static string GetTemplatePaymentReminder(List<ContractProgressPayment> payment, string name)
+        {
+            string body = string.Empty;
+            var utility = new Utility();
+            body = @"
+<html>
+  <head>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4; /* Background color for the entire email */
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 20 auto;
+        /* padding: 20px; */
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px 2px #ccc; /*Add a shadow to the content */
+      }
+
+      .header {
+        text-align: center;
+        background-color: #ffba00; /* Header background color */
+        padding: 20px;
+      }
+      .header-title {
+        text-align: left;
+        background-color: #2ad65e; /* Header background color */
+        padding: 20px;
+        color: white;
+      }
+      .title {
+        color: black; /* Text color for the title */
+        font-size: 30px;
+        font-weight: bold;
+      }
+
+      .greeting {
+        font-size: 18px;
+        margin: 10 5;
+      }
+      .emailBody {
+        margin: 5 5;
+      }
+      .support {
+        font-size: 15px;
+        font-style: italic;
+        margin: 5 5;
+      }
+
+      .mainBody {
+        background-color: #ffffff; /* Main content background color */
+        padding: 20px;
+        /* border-radius: 5px; */
+        /* box-shadow: 0px 0px 5px 2px #ccc; Add a shadow to the content */
+      }
+      .body-content {
+        /* display: flex;
+        flex-direction: column; */
+        border: 1px #fff8ea;
+        border-radius: 5px;
+        margin: 10 5;
+        padding: 10px;
+        /* background-color: #fff8ea; */
+        box-shadow: 0px 0px 5px 2px #ccc;
+      }
+      .title-content {
+        font-weight: bold;
+      }
+
+      u i {
+        color: blue;
+      }
+
+      .footer {
+        font-size: 14px;
+        text-align: center;
+        background-color: #ffba00; /* Header background color */
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .footer-text {
+        font-weight: 600;
+      }
+      .signature {
+        text-align: right;
+        font-size: 16px;
+        margin: 5 5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class=""container"">
+      <div
+        style=""
+          height: 100px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: white;
+        ""
+      >
+        <p
+          style=""
+            color: #515151;
+            text-align: center;
+            margin: auto 0;
+            font-size: 30px;
+          ""
+        >
+          Love House
+        </p>
+      </div>
+      <div class=""mainBody"">
+        <!-- <div class=""header-title"">
+        </div> -->
+        <h2 class=""emailBody"">Hello " + name + @",</h2>
+        <p class=""greeting""></p>
+
+        <p class=""emailBody"">
+          You currently have 1 unpaid invoice at <b><i>Love House </i></b>.
+        </p>
+        <p class=""emailBody"">Below is your information:</p>";
+            foreach (ContractProgressPayment item in payment)
+            {
+                body += @"  <p class=""emailBody""><b>Contract no: </b>" + item.ContractId + @" </p>
+        <p class=""""emailBody""""><b>Name: </b>" + item.Name + @" </p>
+        <p class=""emailBody""><b>Amount that needs to be paid: </b>" + item.Payment.Price + @" </p>
+        <p class=""emailBody"">You need to pay the bill within <b>" + $"{utility.GetCurrentDateTimeInTimeZone().Hour - item.Date.Hour} "+ @"hours</b></p>";
+            }
+
+
+            body += @"   <p class=""emailBody"">
+          Please enter into the system to proceed to the next step
+          <a href=""https://lovehouse.vercel.app/""
+            ><span style=""font-weight: bold; text-transform: uppercase""
+              >here</span
+            ></a
+          >
+        </p>
+        <p class=""support"">
+          Thank you for your interest in the services of <b><i>Love House</i></b
+          >, for any inquiries, please contact
+          <u><i>qk.backend@gmail.com</i></u> for support
+        </p>
+        <div class=""signature"">
+          <p>Best regards,</p>
+          <p>
+            <b><i>Love House Team</i></b>
+          </p>
+        </div>
+      </div>
+      <div style=""height: 100px""></div>
+    </div>
+  </body>
+</html>
+
+";
+            return body;
         }
     }
 }

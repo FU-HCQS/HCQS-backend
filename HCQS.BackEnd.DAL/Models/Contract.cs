@@ -26,7 +26,8 @@ namespace HCQS.BackEnd.DAL.Models
         {
             NEW,
             IN_ACTIVE,
-            ACTIVE
+            ACTIVE,
+            EXPIRED
         }
 
         public Guid? ProjectId { get; set; }

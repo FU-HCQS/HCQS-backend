@@ -85,7 +85,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     if (!BuildAppActionResultIsError(result))
                     {
                         await contractVerificationCodeRepository.Update(verificationCodeDb);
-                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, TemplateMappingHelper.GetTemplateEmail(TemplateMappingHelper.ContentEmailType.CONTRACT_CODE,code,account.FirstName));
+                        emailService.SendEmail(account.Email, SD.SubjectMail.SIGN_CONTRACT_VERIFICATION_CODE, TemplateMappingHelper.GetTemplateOTPEmail(TemplateMappingHelper.ContentEmailType.CONTRACT_CODE,code,account.FirstName));
                         await _unitOfWork.SaveChangeAsync();
                         scope.Complete();
                     }
@@ -184,7 +184,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     if( contractDb != null && contractDb.Count > 0) {
                         foreach(var contract in  contractDb)
                         {
-                            contract.ContractStatus = Contract.Status.IN_ACTIVE;
+                            contract.ContractStatus = Contract.Status.EXPIRED;
                             await _contractRepository.Update(contract);
                         }
                         await _unitOfWork.SaveChangeAsync();
