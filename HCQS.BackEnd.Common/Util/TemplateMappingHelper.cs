@@ -811,7 +811,7 @@ namespace HCQS.BackEnd.Common.Util
                 body += @"  <p class=""emailBody""><b>Contract no: </b>" + item.ContractId + @" </p>
         <p class=""""emailBody""""><b>Name: </b>" + item.Name + @" </p>
         <p class=""emailBody""><b>Amount that needs to be paid: </b>" + item.Payment.Price + @" </p>
-        <p class=""emailBody"">You need to pay the bill within <b>" + $"{utility.GetCurrentDateTimeInTimeZone().Hour - item.Date.Hour} "+ @"hours</b></p>";
+        <p class=""emailBody"">You need to pay the bill within <b>" + $"{Math.Abs(utility.GetCurrentDateTimeInTimeZone().Hour - item.Date.Hour)} " + @"hours</b></p>";
             }
 
 
