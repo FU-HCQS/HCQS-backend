@@ -230,7 +230,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 );
 
                 var filteredPayments = contractProgressPayments
-                    .Where(p => p.Payment.PaymentStatus == Payment.Status.Pending)
+                    .Where(p => p.Payment.PaymentStatus == Payment.Status.Pending && p.Contract.ContractStatus == Contract.Status.ACTIVE)
                     .ToList();
 
                 var groupedPayments = filteredPayments
