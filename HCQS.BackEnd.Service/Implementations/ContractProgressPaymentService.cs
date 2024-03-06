@@ -62,6 +62,15 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"The contract progress payment with name {item.Name} and contractId {item.ContractId} is existed");
                         }
+                        if(contractDb.EndDate < item.EndDate)
+                        {
+                            result = BuildAppActionResultError(result, $"The payment date of the contract installments must be less than the contract end date");
+                        }
+                        if(item.EndDate < utility.GetCurrentDateTimeInTimeZone())
+                        {
+                            result = BuildAppActionResultError(result, $"Dates of payment installments are not allowed to be dates in the past");
+
+                        }
                         total = (double)(total + item.Price);
                     }
 
@@ -93,7 +102,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Id = Guid.NewGuid(),
                                 ContractId = (Guid)item.ContractId,
                                 PaymentId = paymentId,
-                                Date = utility.GetCurrentDateTimeInTimeZone(),
+                                Date = (DateTime)item.EndDate,
                                 Name = item.Name
                             };
                             listCPP.Add(cpm);
