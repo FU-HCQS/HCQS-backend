@@ -86,7 +86,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     string requestType = "captureWallet";
 
-                    string amount = Math.Ceiling( momo.Amount).ToString();
+                    string amount = Math.Ceiling(momo.Amount).ToString();
                     string orderId = Guid.NewGuid().ToString();
                     string requestId = Guid.NewGuid().ToString();
                     string extraData = momo.OrderID.ToString();

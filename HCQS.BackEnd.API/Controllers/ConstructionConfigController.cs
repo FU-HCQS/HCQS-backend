@@ -20,10 +20,10 @@ namespace HCQS.BackEnd.API.Controllers
         private readonly HandleErrorValidator _handleErrorValidator;
         private IConstructionConfigValueService _constructionConfigValueService;
 
-        public ConstructionConfigController(IValidator<ConstructionConfigRequest> createValidator, 
-                                            IValidator<SearchConstructionConfigRequest> searchValidator, 
-                                            IValidator<FilterConstructionConfigRequest> deleteValidator, 
-                                            HandleErrorValidator handleErrorValidator, 
+        public ConstructionConfigController(IValidator<ConstructionConfigRequest> createValidator,
+                                            IValidator<SearchConstructionConfigRequest> searchValidator,
+                                            IValidator<FilterConstructionConfigRequest> deleteValidator,
+                                            HandleErrorValidator handleErrorValidator,
                                             IConstructionConfigValueService constructionConfigValueService)
         {
             _createValidator = createValidator;
@@ -82,7 +82,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _constructionConfigValueService.DeleteAllConstructionConfig();
         }
 
-       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-construction-config")]
         public async Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request)
         {

@@ -44,13 +44,13 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             var quotationRepository = Resolve<IQuotationRepository>();
                             var quotationDb = await quotationRepository.GetByExpression(q => q.Id == quotationDetailDb.QuotationId && q.QuotationStatus == Quotation.Status.Approved, q => q.Project, q => q.Project.Contract);
-                            if(quotationDb != null && quotationDb.Project.Status == Project.ProjectStatus.UnderConstruction && quotationDb.Project.Contract != null && quotationDb.Project.Contract.ContractStatus == Contract.Status.ACTIVE)
+                            if (quotationDb != null && quotationDb.Project.Status == Project.ProjectStatus.UnderConstruction && quotationDb.Project.Contract != null && quotationDb.Project.Contract.ContractStatus == Contract.Status.ACTIVE)
                             {
                                 var contractProgressPaymentRepository = Resolve<IContractProgressPaymentRepository>();
                                 var contractProgressPaymentDb = await contractProgressPaymentRepository.GetByExpression(c => c.ContractId == quotationDb.Project.Contract.Id && c.Name.Equals("Deposit"), c => c.Payment);
-                                if(contractProgressPaymentDb != null )
+                                if (contractProgressPaymentDb != null)
                                 {
-                                    if(contractProgressPaymentDb.Payment.PaymentStatus == Payment.Status.Success)
+                                    if (contractProgressPaymentDb.Payment.PaymentStatus == Payment.Status.Success)
                                     {
                                         var progressConstructionDb = await _progressConstructionMaterialRepository.GetAllDataByExpression(p => p.QuotationDetailId == ProgressConstructionMaterialRequest.QuotationDetailId);
 
@@ -99,7 +99,8 @@ namespace HCQS.BackEnd.Service.Implementations
                                     {
                                         result = BuildAppActionResultError(result, $"Project deposit has not been paid");
                                     }
-                                } else
+                                }
+                                else
                                 {
                                     result = BuildAppActionResultError(result, $"There is no signed cotract including quotation detail: {ProgressConstructionMaterialRequest.QuotationDetailId} does not have a deposit!");
                                 }

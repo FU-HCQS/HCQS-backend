@@ -15,7 +15,6 @@ namespace HCQS.BackEnd.Common.Validator
                 .NotNull().NotEmpty().GreaterThan(0)
             .WithMessage("The maximum number of floors is required!");
 
-
             RuleFor(x => new { x.NumOfFloorMin, x.NumOfFloorMax })
                 .Must(x => (x.NumOfFloorMax > x.NumOfFloorMin))
                 .WithMessage("NumOfFloorMax must be greater than NumOfFloorMin");

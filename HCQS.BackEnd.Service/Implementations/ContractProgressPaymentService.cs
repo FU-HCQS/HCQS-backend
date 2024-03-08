@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
-using Firebase.Auth;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using NPOI.POIFS.Properties;
-using NPOI.SS.Formula.Functions;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -66,14 +62,13 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             result = BuildAppActionResultError(result, $"The contract progress payment with name {item.Name} and contractId {item.ContractId} is existed");
                         }
-                        if(contractDb.EndDate < item.EndDate)
+                        if (contractDb.EndDate < item.EndDate)
                         {
                             result = BuildAppActionResultError(result, $"The payment date of the contract installments must be less than the contract end date");
                         }
-                        if(item.EndDate < utility.GetCurrentDateTimeInTimeZone())
+                        if (item.EndDate.Value.Date < utility.GetCurrentDateTimeInTimeZone().Date)
                         {
                             result = BuildAppActionResultError(result, $"Dates of payment installments are not allowed to be dates in the past");
-
                         }
                         total = (double)(total + item.Price);
                     }
@@ -239,7 +234,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 foreach (var group in groupedPayments)
                 {
                     var contractId = group.Key;
-                    var paymentsForContract = group.ToList(); 
+                    var paymentsForContract = group.ToList();
 
                     var account = paymentsForContract.FirstOrDefault()?.Contract.Project.Account;
 
@@ -258,6 +253,5 @@ namespace HCQS.BackEnd.Service.Implementations
                 _logger.LogError(ex.Message, this);
             }
         }
-
     }
 }

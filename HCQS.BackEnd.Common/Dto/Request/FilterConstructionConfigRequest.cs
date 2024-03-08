@@ -1,5 +1,4 @@
-﻿using static HCQS.BackEnd.Common.Dto.Request.ProjectDto;
-using static HCQS.BackEnd.DAL.Models.Project;
+﻿using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Common.Dto.Request
 {

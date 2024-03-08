@@ -4,26 +4,20 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
-using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
-    
-    public class ConstructionConfigValueService:GenericBackendService, IConstructionConfigValueService
+    public class ConstructionConfigValueService : GenericBackendService, IConstructionConfigValueService
     {
         private BackEndLogger _logger;
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private IConstructionConfigValueRepository _constructionConfigValueRepository;
+
         public ConstructionConfigValueService(BackEndLogger logger, IUnitOfWork unitOfWork, IConstructionConfigValueRepository constructionConfigValueRepository, IMapper mapper, IServiceProvider serviceProvIder) : base(serviceProvIder)
         {
             _logger = logger;
@@ -39,7 +33,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var configDb = await _constructionConfigValueRepository.GetByExpression(c => 
+                    var configDb = await _constructionConfigValueRepository.GetByExpression(c =>
                                                                 c.NumOfFloorMin == request.NumOfFloorMin
                                                              && c.NumOfFloorMax == request.NumOfFloorMax
                                                              && c.AreaMin == request.AreaMin
@@ -111,6 +105,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> DeleteAllConstructionConfig()
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -142,6 +137,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> DeleteConstructionConfig(FilterConstructionConfigRequest request)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -163,7 +159,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     }
                     else
                     {
-                         await _constructionConfigValueRepository.DeleteById(configDb.Id);
+                        await _constructionConfigValueRepository.DeleteById(configDb.Id);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -180,6 +176,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> DeleteConstructionConfigById(Guid Id)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -211,6 +208,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 return result;
             }
         }
+
         public async Task<AppActionResult> GetAll()
         {
             AppActionResult result = new AppActionResult();
@@ -218,41 +216,42 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 var configDb = await _constructionConfigValueRepository.GetAllDataByExpression(null);
                 result.Result.Data = configDb;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
         }
+
         public async Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request)
         {
-           AppActionResult result = new AppActionResult();
-                try
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var configDb = await _constructionConfigValueRepository.GetByExpression(c =>
+                                                            c.NumOfFloorMin <= request.NumOfFloor
+                                                         && c.NumOfFloorMax >= request.NumOfFloor
+                                                         && c.AreaMin <= request.Area
+                                                         && c.AreaMax >= request.Area
+                                                         && c.TiledAreaMin <= request.TiledArea
+                                                         && c.TiledAreaMax >= request.TiledArea
+                                                         && c.ConstructionType == request.ConstructionType);
+                if (configDb == null)
                 {
-                    var configDb = await _constructionConfigValueRepository.GetByExpression(c =>
-                                                                c.NumOfFloorMin <= request.NumOfFloor
-                                                             && c.NumOfFloorMax >= request.NumOfFloor
-                                                             && c.AreaMin <= request.Area
-                                                             && c.AreaMax >= request.Area
-                                                             && c.TiledAreaMin <= request.TiledArea
-                                                             && c.TiledAreaMax >= request.TiledArea
-                                                             && c.ConstructionType == request.ConstructionType);
-                    if (configDb == null)
-                    {
-                        return BuildAppActionResultError(result, "There does not exist a config with similar parameter!");
-                    }
-                    result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb);
-                    
-                    
+                    return BuildAppActionResultError(result, "There does not exist a config with similar parameter!");
                 }
-                catch (Exception ex)
-                {
-                    result = BuildAppActionResultError(result, ex.Message);
-                    _logger.LogError(ex.Message, this);
-                }
-                return result;
+                result.Result.Data = _mapper.Map<ConstructionConfigResponse>(configDb);
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
         }
+
         public async Task<AppActionResult> GetMaxConfig()
         {
             AppActionResult result = new AppActionResult();
@@ -269,8 +268,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     AreaMax = configDb.MaxBy(c => c.AreaMax).AreaMax,
                     TiledAreaMax = configDb.MaxBy(c => c.TiledAreaMax).TiledAreaMax
                 };
-
-
             }
             catch (Exception ex)
             {
@@ -279,13 +276,14 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             return result;
         }
+
         public async Task<AppActionResult> SearchConstructionConfig(FilterConstructionConfigRequest request)
         {
             AppActionResult result = new AppActionResult();
             try
             {
                 var configDb = await _constructionConfigValueRepository.GetAllDataByExpression(c =>
-                                                                ((request.NumOfFloorMin +  request.NumOfFloorMax == 0)                                                            
+                                                                ((request.NumOfFloorMin + request.NumOfFloorMax == 0)
                                                              || (c.NumOfFloorMin >= request.NumOfFloorMin
                                                              && c.NumOfFloorMax <= request.NumOfFloorMax))
 
@@ -299,13 +297,15 @@ namespace HCQS.BackEnd.Service.Implementations
 
                                                              && c.ConstructionType == request.ConstructionType);
                 result.Result.Data = configDb;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
             return result;
         }
+
         public async Task<AppActionResult> UpdateConstructionConfig(ConstructionConfigRequest request)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
