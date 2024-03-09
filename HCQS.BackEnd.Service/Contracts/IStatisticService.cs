@@ -24,6 +24,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> GetIncreaseContract(int year = -1, int timePeriod = 1);
 
         public Task<AppActionResult> GetIncreaseImportExportInventory(int year = -1, int timePeriod = 1);
+
         public Task<AppActionResult> GetIncreaseImportInventory(int year = -1, int timePeriod = 1);
 
         public Task<AppActionResult> GetIncreaseExportInventory(int year = -1, int timePeriod = 1);

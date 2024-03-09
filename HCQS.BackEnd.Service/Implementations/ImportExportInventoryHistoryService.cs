@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FirebaseAdmin.Messaging;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
@@ -11,7 +10,6 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.SS.Formula.Functions;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Text;
@@ -643,7 +641,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Assuming data is in the first sheet
 
                         int colCount = worksheet.Columns.Count();
-                        if(colCount != headerTemplate.Count && worksheet.Cells[1, colCount].Value != null)
+                        if (colCount != headerTemplate.Count && worksheet.Cells[1, colCount].Value != null)
                         {
                             return "Difference in column names";
                         }
@@ -722,7 +720,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 }
                 nameDatestring = nameDatestring.Substring(0, 8);
                 if (!DateTime.TryParseExact(nameDatestring, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
-                {                  
+                {
                     data.IsValidated = false;
                     data.HeaderError = $"{nameDatestring} is not in format: ddMMyyyy";
                     result.Result.Data = data;
@@ -737,7 +735,6 @@ namespace HCQS.BackEnd.Service.Implementations
                     result.Result.Data = data;
                     return result;
                 }
-
 
                 Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
                 Dictionary<Guid, int> materialImport = new Dictionary<Guid, int>();
@@ -832,7 +829,6 @@ namespace HCQS.BackEnd.Service.Implementations
 
                     if (errorRecordCount > 0)
                     {
-                    
                         data.Errors[i - 2] = error.ToString();
                         invalidRowInput++;
                     }

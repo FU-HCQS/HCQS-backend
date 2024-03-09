@@ -7,9 +7,7 @@ using HCQS.BackEnd.DAL.Contracts;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using HCQS.BackEnd.Service.UtilityService;
-using System.Linq.Expressions;
 using System.Transactions;
-using static HCQS.BackEnd.Common.Dto.Request.ConfigProjectRequest;
 using static HCQS.BackEnd.Service.UtilityService.BuildingUtility;
 
 namespace HCQS.BackEnd.Service.Implementations
@@ -158,7 +156,6 @@ namespace HCQS.BackEnd.Service.Implementations
                                 }
                             }
                         }
-
 
                         var config = (ConstructionConfigResponse)resulGetConstructionCofig.Result.Data;
 
@@ -340,7 +337,7 @@ namespace HCQS.BackEnd.Service.Implementations
             }
             listQuotation = listQuotation.OrderByDescending(a => a.CreateDate).ToList();
 
-            var listQuotationDealing = await quotationDealingRepository.GetAllDataByExpression(filter: a=> a.Quotation.ProjectId== id);
+            var listQuotationDealing = await quotationDealingRepository.GetAllDataByExpression(filter: a => a.Quotation.ProjectId == id);
             var result = new ProjectResponse
             {
                 Project = project,

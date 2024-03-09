@@ -15,7 +15,6 @@ namespace HCQS.BackEnd.Common.Validator
                 .NotNull().GreaterThan(-1)
             .WithMessage("The maximum number of floors must be left empty or higher than 0!");
 
-
             RuleFor(x => new { x.NumOfFloorMin, x.NumOfFloorMax })
                 .Must(x => (x.NumOfFloorMin == 0 && x.NumOfFloorMax == 0 || x.NumOfFloorMin > 0 && x.NumOfFloorMax > x.NumOfFloorMin))
                 .WithMessage("NumOfFloorMax must be greater than NumOfFloorMin and both must be greater than 0!");

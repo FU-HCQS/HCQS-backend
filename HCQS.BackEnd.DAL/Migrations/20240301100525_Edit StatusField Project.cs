@@ -18,7 +18,7 @@ namespace HCQS.BackEnd.DAL.Migrations
                 keyColumn: "Id",
                 keyValue: "1045c37d-e6eb-4be7-a5c3-fdca47a1fe21",
                 column: "ConcurrencyStamp",
-                value: "62e107d1-250b-4595-b473-c98aa7d34f3d"); 
+                value: "62e107d1-250b-4595-b473-c98aa7d34f3d");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",

@@ -2,7 +2,6 @@ using Hangfire;
 using HCQS.BackEnd.API.Attributes;
 using HCQS.BackEnd.API.Installers;
 using HCQS.BackEnd.Service.Implementations;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
