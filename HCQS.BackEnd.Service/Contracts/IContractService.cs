@@ -9,6 +9,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> GetContractById(Guid contractId);
 
         public Task<AppActionResult> ReSendVerificationCode(Guid contractId);
+
         public Task UpadateContractStatus();
     }
 }

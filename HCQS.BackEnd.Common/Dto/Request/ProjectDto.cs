@@ -12,8 +12,6 @@ namespace HCQS.BackEnd.Common.Dto.Request
         public IFormFile LandDrawingFile { get; set; }
         public ProjectConstructionType Type { get; set; }
 
-        
-
         public string? AddressProject { get; set; }
         public string? AccountId { get; set; }
     }

@@ -180,6 +180,7 @@ namespace HCQS.BackEnd.Common.Util
             FORGOTPASSWORD,
             CONTRACT_CODE
         }
+
         public static string GetTemplateOTPEmail(ContentEmailType type, string body, string name)
         {
             string content = "";
@@ -338,7 +339,7 @@ namespace HCQS.BackEnd.Common.Util
         </div>
       </div>
       <div style=""height: 100px"">
-        
+
       </div>
     </div>
   </body>
@@ -500,7 +501,7 @@ namespace HCQS.BackEnd.Common.Util
         </div>
       </div>
       <div style=""height: 100px"">
-        
+
       </div>
     </div>
   </body>
@@ -508,6 +509,7 @@ namespace HCQS.BackEnd.Common.Util
 
 ";
                     break;
+
                 case ContentEmailType.FORGOTPASSWORD:
                     content = @"
 <html>
@@ -661,7 +663,7 @@ namespace HCQS.BackEnd.Common.Util
         </div>
       </div>
       <div style=""height: 100px"">
-        
+
       </div>
     </div>
   </body>
@@ -669,7 +671,6 @@ namespace HCQS.BackEnd.Common.Util
 
 ";
                     break;
-
             }
 
             return content;
@@ -813,7 +814,6 @@ namespace HCQS.BackEnd.Common.Util
         <p class=""emailBody""><b>Amount that needs to be paid: </b>" + utility.FormatMoney(item.Payment.Price) + @"đ </p>
         <p class=""emailBody"">You need to pay the bill within <b>" + $"{Math.Abs(utility.GetCurrentDateTimeInTimeZone().Hour - item.Date.Hour)} " + @"hours</b></p>";
             }
-
 
             body += @"   <p class=""emailBody"">
           Please enter into the system to proceed to the next step

@@ -7,7 +7,6 @@ namespace HCQS.BackEnd.Common.Validator
     {
         public QuotationDealingValidator()
         {
-          
             RuleFor(x => x.QuotationId).NotNull().NotEmpty().WithMessage("The QuotationId must be required!");
         }
     }

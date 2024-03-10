@@ -10,6 +10,7 @@ namespace HCQS.BackEnd.Service.Contracts
         Task<AppActionResult> DeleteContractProgressPaymentByContractId(Guid id);
 
         Task<AppActionResult> GetContractProgressPaymentByContractId(Guid contractId);
+
         Task SendPaymentRemindEmail();
     }
 }

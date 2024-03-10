@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
