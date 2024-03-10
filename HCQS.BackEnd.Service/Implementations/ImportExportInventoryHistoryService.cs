@@ -559,9 +559,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 IActionResult result = null;
                 try
                 {
-                    List<ImportInventoryRecord> sampleData = new List<ImportInventoryRecord>();
-                    sampleData.Add(new ImportInventoryRecord { MaterialName = "Brick", SupplierName = "inventory history name", Quantity = 999 });
-                    result = _fileService.GenerateExcelContent<ImportInventoryRecord>(sampleData, "ImportMaterialTemplate_Format_ddMMyyyy");
+                    List<ImportInventoryRecordSample> sampleData = new List<ImportInventoryRecordSample>();
+                    sampleData.Add(new ImportInventoryRecordSample { MaterialName = "Brick", SupplierName = "SuplierABC", Quantity = 999 });
+                    result = _fileService.GenerateExcelContent<ImportInventoryRecordSample>(sampleData, "ImportMaterialTemplate_Format_ddMMyyyy");
 
                     if (result != null)
                     {

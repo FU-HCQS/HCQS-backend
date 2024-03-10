@@ -588,10 +588,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 IActionResult result = null;
                 try
                 {
-                    List<SupplierMaterialQuotationRecord> sampleData = new List<SupplierMaterialQuotationRecord>();
-                    sampleData.Add(new SupplierMaterialQuotationRecord
-                    { MaterialName = "Brick", Unit = "Bar", MOQ = 1000, Price = 9 });
-                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecord>(sampleData, "SupplierPriceQuotationTemplate_Format_SupplierName_ddMMyyyy");
+                    List<SupplierMaterialQuotationRecordSample> sampleData = new List<SupplierMaterialQuotationRecordSample>();
+                    sampleData.Add(new SupplierMaterialQuotationRecordSample
+                    {MaterialName = "Brick", Unit = "Bar", MOQ = 1000, Price = 9 });
+                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecordSample>(sampleData, "SupplierPriceQuotationTemplate_Format_SupplierName_ddMMyyyy");
                     if (result != null)
                     {
                         scope.Complete();
