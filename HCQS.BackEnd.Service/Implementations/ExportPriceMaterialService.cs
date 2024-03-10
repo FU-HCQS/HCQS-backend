@@ -132,7 +132,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             exportPriceMaterialList = DataPresentationHelper.ApplyPaging(exportPriceMaterialList, pageIndex, pageSize);
                         }
-                        result.Result.Data = exportPriceMaterialList;
+                        result.Result.Data = exportPriceMaterialList.OrderByDescending(p => p.Date);
                         result.Result.TotalPage = totalPage;
                     }
                     else

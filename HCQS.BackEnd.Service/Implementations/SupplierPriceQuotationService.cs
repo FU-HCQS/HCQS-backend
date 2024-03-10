@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.BaseRequest;
 using HCQS.BackEnd.Common.Dto.Record;
@@ -6,6 +6,7 @@ using HCQS.BackEnd.Common.Dto.Request;
 using HCQS.BackEnd.Common.Dto.Response;
 using HCQS.BackEnd.Common.Util;
 using HCQS.BackEnd.DAL.Contracts;
+using HCQS.BackEnd.DAL.Implementations;
 using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -526,7 +527,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             if (!worksheet.Cells[1, col].Value.Equals(headerTemplate[col - 1]))
                             {
-                                if (!containsError) containsError = true;
+                                if(!containsError) containsError = true;
                                 sb.Append($"{worksheet.Cells[1, col].Value}(Correct: {headerTemplate[col - 1]}), ");
                             }
                         }
@@ -615,168 +616,187 @@ namespace HCQS.BackEnd.Service.Implementations
                 result.Result.Data = data;
                 return result;
             }
-            try
-            {
-                //Format: Name_ddmmyyy
-                //Format: ddMMyyyy
-                string nameDateString = file.FileName;
-                if (file.FileName.Contains("(ErrorColor)"))
-                    nameDateString = nameDateString.Substring("(ErrorColor)".Length);
-                string[] supplierInfo = nameDateString.Split('_');
-                if (supplierInfo.Length != 2)
+                try
                 {
-                    data.IsValidated = false;
-                    data.HeaderError = "Invalid file name. Please follow format: SupplierName_ddMMyyyy";
-                    result.Result.Data = data;
-                    return result;
-                }
-                string supplierName = supplierInfo[0];
-                if (supplierInfo[1].Length < 8)
-                {
-                    data.IsValidated = false;
-                    data.HeaderError = "Invalid date. Please follow date format: ddMMyyyy";
-                    result.Result.Data = data;
-                    return result;
-                }
-
-                string dateString = supplierInfo[1].Substring(0, 8);
-                if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
-                {
-                    data.IsValidated = false;
-                    data.HeaderError = $"{dateString} is not in format: ddMMyyyy";
-                    result.Result.Data = data;
-                    return result;
-                }
-                string errorHeader = await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL);
-                if (!string.IsNullOrEmpty(errorHeader))
-                {
-                    data.IsValidated = false;
-                    data.HeaderError = errorHeader;
-                    result.Result.Data = data;
-                    return result;
-                }
-                var supplierRepository = Resolve<ISupplierRepository>();
-                var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()) && !s.IsDeleted);
-                if (supplier == null)
-                {
-                    data.IsValidated = false;
-                    data.HeaderError = $"Supplier with name: {supplierName} does not exist!";
-                    result.Result.Data = data;
-                    return result;
-                }
-
-                Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
-                Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
-                List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
-                var materialRepository = Resolve<IMaterialRepository>();
-                int errorRecordCount = 0;
-                SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
-                int i = 2;
-                int invalidRowInput = 0;
-                string key = "";
-                data.Errors = new string[records.Count];
-                foreach (SupplierMaterialQuotationRecord record in records)
-                {
-                    StringBuilder error = new StringBuilder();
-                    errorRecordCount = 0;
-                    Guid materialId = Guid.Empty;
-                    if (record.No != i - 1)
+                    //Format: Name_ddmmyyy
+                    //Format: ddMMyyyy
+                    string nameDateString = file.FileName;
+                    if (file.FileName.Contains("(ErrorColor)"))
+                        nameDateString = nameDateString.Substring("(ErrorColor)".Length);
+                    string[] supplierInfo = nameDateString.Split('_');
+                    if (supplierInfo.Length != 2)
                     {
-                        error.Append($"{errorRecordCount + 1}. No should be {i - 1}.\n");
-                        errorRecordCount++;
+                        data.IsValidated = false;
+                        data.HeaderError = "Invalid file name. Please follow format: SupplierName_ddMMyyyy";
+                        result.Result.Data = data;
+                        return result;
+                }
+                    string supplierName = supplierInfo[0];
+                    if (supplierInfo[1].Length < 8)
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = "Invalid date. Please follow date format: ddMMyyyy";
+                        result.Result.Data = data;
+                        return result;
+                }
+
+                    string dateString = supplierInfo[1].Substring(0, 8);
+                    if (!DateTime.TryParseExact(dateString, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = $"{dateString} is not in format: ddMMyyyy";
+                        result.Result.Data = data;
+                        return result;
+                }
+                    string errorHeader = await CheckHeader(file, SD.ExcelHeaders.SUPPLIER_QUOTATION_DETAIL);
+                    if (!string.IsNullOrEmpty(errorHeader))
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = errorHeader;
+                        result.Result.Data = data;
+                        return result;
                     }
+                    var supplierRepository = Resolve<ISupplierRepository>();
+                    var supplier = await supplierRepository.GetByExpression(s => s.SupplierName.ToLower().Equals(supplierName.ToLower()) && !s.IsDeleted);
+                    if (supplier == null)
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = $"Supplier with name: {supplierName} does not exist!";
+                        result.Result.Data = data;
+                        return result;
+                    }                    
 
-                    if (string.IsNullOrEmpty(record.MaterialName) || string.IsNullOrEmpty(record.Unit))
+                    Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
+                    Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
+                    List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
+                    var materialRepository = Resolve<IMaterialRepository>();
+                    var supplierPriceQuotationDetailRepository = Resolve<ISupplierPriceDetailRepository>();
+                    int errorRecordCount = 0;
+                    SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
+                    int i = 2;
+                    int invalidRowInput = 0;
+                    string key = "";
+                    data.Errors = new string[records.Count];
+                    foreach (SupplierMaterialQuotationRecord record in records)
                     {
-                        error.Append($"{errorRecordCount + 1}. Material Name or Unit cell is empty.\n");
-                        errorRecordCount++;
-                    }
-                    else
-                    {
-                        SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int materialUnit);
-                        if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
+                        StringBuilder error = new StringBuilder();
+                        errorRecordCount = 0;
+                        Guid materialId = Guid.Empty;
+                        if(record.No != i- 1)
                         {
-                            key = record.MaterialName + '-' + record.Unit;
-                            if (materials.ContainsKey(key)) materialId = materials[key];
-                            else
-                            {
-                                bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
-                                if (containsUnit)
-                                {
-                                    var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
-                                    if (material == null)
-                                    {
-                                        error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
-                                        errorRecordCount++;
-                                    }
-                                    else
-                                    {
-                                        materialId = material.Id;
-                                        materials.Add(key, materialId);
-                                    }
-                                }
-                                else
-                                {
-                                    error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
-                                    errorRecordCount++;
-                                }
-                            }
+                            error.Append($"{errorRecordCount + 1}. No should be {i-1}.\n");
+                            errorRecordCount++;
+                        }
+
+                        if (string.IsNullOrEmpty(record.MaterialName) || string.IsNullOrEmpty(record.Unit))
+                        {
+                            error.Append($"{errorRecordCount + 1}. Material Name or Unit cell is empty.\n");
+                            errorRecordCount++;
                         }
                         else
                         {
-                            error.Append($"{errorRecordCount + 1}. Supplier {supplierName} is a {supplier.Type.ToString()} so they don't supply {record.MaterialName}.\n");
+                            SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int materialUnit);
+                        key = record.MaterialName + '-' + record.Unit;
+                        if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
+                            {
+                                
+                                if (materials.ContainsKey(key))  materialId = materials[key];
+                                else
+                                {
+                                    bool containsUnit = SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int index);
+                                    if (containsUnit)
+                                    {
+                                        var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName) && (int)(m.UnitMaterial) == index);
+                                        if (material == null)
+                                        {
+                                            error.Append($"{errorRecordCount + 1}. Material with name: {record.MaterialName} and unit: {record.Unit} does not exist.\n");
+                                            errorRecordCount++;
+                                        }
+                                        else
+                                        {
+                                            materialId = material.Id;
+                                            materials.Add(key, materialId);   
+                                        }
+                                    }
+                                    else
+                                    {
+                                        error.Append($"{errorRecordCount + 1}. Unit: {record.Unit} does not exist.\n");
+                                        errorRecordCount++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                error.Append($"{errorRecordCount + 1}. Supplier {supplierName} is a {supplier.Type.ToString()} so they don't supply {record.MaterialName}.\n");
+                                errorRecordCount++;
+                            }
+                        }
+
+                        if (record.MOQ <= 0)
+                        {
+                            error.Append($"{errorRecordCount + 1}. MOQ(Minimum Order Quantity) must be higher than 0.\n");
+                            errorRecordCount++;
+                        }
+
+                        if (record.Price <= 0)
+                        {
+                            error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
+                            errorRecordCount++;
+                        }
+
+                        string duplicatedKey = $"{record.MaterialName}-{record.MOQ}";
+                        if (duplicatedQuotation.ContainsKey(duplicatedKey))
+                        {
+                            error.Append($"{errorRecordCount + 1}. Duplicated material name and MOQ with row {duplicatedQuotation[duplicatedKey]}.\n");
+                            errorRecordCount++;
+                        }
+                        else
+                        {
+                        duplicatedQuotation.Add(duplicatedKey, i - 1);
+                        }
+
+                    if (materials.ContainsKey(key) && record.MOQ > 0)
+                    {
+                        if ((await supplierPriceQuotationDetailRepository.GetAllDataByExpression(s => s.SupplierPriceQuotation.SupplierId == supplier.Id 
+                                                                                        && s.SupplierPriceQuotation.Date.DayOfYear == date.DayOfYear 
+                                                                                        && s.SupplierPriceQuotation.Date.Year == date.Year
+                                                                                        && s.MaterialId == materialId 
+                                                                                        && s.MOQ == record.MOQ)).Count > 0)
+                        {
+                            error.Append($"{errorRecordCount + 1}.(Warning) There exists material price quotation of supplier {supplierName} at {date.Date} with the same MOQ.\n");
                             errorRecordCount++;
                         }
                     }
-
-                    if (record.MOQ <= 0)
-                    {
-                        error.Append($"{errorRecordCount + 1}. MOQ(Minimum Order Quantity) must be higher than 0.\n");
-                        errorRecordCount++;
+                   
+                        if (errorRecordCount != 0)
+                        {
+                            data.Errors[i - 2] = error.ToString();
+                            invalidRowInput++;
+                        }
+                        i++;
                     }
 
-                    if (record.Price <= 0)
+                    if (invalidRowInput > 0)
                     {
-                        error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
-                        errorRecordCount++;
+                        data.IsValidated = false;
+                        result.Result.Data = data;
+                        return result;
                     }
 
-                    string duplicatedKey = $"{record.MaterialName}-{record.MOQ}";
-                    if (duplicatedQuotation.ContainsKey(duplicatedKey))
-                    {
-                        error.Append($"{errorRecordCount + 1}. Duplicated material name and MOQ with row {duplicatedQuotation[duplicatedKey]}.\n");
-                        errorRecordCount++;
-                    }
-                    else
-                    {
-                        duplicatedQuotation.Add(duplicatedKey, i - 1);
-                    }
-                    if (errorRecordCount != 0)
-                    {
-                        data.Errors[i - 2] = error.ToString();
-                        invalidRowInput++;
-                    }
-                    i++;
-                }
-
-                if (invalidRowInput > 0)
-                {
-                    data.IsValidated = false;
+                    data.IsValidated = true;
+                    data.Errors = null;
+                    data.HeaderError = null;
                     result.Result.Data = data;
-                    return result;
+            }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, this);
+                    data.IsValidated = false;
                 }
-
-                data.IsValidated = true;
-                data.Errors = null;
-                data.HeaderError = null;
-                result.Result.Data = data;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, this);
-                data.IsValidated = false;
-            }
             return result;
+            
         }
+
+        
     }
 }

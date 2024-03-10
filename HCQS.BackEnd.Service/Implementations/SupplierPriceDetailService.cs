@@ -212,7 +212,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
                             }
-                            result.Result.Data = supplierPriceDetailDb;
+                            result.Result.Data = supplierPriceDetailDb.OrderByDescending(s => s.SupplierPriceQuotation.Date);
                             result.Result.TotalPage = totalPage;
                         }
                         else
@@ -274,7 +274,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
                             }
-                            result.Result.Data = supplierPriceDetailDb;
+                            result.Result.Data = supplierPriceDetailDb.OrderByDescending(s => s.SupplierPriceQuotation.Date);
                             result.Result.TotalPage = totalPage;
                         }
                         else
