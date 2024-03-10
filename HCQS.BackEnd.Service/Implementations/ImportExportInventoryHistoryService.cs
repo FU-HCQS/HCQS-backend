@@ -138,7 +138,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
                         }
-                        result.Result.Data = supplierPriceDetailDb;
+                        result.Result.Data = supplierPriceDetailDb.OrderByDescending(i => i.Date);
                         result.Result.TotalPage = totalPage;
                     }
                     else
@@ -182,7 +182,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
                         }
-                        result.Result.Data = supplierPriceDetailDb;
+                        result.Result.Data = supplierPriceDetailDb.OrderByDescending(i => i.Date); ;
                         result.Result.TotalPage = totalPage;
                     }
                     else
@@ -226,7 +226,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
                         }
-                        result.Result.Data = supplierPriceDetailDb;
+                        result.Result.Data = supplierPriceDetailDb.OrderByDescending(i => i.Date);
                         result.Result.TotalPage = totalPage;
                     }
                     else
@@ -677,8 +677,10 @@ namespace HCQS.BackEnd.Service.Implementations
             try
             {
                 var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
+                var utility = Resolve<Utility>();
+                DateTime currentDate = utility.GetCurrentDateTimeInTimeZone();
                 var supplierPriceDetails = await supplierPriceDetailRepository
-                    .GetAllDataByExpression(s => s.MaterialId == materialId && s.SupplierPriceQuotation.SupplierId == supplierId, s => s.SupplierPriceQuotation);
+                    .GetAllDataByExpression(s => s.MaterialId == materialId && s.SupplierPriceQuotation.SupplierId == supplierId && s.SupplierPriceQuotation.Date <= currentDate, s => s.SupplierPriceQuotation);
                 if (supplierPriceDetails != null)
                 {
                     var supplierPriceDetailWithLatestDate = supplierPriceDetails.OrderByDescending(s => s.SupplierPriceQuotation.Date).FirstOrDefault();

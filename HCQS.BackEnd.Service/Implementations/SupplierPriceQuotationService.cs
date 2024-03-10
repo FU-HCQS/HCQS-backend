@@ -664,12 +664,13 @@ namespace HCQS.BackEnd.Service.Implementations
                         data.HeaderError = $"Supplier with name: {supplierName} does not exist!";
                         result.Result.Data = data;
                         return result;
-                    }
+                    }                    
 
                     Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
                     Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
                     List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
                     var materialRepository = Resolve<IMaterialRepository>();
+                    var supplierPriceQuotationDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                     int errorRecordCount = 0;
                     SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
                     int i = 2;
@@ -695,9 +696,10 @@ namespace HCQS.BackEnd.Service.Implementations
                         else
                         {
                             SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int materialUnit);
-                            if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
+                        key = record.MaterialName + '-' + record.Unit;
+                        if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
                             {
-                                key = record.MaterialName + '-' + record.Unit;
+                                
                                 if (materials.ContainsKey(key))  materialId = materials[key];
                                 else
                                 {
@@ -713,8 +715,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         else
                                         {
                                             materialId = material.Id;
-                                            materials.Add(key, materialId);
-                                        
+                                            materials.Add(key, materialId);   
                                         }
                                     }
                                     else
@@ -752,7 +753,21 @@ namespace HCQS.BackEnd.Service.Implementations
                         else
                         {
                         duplicatedQuotation.Add(duplicatedKey, i - 1);
+                        }
+
+                    if (materials.ContainsKey(key) && record.MOQ > 0)
+                    {
+                        if ((await supplierPriceQuotationDetailRepository.GetAllDataByExpression(s => s.SupplierPriceQuotation.SupplierId == supplier.Id 
+                                                                                        && s.SupplierPriceQuotation.Date.DayOfYear == date.DayOfYear 
+                                                                                        && s.SupplierPriceQuotation.Date.Year == date.Year
+                                                                                        && s.MaterialId == materialId 
+                                                                                        && s.MOQ == record.MOQ)).Count > 0)
+                        {
+                            error.Append($"{errorRecordCount + 1}.(Warning) There exists material price quotation of supplier {supplierName} at {date.Date} with the same MOQ.\n");
+                            errorRecordCount++;
+                        }
                     }
+                   
                         if (errorRecordCount != 0)
                         {
                             data.Errors[i - 2] = error.ToString();
