@@ -7,6 +7,7 @@ using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.API.Controllers
 {
@@ -115,9 +116,9 @@ namespace HCQS.BackEnd.API.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpGet("get-max-config")]
-        public async Task<AppActionResult> GetMaxConfig()
+        public async Task<AppActionResult> GetMaxConfig(ProjectConstructionType ConstructionType)
         {
-            return await _constructionConfigValueService.GetMaxConfig();
+            return await _constructionConfigValueService.GetMaxConfig(ConstructionType);
         }
     }
 }

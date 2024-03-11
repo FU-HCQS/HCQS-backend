@@ -8,6 +8,7 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using System.Text;
 using System.Transactions;
+using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Service.Implementations
 {
@@ -252,12 +253,12 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
-        public async Task<AppActionResult> GetMaxConfig()
+        public async Task<AppActionResult> GetMaxConfig(ProjectConstructionType ConstructionType)
         {
             AppActionResult result = new AppActionResult();
             try
             {
-                var configDb = await _constructionConfigValueRepository.GetAllDataByExpression(null);
+                var configDb = await _constructionConfigValueRepository.GetAllDataByExpression(c => c.ConstructionType == ConstructionType);
                 if (configDb == null)
                 {
                     return BuildAppActionResultError(result, "There does not exist a config with same parameter!");

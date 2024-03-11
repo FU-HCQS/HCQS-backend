@@ -1,5 +1,6 @@
 ﻿using HCQS.BackEnd.Common.Dto;
 using HCQS.BackEnd.Common.Dto.Request;
+using static HCQS.BackEnd.DAL.Models.Project;
 
 namespace HCQS.BackEnd.Service.Contracts
 {
@@ -17,7 +18,7 @@ namespace HCQS.BackEnd.Service.Contracts
 
         Task<AppActionResult> GetConstructionConfig(SearchConstructionConfigRequest request);
 
-        Task<AppActionResult> GetMaxConfig();
+        Task<AppActionResult> GetMaxConfig(ProjectConstructionType ConstructionType);
 
         Task<AppActionResult> SearchConstructionConfig(FilterConstructionConfigRequest request);
 
