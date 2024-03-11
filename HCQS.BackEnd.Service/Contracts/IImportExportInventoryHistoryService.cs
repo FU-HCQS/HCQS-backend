@@ -13,6 +13,7 @@ namespace HCQS.BackEnd.Service.Contracts
         public Task<AppActionResult> GetAllImport(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 
         public Task<AppActionResult> GetAllExport(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
+        public Task<AppActionResult> GetAllExportByQuotationDetailId(Guid Id);
 
         public Task<AppActionResult> ImportMaterial(List<ImportExportInventoryRequest> ImportExportInventoryRequests);
 
