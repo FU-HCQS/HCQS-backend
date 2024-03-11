@@ -209,7 +209,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierPriceDetailDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(ie => ie.SupplierPriceDetailId.HasValue && !ie.ProgressConstructionMaterialId.HasValue, null);
+                    var supplierPriceDetailDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(ie => ie.SupplierPriceDetailId.HasValue && !ie.ProgressConstructionMaterialId.HasValue, ie => ie.SupplierPriceDetail.Material, ie => ie.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                     if (supplierPriceDetailDb.Any())
                     {
                         if (pageIndex <= 0) pageIndex = 1;
