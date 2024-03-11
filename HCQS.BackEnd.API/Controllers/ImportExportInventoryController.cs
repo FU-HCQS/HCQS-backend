@@ -26,22 +26,32 @@ namespace HCQS.BackEnd.API.Controllers
             _importExportInventoryHistoryService = importExportInventoryHistoryService;
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all")]
         public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _importExportInventoryHistoryService.GetAll(pageIndex, pageSize, sortInfos);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all-import")]
         public async Task<AppActionResult> GetAllImport(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _importExportInventoryHistoryService.GetAllImport(pageIndex, pageSize, sortInfos);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-all-export")]
         public async Task<AppActionResult> GetAllExport(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _importExportInventoryHistoryService.GetAllExport(pageIndex, pageSize, sortInfos);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpGet("get-all-export-by-quotation-detail-id")]
+        public async Task<AppActionResult> GetAllExport(Guid Id)
+        {
+            return await _importExportInventoryHistoryService.GetAllExportByQuotationDetailId(Id);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]

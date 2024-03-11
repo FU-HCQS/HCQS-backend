@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Transactions;
 
@@ -853,6 +854,37 @@ namespace HCQS.BackEnd.Service.Implementations
             {
                 _logger.LogError(ex.Message, this);
                 data.IsValidated = false;
+            }
+            return result;
+        }
+
+        public async Task<AppActionResult> GetAllExportByQuotationDetailId(Guid Id)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var progressMaterialRepository = Resolve<IProgressConstructionMaterialRepository>();
+                var progressDb = await progressMaterialRepository.GetAllDataByExpression(p => p.QuotationDetailId == Id);
+                var progressIds = progressDb.Select(p => p.Id).ToList();
+
+                var inventoryDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(i => i.ProgressConstructionMaterialId != null && progressIds.Contains((Guid)i.ProgressConstructionMaterialId), p => p.ProgressConstructionMaterial.ExportPriceMaterial);
+                List<ExportInventoryResponse> data = new List<ExportInventoryResponse>();
+                foreach(var item in inventoryDb)
+                {
+                    data.Add(new ExportInventoryResponse
+                    {
+                        Quantity = item.Quantity,
+                        Price = item.ProgressConstructionMaterial.ExportPriceMaterial.Price,
+                        Total = item.Quantity * item.ProgressConstructionMaterial.ExportPriceMaterial.Price,
+                        Date = item.Date
+                    });
+                }
+                result.Result.Data = data.OrderByDescending(e => e.Date);
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
             }
             return result;
         }
