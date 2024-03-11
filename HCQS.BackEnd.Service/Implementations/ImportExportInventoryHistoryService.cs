@@ -209,7 +209,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierPriceDetailDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(ie => ie.SupplierPriceDetailId.HasValue && !ie.ProgressConstructionMaterialId.HasValue, null);
+                    var supplierPriceDetailDb = await _importExportInventoryHistoryRepository.GetAllDataByExpression(ie => ie.SupplierPriceDetailId.HasValue && !ie.ProgressConstructionMaterialId.HasValue, ie => ie.SupplierPriceDetail.Material, ie => ie.SupplierPriceDetail.SupplierPriceQuotation.Supplier);
                     if (supplierPriceDetailDb.Any())
                     {
                         if (pageIndex <= 0) pageIndex = 1;
@@ -559,9 +559,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 IActionResult result = null;
                 try
                 {
-                    List<ImportInventoryRecord> sampleData = new List<ImportInventoryRecord>();
-                    sampleData.Add(new ImportInventoryRecord { MaterialName = "Brick", SupplierName = "inventory history name", Quantity = 999 });
-                    result = _fileService.GenerateExcelContent<ImportInventoryRecord>(sampleData, "ImportMaterialTemplate_Format_ddMMyyyy");
+                    List<ImportInventoryRecordSample> sampleData = new List<ImportInventoryRecordSample>();
+                    sampleData.Add(new ImportInventoryRecordSample { MaterialName = "Brick", SupplierName = "SuplierABC", Quantity = 999 });
+                    result = _fileService.GenerateExcelContent<ImportInventoryRecordSample>(sampleData, "ImportMaterialTemplate_Format_ddMMyyyy");
 
                     if (result != null)
                     {

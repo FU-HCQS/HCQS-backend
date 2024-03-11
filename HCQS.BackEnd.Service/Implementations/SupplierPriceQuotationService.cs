@@ -314,6 +314,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                     await _supplierPriceQuotationRepository.Insert(newSupplierPriceQuotation);
                                     await _unitOfWork.SaveChangeAsync();
                                     Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
+                                    Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
                                     List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
                                     List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
                                     var materialRepository = Resolve<IMaterialRepository>();
@@ -336,9 +337,10 @@ namespace HCQS.BackEnd.Service.Implementations
                                         else
                                         {
                                             SD.EnumType.MaterialUnit.TryGetValue(record.Unit, out int materialUnit);
+                                            key = record.MaterialName + '-' + record.Unit;
                                             if (supplierType == 2 || (materialUnit < 3 && supplierType == 0) || (materialUnit == 3 && supplierType == 1))
                                             {
-                                                key = record.MaterialName + '-' + record.Unit;
+                                                
                                                 if (materials.ContainsKey(key)) materialId = materials[key];
                                                 else
                                                 {
@@ -382,6 +384,30 @@ namespace HCQS.BackEnd.Service.Implementations
                                             error.Append($"{errorRecordCount + 1}. Price must be higher than 0.\n");
                                             errorRecordCount++;
                                         }
+                                        string duplicatedKey = $"{record.MaterialName}-{record.MOQ}";
+                                        if (duplicatedQuotation.ContainsKey(duplicatedKey))
+                                        {
+                                            error.Append($"{errorRecordCount + 1}. Duplicated material name and MOQ with row {duplicatedQuotation[duplicatedKey]}.\n");
+                                            errorRecordCount++;
+                                        }
+                                        else
+                                        {
+                                            duplicatedQuotation.Add(duplicatedKey, i - 1);
+                                        }
+
+                                        if (materials.ContainsKey(key) && record.MOQ > 0)
+                                        {
+                                            if ((await supplierPriceDetailRepository.GetAllDataByExpression(s => s.SupplierPriceQuotation.SupplierId == supplier.Id
+                                                                                                            && s.SupplierPriceQuotation.Date.DayOfYear == date.DayOfYear
+                                                                                                            && s.SupplierPriceQuotation.Date.Year == date.Year
+                                                                                                            && s.MaterialId == materialId
+                                                                                                            && s.MOQ == record.MOQ)).Count > 0)
+                                            {
+                                                error.Append($"{errorRecordCount + 1}.(Warning) There exists material price quotation of supplier {supplierName} at {date.Date} with the same MOQ.\n");
+                                                errorRecordCount++;
+                                            }
+                                        }
+
                                         if (errorRecordCount == 0)
                                         {
                                             var newPriceDetail = new SupplierPriceDetail()
@@ -588,10 +614,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 IActionResult result = null;
                 try
                 {
-                    List<SupplierMaterialQuotationRecord> sampleData = new List<SupplierMaterialQuotationRecord>();
-                    sampleData.Add(new SupplierMaterialQuotationRecord
-                    { MaterialName = "Brick", Unit = "Bar", MOQ = 1000, Price = 9 });
-                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecord>(sampleData, "SupplierPriceQuotationTemplate_Format_SupplierName_ddMMyyyy");
+                    List<SupplierMaterialQuotationRecordSample> sampleData = new List<SupplierMaterialQuotationRecordSample>();
+                    sampleData.Add(new SupplierMaterialQuotationRecordSample
+                    {MaterialName = "Brick", Unit = "Bar", MOQ = 1000, Price = 9 });
+                    result = _fileService.GenerateExcelContent<SupplierMaterialQuotationRecordSample>(sampleData, "SupplierPriceQuotationTemplate_Format_SupplierName_ddMMyyyy");
                     if (result != null)
                     {
                         scope.Complete();
