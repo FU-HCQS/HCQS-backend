@@ -48,7 +48,7 @@ namespace HCQS.BackEnd.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
-        [HttpGet("get-all-export-by-quotation-detail-id")]
+        [HttpGet("get-all-export-by-quotation-detail-id/{Id}")]
         public async Task<AppActionResult> GetAllExport(Guid Id)
         {
             return await _importExportInventoryHistoryService.GetAllExportByQuotationDetailId(Id);
