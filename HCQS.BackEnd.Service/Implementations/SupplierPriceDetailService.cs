@@ -245,7 +245,9 @@ namespace HCQS.BackEnd.Service.Implementations
                 if (!BuildAppActionResultIsError(result))
                 {
                     var supplierPriceQuotation = Resolve<ISupplierPriceQuotationRepository>();
-                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id, s => s.Supplier);
+                    var utility = Resolve<Utility>();
+                    DateTime currentTime = utility.GetCurrentDateTimeInTimeZone();
+                    var supplierPriceQuotationList = await supplierPriceQuotation.GetAllDataByExpression(s => s.SupplierId == supplierDb.Id && s.Date <= currentTime, s => s.Supplier);
                     var supplierPriceQuotationIds = supplierPriceQuotationList.Select(s => s.Id).ToList();
                     var allSupplierPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => supplierPriceQuotationIds.Contains((Guid)s.SupplierPriceQuotationId), s => s.Material, s => s.SupplierPriceQuotation);
                     var latestSupplierPriceQuotationOfEachMaterial = allSupplierPriceDetailDb.GroupBy(s => s.MaterialId)

@@ -181,7 +181,7 @@ namespace HCQS.BackEnd.Service.Implementations
                         {
                             supplierPriceDetailDb = DataPresentationHelper.ApplyPaging(supplierPriceDetailDb, pageIndex, pageSize);
                         }
-                        result.Result.Data = supplierPriceDetailDb.OrderByDescending(i => i.Date); ;
+                        result.Result.Data = supplierPriceDetailDb.OrderByDescending(i => i.Date);
                         result.Result.TotalPage = totalPage;
                     }
                     else
@@ -255,20 +255,22 @@ namespace HCQS.BackEnd.Service.Implementations
                 try
                 {
                     var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
+                    var utility = Resolve<Utility>();
+                    DateTime currentDate = utility.GetCurrentDateTimeInTimeZone();
                     foreach (var ImportExportInventoryRequest in ImportExportInventoryRequests)
                     {
                         if (ImportExportInventoryRequest.SupplierPriceDetailId.HasValue)
                         {
                             //Check valid supplier price detail
 
-                            var supplierPriceDetailDb = await supplierPriceDetailRepository.GetByExpression(s => s.Id == ImportExportInventoryRequest.SupplierPriceDetailId, s => s.SupplierPriceQuotation);
+                            var supplierPriceDetailDb = await supplierPriceDetailRepository.GetByExpression(s => s.SupplierPriceQuotation != null && s.SupplierPriceQuotation.Date <= currentDate && s.Id == ImportExportInventoryRequest.SupplierPriceDetailId, s => s.SupplierPriceQuotation);
                             if (supplierPriceDetailDb == null || supplierPriceDetailDb.SupplierPriceQuotation == null)
                             {
-                                result = BuildAppActionResultError(result, $"The supplier price detail with id: {ImportExportInventoryRequest.SupplierPriceDetailId} does not exist!");
+                                result = BuildAppActionResultError(result, $"The supplier price detail with id: {ImportExportInventoryRequest.SupplierPriceDetailId} does not exist or has not been available!");
                             }
                             else
                             {
-                                var allMaterialSupplierPriceDetailFromSameSupplierDb = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == supplierPriceDetailDb.MaterialId && s.SupplierPriceQuotation.SupplierId == s.SupplierPriceQuotation.SupplierId, s => s.SupplierPriceQuotation);
+                                var allMaterialSupplierPriceDetailFromSameSupplierDb = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.SupplierPriceQuotation.Date <= currentDate && s.MaterialId == supplierPriceDetailDb.MaterialId && s.SupplierPriceQuotation.SupplierId == s.SupplierPriceQuotation.SupplierId, s => s.SupplierPriceQuotation);
                                 var latestSupplierPriceDetail = allMaterialSupplierPriceDetailFromSameSupplierDb.OrderByDescending(s => s.SupplierPriceQuotation.Date).FirstOrDefault();
                                 if (latestSupplierPriceDetail != null && latestSupplierPriceDetail.SupplierPriceQuotation != null && latestSupplierPriceDetail.SupplierPriceQuotation.Date == supplierPriceDetailDb.SupplierPriceQuotation.Date)
                                 {
