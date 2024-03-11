@@ -277,9 +277,9 @@ namespace HCQS.BackEnd.Service.Implementations
                                     if (ImportExportInventoryRequest.Quantity >= supplierPriceDetailDb.MOQ)
                                     {
                                         //Maybe there better price :>>
-                                        var betterPriceSupplierQuotation = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == latestSupplierPriceDetail.MaterialId && s.SupplierPriceQuotationId == latestSupplierPriceDetail.SupplierPriceQuotationId && s.MOQ < ImportExportInventoryRequest.Quantity);
+                                        var betterPriceSupplierQuotation = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == latestSupplierPriceDetail.MaterialId && s.SupplierPriceQuotationId == latestSupplierPriceDetail.SupplierPriceQuotationId && s.MOQ < ImportExportInventoryRequest.Quantity && supplierPriceDetailDb.Price > s.Price);
                                         var bestPrice = betterPriceSupplierQuotation.OrderBy(s => s.Price).FirstOrDefault();
-                                        if (bestPrice.Id != ImportExportInventoryRequest.SupplierPriceDetailId)
+                                        if (bestPrice != null && bestPrice.Id != ImportExportInventoryRequest.SupplierPriceDetailId )
                                         {
                                             result = BuildAppActionResultError(result, $"Please choose supplier price detail: {bestPrice.Id} rather than {ImportExportInventoryRequest.SupplierPriceDetailId} for better price as import quantity is higher than its MOQ!");
                                         }
