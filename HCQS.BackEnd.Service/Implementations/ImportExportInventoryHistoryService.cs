@@ -281,7 +281,7 @@ namespace HCQS.BackEnd.Service.Implementations
                                         var bestPrice = betterPriceSupplierQuotation.OrderBy(s => s.Price).FirstOrDefault();
                                         if (bestPrice != null && bestPrice.Id != ImportExportInventoryRequest.SupplierPriceDetailId )
                                         {
-                                            result = BuildAppActionResultError(result, $"Please choose supplier price detail: {bestPrice.Id} rather than {ImportExportInventoryRequest.SupplierPriceDetailId} for better price as import quantity is higher than its MOQ!");
+                                            result = BuildAppActionResultError(result, $"Please choose supplier price detail with MOQ: {bestPrice.MOQ} and Price: {bestPrice.Price} for better price as import quantity is higher than its MOQ!");
                                         }
                                         else
                                         {
