@@ -286,9 +286,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 var quotationDetailRepository = Resolve<IQuotationDetailRepository>();
                 var utility = Resolve<Utility>();
+                var emailService = Resolve<IEmailService>();
                 try
                 {
-                    var quotationDb = await _quotationRepository.GetByExpression(q => q.Id == quotationId, q => q.Project);
+                    var quotationDb = await _quotationRepository.GetByExpression(q => q.Id == quotationId, q => q.Project.Account);
                     var quotationDetails = await quotationDetailRepository.GetAllDataByExpression(filter: a => a.QuotationId == quotationId, includes: a => a.Material);
                     bool isValid = false;
                     if (quotationDb == null)
@@ -331,6 +332,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             quotationDb.Total = quotationDb.RawMaterialPrice + quotationDb.FurniturePrice + quotationDb.LaborPrice;
                             await _quotationRepository.Update(quotationDb);
                             await _unitOfWork.SaveChangeAsync();
+                             emailService.SendEmail(quotationDb.Project.Account.Email, "[LOVE HOUSE] The quote notification was successfully created".ToUpper(), TemplateMappingHelper.GetTemplateNotification(quotationDb.Project.Account.FirstName));
                         }
                         else
                         {
