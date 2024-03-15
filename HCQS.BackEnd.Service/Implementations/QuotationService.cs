@@ -265,7 +265,7 @@ namespace HCQS.BackEnd.Service.Implementations
                 var contractRepository = Resolve<IContractRepository>();
                 result.Result.Data = new QuotationResponse
                 {
-                    Quotation = await _quotationRepository.GetById(id),
+                    Quotation = await _quotationRepository.GetByExpression(q=> q.Id== id, q=> q.Project),
                     QuotationDealings = await quotationDealingRepository.GetAllDataByExpression(q => q.QuotationId == id),
                     QuotationDetails = await quotationDetailsRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.Material),
                     WorkerForProjects = await workerForProjectRepository.GetAllDataByExpression(q => q.QuotationId == id, q => q.WorkerPrice),
