@@ -193,8 +193,17 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = brickHistoryExport?.First();
-                            quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = birckCount, MaterialId = brickDb.Id, QuotationId = quotation.Id, Total = birckCount * price.Price });
+                            if (brickHistoryExport.Any())
+                            {
+                                var price = brickHistoryExport?.First();
+                                quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = birckCount, MaterialId = brickDb.Id, QuotationId = quotation.Id, Total = birckCount * price.Price });
+                            }
+                            else
+                            {
+                                result = BuildAppActionResultError(result, "The export price for brick is not existed in the system");
+
+                            }
+
                         }
                         if (sandDb == null)
                         {
@@ -202,9 +211,17 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = sandHistoryExport?.First();
-                            total = total + (buildingMaterial.SandVolume * price.Price);
-                            quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.SandVolume, MaterialId = sandDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.SandVolume * price.Price });
+                            if (sandHistoryExport.Any())
+                            {
+                                var price = sandHistoryExport?.First();
+                                total = total + (buildingMaterial.SandVolume * price.Price);
+                                quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.SandVolume, MaterialId = sandDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.SandVolume * price.Price });
+                            }
+                            else
+                            {
+                                result = BuildAppActionResultError(result, "The export price for sand is not existed in the system");
+
+                            }
                         }
 
                         if (stoneDb == null)
@@ -213,10 +230,18 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = stoneHistoryExport?.First();
-                            total = total + (buildingMaterial.StoneVolume * price.Price);
+                            if (stoneHistoryExport.Any())
+                            {
+                                var price = stoneHistoryExport?.First();
+                                total = total + (buildingMaterial.StoneVolume * price.Price);
+                                quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.StoneVolume, MaterialId = stoneDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.StoneVolume * price.Price });
+                            }
+                            else
+                            {
+                                result = BuildAppActionResultError(result, "The export price for stone is not existed in the system");
 
-                            quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.StoneVolume, MaterialId = stoneDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.StoneVolume * price.Price });
+                            }
+
                         }
                         if (cementDb == null)
                         {
@@ -224,38 +249,44 @@ namespace HCQS.BackEnd.Service.Implementations
                         }
                         else
                         {
-                            var price = cementHistoryExport?.First();
-                            total = total + (buildingMaterial.CementVolume * price.Price);
+                            if (cementHistoryExport.Any())
+                            {
+                                var price = cementHistoryExport?.First();
+                                total = total + (buildingMaterial.CementVolume * price.Price);
+                                quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.CementVolume, MaterialId = cementDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.CementVolume * price.Price });
+                            }
+                            else
+                            {
+                                result = BuildAppActionResultError(result, "The export price for cement is not existed in the system");
 
-                            quotationDetailList.Add(new QuotationDetail { Id = Guid.NewGuid(), Quantity = (int)buildingMaterial.CementVolume, MaterialId = cementDb.Id, QuotationId = quotation.Id, Total = buildingMaterial.CementVolume * price.Price });
-                        }
-                        if (!BuildAppActionResultIsError(result))
-                        {
-                            projectDb.Status = Project.ProjectStatus.Processing;
-                            projectDb.SandMixingRatio = (int)buildingInputModel.SandRatio;
-                            projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
-                            projectDb.StoneMixingRatio = (int)buildingInputModel.StoneRatio;
-                            projectDb.NumberOfLabor = totalWorker;
-                            projectDb.WallLength = buildingInputModel.WallLength;
-                            projectDb.WallHeight = buildingInputModel.WallHeight;
-                            projectDb.TiledArea = project.TiledArea;
-                            projectDb.EstimatedTimeOfCompletion = project.EstimatedTimeOfCompletion;
-                            quotation.QuotationStatus = Quotation.Status.Pending;
-                            quotation.RawMaterialDiscount = quotation.RawMaterialDiscount;
-                            quotation.LaborDiscount = quotation.LaborDiscount;
-                            quotation.FurnitureDiscount = quotation.FurnitureDiscount;
-                            result.Result.Data = await quotationRepository.Insert(quotation);
-                            await _projectRepository.Update(projectDb);
-                            await quotationDetailRepository.InsertRange(quotationDetailList);
-                            await workerForProjectRepository.InsertRange(workers);
-                            await _unitOfWork.SaveChangeAsync();
-                        }
-                        if (!BuildAppActionResultIsError(result))
-                        {
-                            scope.Complete();
+                            }
+                            if (!BuildAppActionResultIsError(result))
+                            {
+                                projectDb.Status = Project.ProjectStatus.Processing;
+                                projectDb.SandMixingRatio = (int)buildingInputModel.SandRatio;
+                                projectDb.CementMixingRatio = (int)buildingInputModel.CementRatio;
+                                projectDb.StoneMixingRatio = (int)buildingInputModel.StoneRatio;
+                                projectDb.NumberOfLabor = totalWorker;
+                                projectDb.WallLength = buildingInputModel.WallLength;
+                                projectDb.WallHeight = buildingInputModel.WallHeight;
+                                projectDb.TiledArea = project.TiledArea;
+                                projectDb.EstimatedTimeOfCompletion = project.EstimatedTimeOfCompletion;
+                                quotation.QuotationStatus = Quotation.Status.Pending;
+                                quotation.RawMaterialDiscount = quotation.RawMaterialDiscount;
+                                quotation.LaborDiscount = quotation.LaborDiscount;
+                                quotation.FurnitureDiscount = quotation.FurnitureDiscount;
+                                result.Result.Data = await quotationRepository.Insert(quotation);
+                                await _projectRepository.Update(projectDb);
+                                await quotationDetailRepository.InsertRange(quotationDetailList);
+                                await workerForProjectRepository.InsertRange(workers);
+                                await _unitOfWork.SaveChangeAsync();
+                            }
+                            if (!BuildAppActionResultIsError(result))
+                            {
+                                scope.Complete();
+                            }
                         }
                     }
-                }
                 catch (Exception ex)
                 {
                     result = BuildAppActionResultError(result, ex.Message);
