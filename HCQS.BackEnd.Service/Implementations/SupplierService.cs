@@ -82,6 +82,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     else
                     {
                         supplierDb.IsDeleted = true;
+                        await _supplierRepository.Update(supplierDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
 
@@ -385,6 +386,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     {
                         var supplier = _mapper.Map<Supplier>(supplierRequest);
                         supplierDb.SupplierName = supplier.SupplierName;
+                        supplierDb.Type = supplier.Type;
                         result.Result.Data = await _supplierRepository.Update(supplierDb);
                         await _unitOfWork.SaveChangeAsync();
                     }
