@@ -188,7 +188,7 @@ namespace HCQS.BackEnd.Service.Implementations
                     pay.AddRequestData("vnp_Version", _vnPayConfiguration.Version);
                     pay.AddRequestData("vnp_Command", _vnPayConfiguration.Command);
                     pay.AddRequestData("vnp_TmnCode", _vnPayConfiguration.TmnCode);
-                    pay.AddRequestData("vnp_Amount", (Math.Ceiling(paymentDb.Price * 100)).ToString());
+                    pay.AddRequestData("vnp_Amount", (Math.Ceiling(paymentDb.Price)).ToString());
                     pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
 
                     pay.AddRequestData("vnp_CurrCode", _vnPayConfiguration.CurrCode);
