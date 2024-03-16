@@ -287,6 +287,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             }
                         }
                     }
+                }
                 catch (Exception ex)
                 {
                     result = BuildAppActionResultError(result, ex.Message);
