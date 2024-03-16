@@ -208,6 +208,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 _logger.LogError($"Incompatible header to supplier template", this);
                                 message = $"Incompatible header to supplier template";
+                            } else if(rowCount < 2)
+                            {
+                                _logger.LogError($"Empty record list!", this);
+                                message = $"Empty record list!";
                             }
                             else
                             {
