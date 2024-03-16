@@ -47,7 +47,7 @@ namespace HCQS.BackEnd.API.Controllers
             return await _importExportInventoryHistoryService.GetAllExport(pageIndex, pageSize, sortInfos);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.ALL)]
         [HttpGet("get-all-export-by-quotation-detail-id/{Id}")]
         public async Task<AppActionResult> GetAllExport(Guid Id)
         {
