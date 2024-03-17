@@ -277,11 +277,14 @@ namespace HCQS.BackEnd.Service.Implementations
                                     if (ImportExportInventoryRequest.Quantity >= supplierPriceDetailDb.MOQ)
                                     {
                                         //Maybe there better price :>>
-                                        var betterPriceSupplierQuotation = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == latestSupplierPriceDetail.MaterialId && s.SupplierPriceQuotationId == latestSupplierPriceDetail.SupplierPriceQuotationId && s.MOQ < ImportExportInventoryRequest.Quantity && supplierPriceDetailDb.Price > s.Price);
-                                        var bestPrice = betterPriceSupplierQuotation.OrderBy(s => s.Price).FirstOrDefault();
+                                        var betterPriceSupplierQuotation = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.MaterialId == latestSupplierPriceDetail.MaterialId && s.SupplierPriceQuotationId == latestSupplierPriceDetail.SupplierPriceQuotationId && s.MOQ <= ImportExportInventoryRequest.Quantity);
+                                        var bestPrice = betterPriceSupplierQuotation.OrderByDescending(s => s.MOQ).FirstOrDefault();
                                         if (bestPrice != null && bestPrice.Id != ImportExportInventoryRequest.SupplierPriceDetailId )
                                         {
-                                            result = BuildAppActionResultError(result, $"Please choose supplier price detail with MOQ: {bestPrice.MOQ} and Price: {bestPrice.Price} for better price as import quantity is higher than its MOQ!");
+                                            if(bestPrice.Price <= supplierPriceDetailDb.Price)
+                                                result = BuildAppActionResultError(result, $"Please choose supplier price detail with MOQ: {bestPrice.MOQ} and Price: {bestPrice.Price} as import quantity is higher than its MOQ!");
+                                            else
+                                                result = BuildAppActionResultError(result, $"Please choose supplier price detail with MOQ: {bestPrice.MOQ} and Price: {bestPrice.Price} as import quantity is higher than its MOQ! You may consider changing quantity due to price inefficiency.");
                                         }
                                         else
                                         {

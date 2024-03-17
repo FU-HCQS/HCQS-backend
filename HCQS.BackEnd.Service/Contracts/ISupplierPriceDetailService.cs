@@ -6,6 +6,7 @@ namespace HCQS.BackEnd.Service.Contracts
     public interface ISupplierPriceDetailService
     {
         public Task<AppActionResult> GetQuotationPriceById(Guid Id);
+        public Task<AppActionResult> GetQuotationPriceByQuotataionPriceId(Guid Id);
 
         public Task<AppActionResult> GetQuotationPricesByMaterialId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 

@@ -313,6 +313,32 @@ namespace HCQS.BackEnd.Service.Implementations
             return result;
         }
 
+        public async Task<AppActionResult> GetQuotationPriceByQuotataionPriceId(Guid Id)
+        {
+            AppActionResult result = new AppActionResult();
+            try
+            {
+                var supplierPriceQuotationRepository = Resolve<ISupplierPriceQuotationRepository>();
+                var supplierPriceQuotationDb = await supplierPriceQuotationRepository.GetById(Id);
+                if (supplierPriceQuotationDb == null)
+                {
+                    result = BuildAppActionResultError(result, $"Material quotation does not exist");
+                }
+
+                if (!BuildAppActionResultIsError(result))
+                {
+                    var quotationPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.SupplierPriceQuotationId == Id);
+                    result.Result.Data = quotationPriceDetailDb;
+                }
+            }
+            catch (Exception ex)
+            {
+                result = BuildAppActionResultError(result, ex.Message);
+                _logger.LogError(ex.Message, this);
+            }
+            return result;
+        }
+
         public async Task<AppActionResult> GetQuotationPricesByMaterialId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             AppActionResult result = new AppActionResult();

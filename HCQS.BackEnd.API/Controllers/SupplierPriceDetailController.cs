@@ -19,6 +19,13 @@ namespace HCQS.BackEnd.API.Controllers
             _supplierPriceDetailService = supplierPriceDetailService;
         }
 
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
+        [HttpPost("get-quotation-price-by-supplier-quotation-id/{Id}")]
+        public async Task<AppActionResult> GetQuotationPriceByQuotataionPriceId(Guid Id)
+        {
+            return await _supplierPriceDetailService.GetQuotationPriceByQuotataionPriceId(Id);
+        }
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Permission.STAFF)]
         [HttpPost("get-quotation-price-by-material-id/{Id}")]
         public async Task<AppActionResult> GetQuotationPriceByMaterialId(Guid Id, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
