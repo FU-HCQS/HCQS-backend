@@ -308,6 +308,10 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
                                 List<ExportPriceMaterialRecord> records = await GetListFromExcel(file);
+                                if(records.Count > 0)
+                                {
+                                    return new ObjectResult("Empty record list!") { StatusCode = 200 };
+                                }
                                 List<ExportPriceMaterial> exportPriceMaterials = new List<ExportPriceMaterial>();
                                 var materialRepository = Resolve<IMaterialRepository>();
                                 Dictionary<int, string> invalidRowInput = new Dictionary<int, string>();
@@ -320,7 +324,10 @@ namespace HCQS.BackEnd.Service.Implementations
                                     StringBuilder error = new StringBuilder();
                                     if (!string.IsNullOrEmpty(record.MaterialName))
                                     {
-                                        if (materials.ContainsKey(record.MaterialName)) materialId = materials[record.MaterialName];
+                                        if (materials.ContainsKey(record.MaterialName)){
+                                            error.Append($"{errorRecordCount + 1}. Dupplicated sell price input for {record.MaterialName}.\n");
+                                            errorRecordCount++;
+                                        }
                                         else
                                         {
                                             var material = await materialRepository.GetByExpression(m => m.Name.Equals(record.MaterialName));

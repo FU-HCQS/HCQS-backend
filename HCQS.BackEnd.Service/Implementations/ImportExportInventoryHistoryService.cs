@@ -385,6 +385,10 @@ namespace HCQS.BackEnd.Service.Implementations
                                 Dictionary<Guid, int> materialImport = new Dictionary<Guid, int>();
                                 Dictionary<string, Guid> suppliers = new Dictionary<string, Guid>();
                                 List<ImportInventoryRecord> records = await GetImportListFromExcel(file);
+                                if(records.Count == 0)
+                                {
+                                    return new ObjectResult("Empty record list!") { StatusCode = 200 };
+                                }
                                 List<ImportExportInventoryHistory> importInventoryList = new List<ImportExportInventoryHistory>();
                                 var materialRepository = Resolve<IMaterialRepository>();
                                 var supplierRepository = Resolve<ISupplierRepository>();
@@ -746,6 +750,13 @@ namespace HCQS.BackEnd.Service.Implementations
                 Dictionary<string, int> duplicated = new Dictionary<string, int>();
                 Dictionary<string, Guid> suppliers = new Dictionary<string, Guid>();
                 List<ImportInventoryRecord> records = await GetImportListFromExcel(file);
+                if (records.Count == 0)
+                {
+                    data.IsValidated = false;
+                    data.HeaderError = $"Empty record list!";
+                    result.Result.Data = data;
+                    return result;
+                }
                 var materialRepository = Resolve<IMaterialRepository>();
                 var supplierRepository = Resolve<ISupplierRepository>();
                 int invalidRowInput = 0;

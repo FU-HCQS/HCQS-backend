@@ -11,8 +11,10 @@ using HCQS.BackEnd.DAL.Models;
 using HCQS.BackEnd.Service.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.POIFS.Crypt.Dsig;
 using OfficeOpenXml;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Transactions;
 
@@ -104,18 +106,36 @@ namespace HCQS.BackEnd.Service.Implementations
                 AppActionResult result = new AppActionResult();
                 try
                 {
-                    var supplierPriceQuotation = _supplierPriceQuotationRepository.GetById(id);
+                    var supplierPriceQuotation = await _supplierPriceQuotationRepository.GetById(id);
                     if (supplierPriceQuotation != null)
                     {
                         var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                         var supplierPriceDetails = await supplierPriceDetailRepository.GetAllDataByExpression(s => s.SupplierPriceQuotationId == id);
-
-                        if (supplierPriceDetails != null)
+                        
+                        if (supplierPriceDetails.Count > 0)
                         {
-                            await supplierPriceDetailRepository.DeleteRange(supplierPriceDetails);
+                            var supplierPriceDetailIds = supplierPriceDetails.Select(s => s.Id).ToList();
+                            var importExportInventoryHistoryRepository = Resolve<IImportExportInventoryHistoryRepository>();
+
+                            var inventoryRecords = await importExportInventoryHistoryRepository.GetAllDataByExpression(i => i.SupplierPriceDetailId != null && supplierPriceDetailIds.Contains((Guid)i.SupplierPriceDetailId));
+                            if(inventoryRecords.Count == 0)
+                            {
+                                await supplierPriceDetailRepository.DeleteRange(supplierPriceDetails);
+                                await _unitOfWork.SaveChangeAsync();
+                                await _supplierPriceQuotationRepository.DeleteById(id);
+                                await _unitOfWork.SaveChangeAsync();
+                            }
+                            else
+                            {
+                                result = BuildAppActionResultError(result, $"Unable to delete this quotation as there are materials imported with some of its price details!");
+                            }
+
                         }
-                        await _supplierPriceQuotationRepository.DeleteById(id);
-                        await _unitOfWork.SaveChangeAsync();
+                        else
+                        {
+                            result = BuildAppActionResultError(result, $"There is no price detail in this quotation!");
+                        }
+                        
                     }
                     else
                     {
@@ -311,11 +331,16 @@ namespace HCQS.BackEnd.Service.Implementations
                                         Date = date,
                                         SupplierId = supplier.Id
                                     };
-                                    await _supplierPriceQuotationRepository.Insert(newSupplierPriceQuotation);
-                                    await _unitOfWork.SaveChangeAsync();
+                                    
                                     Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
                                     Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
                                     List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
+                                    if (records.Count == 0)
+                                    {
+                                        return new ObjectResult("Empty record list!") { StatusCode = 200 };
+                                    }
+                                    await _supplierPriceQuotationRepository.Insert(newSupplierPriceQuotation);
+                                    await _unitOfWork.SaveChangeAsync();
                                     List<SupplierPriceDetail> supplierPriceDetails = new List<SupplierPriceDetail>();
                                     var materialRepository = Resolve<IMaterialRepository>();
                                     var supplierPriceDetailRepository = Resolve<ISupplierPriceDetailRepository>();
@@ -695,7 +720,14 @@ namespace HCQS.BackEnd.Service.Implementations
                     Dictionary<string, Guid> materials = new Dictionary<string, Guid>();
                     Dictionary<string, int> duplicatedQuotation = new Dictionary<string, int>();
                     List<SupplierMaterialQuotationRecord> records = await GetListFromExcel(file);
-                    var materialRepository = Resolve<IMaterialRepository>();
+                    if (records.Count == 0)
+                    {
+                        data.IsValidated = false;
+                        data.HeaderError = $"Empty Record List";
+                        result.Result.Data = data;
+                        return result;
+                    }
+                var materialRepository = Resolve<IMaterialRepository>();
                     var supplierPriceQuotationDetailRepository = Resolve<ISupplierPriceDetailRepository>();
                     int errorRecordCount = 0;
                     SD.EnumType.SupplierType.TryGetValue(supplier.Type.ToString(), out int supplierType);
