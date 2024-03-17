@@ -327,7 +327,7 @@ namespace HCQS.BackEnd.Service.Implementations
 
                 if (!BuildAppActionResultIsError(result))
                 {
-                    var quotationPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.SupplierPriceQuotationId == Id);
+                    var quotationPriceDetailDb = await _supplierPriceDetailrepository.GetAllDataByExpression(s => s.SupplierPriceQuotationId == Id, s => s.Material);
                     result.Result.Data = quotationPriceDetailDb;
                 }
             }
