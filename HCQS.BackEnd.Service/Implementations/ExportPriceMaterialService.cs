@@ -308,7 +308,7 @@ namespace HCQS.BackEnd.Service.Implementations
                             {
                                 Dictionary<String, Guid> materials = new Dictionary<String, Guid>();
                                 List<ExportPriceMaterialRecord> records = await GetListFromExcel(file);
-                                if(records.Count > 0)
+                                if(records.Count == 0)
                                 {
                                     return new ObjectResult("Empty record list!") { StatusCode = 200 };
                                 }
