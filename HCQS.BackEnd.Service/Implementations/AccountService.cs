@@ -79,6 +79,10 @@ namespace HCQS.BackEnd.Service.Implementations
                 result = BuildAppActionResultError(result, ex.Message);
                 _logger.LogError(ex.Message, this);
             }
+            finally
+            {
+                _unitOfWork.Dispose();
+            }
 
             return result;
         }

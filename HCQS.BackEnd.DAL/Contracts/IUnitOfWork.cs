@@ -3,5 +3,7 @@
     public interface IUnitOfWork
     {
         Task SaveChangeAsync();
+         void Dispose();
+
     }
 }
